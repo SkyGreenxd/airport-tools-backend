@@ -16,13 +16,13 @@ type Transaction struct {
 	Type             TypeTransaction   // тип транзакции
 	IssuedAt         time.Time         // дата выдачи
 	ExpectedReturnAt time.Time         // ожидаемая дата возврата
-	ReturnedAt       time.Time         // фактическая дата возврата
+	ReturnedAt       *time.Time        // фактическая дата возврата, может быть nil
 	Tools            []TransactionTool // вложенный список инструментов
 }
 
 // TODO: если по БЛ известно, когда возвращают инструменты
 // то логичнее заполнять автоматически через код/бд
-func NewTransaction(userId int64, typeTransaction TypeTransaction, ExpectedReturnAt, ReturnedAt time.Time) *Transaction {
+func NewTransaction(userId int64, typeTransaction TypeTransaction, ExpectedReturnAt time.Time) *Transaction {
 	return &Transaction{
 		UserId:           userId,
 		Type:             typeTransaction,
