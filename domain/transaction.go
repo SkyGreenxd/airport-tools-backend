@@ -27,7 +27,7 @@ func NewTransaction(userId int64, typeTransaction TypeTransaction, ExpectedRetur
 		UserId:           userId,
 		Type:             typeTransaction,
 		ExpectedReturnAt: ExpectedReturnAt,
-		ReturnedAt:       ReturnedAt,
+		ReturnedAt:       nil,
 	}
 }
 
@@ -39,4 +39,9 @@ func (t *Transaction) AddTool(toolId int64, qty int) {
 	}
 
 	t.Tools = append(t.Tools, tool)
+}
+
+// MarkReturned устанавливает время возврата инструмента
+func (t *Transaction) MarkReturned(returnTime time.Time) {
+	t.ReturnedAt = &returnTime
 }
