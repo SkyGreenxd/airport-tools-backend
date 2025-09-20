@@ -1,69 +1,72 @@
 package repository
 
-import "context"
+import (
+	"airport-tools-backend/internal/domain"
+	"context"
+)
 
-type Station interface {
-	Create(ctx context.Context, station *Station) (*Station, error)
-	GetById(ctx context.Context, id int64) (*Station, error)
-	GetAll(ctx context.Context) ([]*Station, error)
+type StationRepository interface {
+	Create(ctx context.Context, station *domain.Station) (*domain.Station, error)
+	GetById(ctx context.Context, id int64) (*domain.Station, error)
+	GetAll(ctx context.Context) ([]*domain.Station, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, station *Station) (*Station, error)
+	Update(ctx context.Context, station *domain.Station) (*domain.Station, error)
 }
 
-type Store interface {
-	Create(ctx context.Context, station *Store) (*Store, error)
-	GetById(ctx context.Context, id int64) (*Store, error)
-	GetAll(ctx context.Context) ([]*Store, error)
+type StoreRepository interface {
+	Create(ctx context.Context, station *domain.Store) (*domain.Store, error)
+	GetById(ctx context.Context, id int64) (*domain.Store, error)
+	GetAll(ctx context.Context) ([]*domain.Store, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, station *Store) (*Store, error)
+	Update(ctx context.Context, station *domain.Store) (*domain.Store, error)
 }
 
-type Location interface {
-	Create(ctx context.Context, location *Location) (*Location, error)
-	GetById(ctx context.Context, id int64) (*Location, error)
-	GetAll(ctx context.Context) ([]*Location, error)
+type LocationRepository interface {
+	Create(ctx context.Context, location *domain.Location) (*domain.Location, error)
+	GetById(ctx context.Context, id int64) (*domain.Location, error)
+	GetAll(ctx context.Context) ([]*domain.Location, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, location *Location) (*Location, error)
+	Update(ctx context.Context, location *domain.Location) (*domain.Location, error)
 }
 
-type Tool interface {
-	Create(ctx context.Context, tool *Tool) (*Tool, error)
-	GetById(ctx context.Context, id int64) (*Tool, error)
-	GetAll(ctx context.Context) ([]*Tool, error)
+type ToolRepository interface {
+	Create(ctx context.Context, tool *domain.Tool) (*domain.Tool, error)
+	GetById(ctx context.Context, id int64) (*domain.Tool, error)
+	GetAll(ctx context.Context) ([]*domain.Tool, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, tool *Tool) (*Tool, error)
+	Update(ctx context.Context, tool *domain.Tool) (*domain.Tool, error)
 }
 
-type ToolType interface {
-	Create(ctx context.Context, toolType *ToolType) (*ToolType, error)
-	GetById(ctx context.Context, id int64) (*ToolType, error)
-	GetAll(ctx context.Context) ([]*ToolType, error)
+type ToolTypeRepository interface {
+	Create(ctx context.Context, toolType *domain.ToolType) (*domain.ToolType, error)
+	GetById(ctx context.Context, id int64) (*domain.ToolType, error)
+	GetAll(ctx context.Context) ([]*domain.ToolType, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, toolType *ToolType) (*ToolType, error)
+	Update(ctx context.Context, toolType *domain.ToolType) (*domain.ToolType, error)
 }
 
-type Transaction interface {
-	Create(ctx context.Context, station *Transaction) (*Transaction, error)
-	GetById(ctx context.Context, id int64) (*Transaction, error)
-	GetAll(ctx context.Context) ([]*Transaction, error)
+type TransactionRepository interface {
+	Create(ctx context.Context, station *domain.Transaction) (*domain.Transaction, error)
+	GetById(ctx context.Context, id int64) (*domain.Transaction, error)
+	GetAll(ctx context.Context) ([]*domain.Transaction, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, station *Transaction) (*Transaction, error)
+	Update(ctx context.Context, station *domain.Transaction) (*domain.Transaction, error)
 }
 
-type TransactionTool interface {
-	Create(ctx context.Context, station *TransactionTool) (*TransactionTool, error)
-	GetById(ctx context.Context, id int64) (*TransactionTool, error)
-	GetByTransactionId(ctx context.Context, transactionId int64) ([]*TransactionTool, error)
-	Update(ctx context.Context, station *TransactionTool) (*TransactionTool, error)
+type TransactionToolRepository interface {
+	Create(ctx context.Context, station *domain.TransactionTool) (*domain.TransactionTool, error)
+	GetById(ctx context.Context, id int64) (*domain.TransactionTool, error)
+	GetByTransactionId(ctx context.Context, transactionId int64) ([]*domain.TransactionTool, error)
+	Update(ctx context.Context, station *domain.TransactionTool) (*domain.TransactionTool, error)
 	Delete(ctx context.Context, id int64) error
-	GetAll(ctx context.Context) ([]*TransactionTool, error)
-	GetUnreturnedByTransactionID(ctx context.Context, transactionId int64) ([]*TransactionTool, error)
+	GetAll(ctx context.Context) ([]*domain.TransactionTool, error)
+	GetUnreturnedByTransactionID(ctx context.Context, transactionId int64) ([]*domain.TransactionTool, error)
 }
 
-type User interface {
-	Create(ctx context.Context, user *User) (*User, error)
-	GetById(ctx context.Context, id int64) (*User, error)
-	GetAll(ctx context.Context) ([]*User, error)
+type UserRepository interface {
+	Create(ctx context.Context, user *domain.User) (*domain.User, error)
+	GetById(ctx context.Context, id int64) (*domain.User, error)
+	GetAll(ctx context.Context) ([]*domain.User, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, user *User) (*User, error)
+	Update(ctx context.Context, user *domain.User) (*domain.User, error)
 }
