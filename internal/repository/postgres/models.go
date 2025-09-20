@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"airport-tools-backend/domain"
+	"airport-tools-backend/internal/domain"
 	"time"
 )
 
