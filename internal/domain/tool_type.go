@@ -5,16 +5,14 @@ package domain
 type ToolType struct {
 	Id          int64
 	PartNumber  string // партийный номер
-	Name        string // имя
 	Description string // описание
 	Co          string // состав/группа сплавов
 	MC          string // код марки/сплава
 }
 
-func NewToolType(partNumber, name, description, co, mc string) *ToolType {
+func NewToolType(partNumber, description, co, mc string) *ToolType {
 	return &ToolType{
 		PartNumber:  partNumber,
-		Name:        name,
 		Description: description,
 		Co:          co,
 		MC:          mc,
