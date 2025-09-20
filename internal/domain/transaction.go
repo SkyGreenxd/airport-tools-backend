@@ -5,19 +5,19 @@ import "time"
 type TypeTransaction string
 
 const (
-	Issuance TypeTransaction = "Issuance"
-	Return   TypeTransaction = "Return"
+	Issuance TypeTransaction = "Issuance" // выдача
+	Return   TypeTransaction = "Return"   // возврат
 )
 
 // Transaction представляет запись о выдаче или возврате инструментов
 type Transaction struct {
 	Id               int64
-	UserId           int64             // Received в UI, у кого инструмент
-	Type             TypeTransaction   // тип транзакции
-	IssuedAt         time.Time         // дата выдачи
-	ExpectedReturnAt time.Time         // ожидаемая дата возврата
-	ReturnedAt       *time.Time        // фактическая дата возврата, может быть nil
-	Tools            []TransactionTool // вложенный список инструментов
+	UserId           int64              // Received в UI, у кого инструмент
+	Type             TypeTransaction    // тип транзакции
+	IssuedAt         time.Time          // дата выдачи
+	ExpectedReturnAt time.Time          // ожидаемая дата возврата
+	ReturnedAt       *time.Time         // фактическая дата возврата, может быть nil
+	Tools            []*TransactionTool // вложенный список инструментов
 }
 
 // TODO: если по БЛ известно, когда возвращают инструменты
@@ -32,11 +32,7 @@ func NewTransaction(userId int64, typeTransaction TypeTransaction, ExpectedRetur
 }
 
 func (t *Transaction) AddTool(toolId int64, qty int) {
-	tool := TransactionTool{
-		TransactionID: t.Id,
-		ToolID:        toolId,
-		Qty:           qty,
-	}
+	tool := NewTransactionTool(t.Id, toolId)
 
 	t.Tools = append(t.Tools, tool)
 }
