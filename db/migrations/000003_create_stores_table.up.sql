@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS stores (
     id BIGSERIAL PRIMARY KEY,
-    station_id BIGINT NOT NULL REFERENCES stations(id),
-    name VARCHAR(32) NOT NULL
+    station_id BIGINT NOT NULL REFERENCES stations(id) ON DELETE CASCADE,
+    name VARCHAR(32) NOT NULL UNIQUE
 );
