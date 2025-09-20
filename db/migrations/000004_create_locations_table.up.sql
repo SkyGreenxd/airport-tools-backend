@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS locations (
+    id BIGSERIAL PRIMARY KEY,
+    store_id BIGINT NOT NULL REFERENCES stores(id),
+    name VARCHAR(32) NOT NULL
+);
