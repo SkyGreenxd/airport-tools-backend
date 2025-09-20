@@ -14,11 +14,11 @@ type StationRepository interface {
 }
 
 type StoreRepository interface {
-	Create(ctx context.Context, station *domain.Store) (*domain.Store, error)
+	Create(ctx context.Context, store *domain.Store) (*domain.Store, error)
 	GetById(ctx context.Context, id int64) (*domain.Store, error)
 	GetAll(ctx context.Context) ([]*domain.Store, error)
 	Delete(ctx context.Context, id int64) error
-	Update(ctx context.Context, station *domain.Store) (*domain.Store, error)
+	Update(ctx context.Context, store *domain.Store) (*domain.Store, error)
 }
 
 type LocationRepository interface {
