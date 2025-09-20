@@ -86,7 +86,7 @@ func (s *StationRepository) Update(ctx context.Context, station *domain.Station)
 	}
 
 	if result.RowsAffected == 0 {
-		return nil, e.ErrStationNotFound
+		return nil, e.Wrap(op, e.ErrStationNotFound)
 	}
 
 	updStation, err := s.GetById(ctx, station.Id)
@@ -99,12 +99,14 @@ func (s *StationRepository) Update(ctx context.Context, station *domain.Station)
 
 func toStationModel(s *domain.Station) *StationModel {
 	return &StationModel{
+		Id:   s.Id,
 		Code: s.Code,
 	}
 }
 
 func toDomainStation(s *StationModel) *domain.Station {
 	return &domain.Station{
+		Id:   s.Id,
 		Code: s.Code,
 	}
 }
