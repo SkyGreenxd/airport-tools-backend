@@ -42,6 +42,18 @@ func (l *LocationsRepository) GetById(ctx context.Context, id int64) (*domain.Lo
 	return toDomainLocation(&model), nil
 }
 
+func (l *LocationsRepository) GetByIdWithTools(ctx context.Context, id int64) (*domain.Location, error) {
+	const op = "LocationRepository.GetByIdWithTools"
+
+	var model LocationModel
+	result := l.DB.WithContext(ctx).Preload("Tools").First(&model, "id = ?", id)
+	if err := checkGetQueryResult(result, e.ErrLocationNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainLocation(&model), nil
+}
+
 func (l *LocationsRepository) GetAll(ctx context.Context) ([]*domain.Location, error) {
 	const op = "LocationRepository.GetAll"
 
@@ -100,13 +112,35 @@ func toLocationModel(l *domain.Location) *LocationModel {
 		Id:      l.Id,
 		StoreId: l.StoreId,
 		Name:    l.Name,
+		Store:   toStoreModel(l.StoreObj),
+		Tools:   toModelArrTools(l.Tools),
 	}
 }
 
 func toDomainLocation(l *LocationModel) *domain.Location {
 	return &domain.Location{
-		Id:      l.Id,
-		StoreId: l.StoreId,
-		Name:    l.Name,
+		Id:       l.Id,
+		StoreId:  l.StoreId,
+		Name:     l.Name,
+		StoreObj: toDomainStoreModel(l.Store),
+		Tools:    toDomainArrTools(l.Tools),
 	}
+}
+
+func toModelArrLocations(locations []*domain.Location) []*LocationModel {
+	models := make([]*LocationModel, len(locations))
+	for i, location := range locations {
+		models[i] = toLocationModel(location)
+	}
+
+	return models
+}
+
+func toDomainArrLocations(models []*LocationModel) []*domain.Location {
+	locations := make([]*domain.Location, len(models))
+	for i, model := range models {
+		locations[i] = toDomainLocation(model)
+	}
+
+	return locations
 }
