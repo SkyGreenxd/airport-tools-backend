@@ -1,16 +1,18 @@
 package domain
 
 // TransactionTool связывает транзакцию с инструментами.
-// Хранит количество выданного инструмента (Qty).
 type TransactionTool struct {
-	ID            int64
-	TransactionID int64 // fk Transaction
-	ToolID        int64 // fk Tool
+	Id            int64
+	TransactionId int64 // fk Transaction
+	ToolId        int64 // fk Tool
+
+	TransactionObj *Transaction
+	ToolObj        *Tool
 }
 
-func NewTransactionTool(transactionID, toolID int64) *TransactionTool {
+func NewTransactionTool(transactionId, toolId int64) *TransactionTool {
 	return &TransactionTool{
-		TransactionID: transactionID,
-		ToolID:        toolID,
+		TransactionId: transactionId,
+		ToolId:        toolId,
 	}
 }
