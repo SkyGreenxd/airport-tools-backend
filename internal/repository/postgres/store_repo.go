@@ -93,18 +93,64 @@ func (s *StoreRepository) Update(ctx context.Context, store *domain.Store) (*dom
 	return updStores, nil
 }
 
+func (s *StoreRepository) GetByIdWithStation(ctx context.Context, id int64) (*domain.Store, error) {
+	const op = "StoreRepository.GetByIdWithStation"
+
+	var model StoreModel
+	result := s.DB.WithContext(ctx).Preload("Station").First(&model, "id = ?", id)
+	if err := checkGetQueryResult(result, e.ErrStoreNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainStoreModel(&model), nil
+}
+
+func (s *StoreRepository) GetByIdWithLocations(ctx context.Context, id int64) (*domain.Store, error) {
+	const op = "StoreRepository.GetByIdWithLocations"
+
+	var model StoreModel
+	result := s.DB.WithContext(ctx).Preload("Locations").First(&model, "id = ?", id)
+	if err := checkGetQueryResult(result, e.ErrStoreNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainStoreModel(&model), nil
+}
+
 func toStoreModel(s *domain.Store) *StoreModel {
 	return &StoreModel{
 		Id:        s.Id,
 		StationId: s.StationId,
 		Name:      s.Name,
+		Station:   toStationModel(s.StationObj),
+		Locations: toModelArrLocations(s.Locations),
 	}
 }
 
 func toDomainStoreModel(s *StoreModel) *domain.Store {
 	return &domain.Store{
-		Id:        s.Id,
-		StationId: s.StationId,
-		Name:      s.Name,
+		Id:         s.Id,
+		StationId:  s.StationId,
+		Name:       s.Name,
+		StationObj: toDomainStation(s.Station),
+		Locations:  toDomainArrLocations(s.Locations),
 	}
+}
+
+func toModelArrStores(stores []*domain.Store) []*StoreModel {
+	models := make([]*StoreModel, len(stores))
+	for i, store := range stores {
+		models[i] = toStoreModel(store)
+	}
+
+	return models
+}
+
+func toDomainArrStores(models []*StoreModel) []*domain.Store {
+	stores := make([]*domain.Store, len(models))
+	for i, model := range models {
+		stores[i] = toDomainStoreModel(model)
+	}
+
+	return stores
 }
