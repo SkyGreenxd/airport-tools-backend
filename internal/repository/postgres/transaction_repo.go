@@ -116,27 +116,23 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 
 func toTransactionModel(t *domain.Transaction) *TransactionModel {
 	return &TransactionModel{
-		Id:               t.Id,
-		UserId:           t.UserId,
-		Type:             t.Type,
-		IssuedAt:         t.IssuedAt,
-		ExpectedReturnAt: t.ExpectedReturnAt,
-		ReturnedAt:       t.ReturnedAt,
-		User:             toUserModel(t.UserObj),
-		Tools:            toModelArrTransactionsTools(t.Tools),
+		Id:         t.Id,
+		UserId:     t.UserId,
+		IssuedAt:   t.IssuedAt,
+		ReturnedAt: t.ReturnedAt,
+		User:       toUserModel(t.UserObj),
+		Tools:      toModelArrTransactionsTools(t.Tools),
 	}
 }
 
 func toDomainTransaction(t *TransactionModel) *domain.Transaction {
 	return &domain.Transaction{
-		Id:               t.Id,
-		UserId:           t.UserId,
-		Type:             t.Type,
-		IssuedAt:         t.IssuedAt,
-		ExpectedReturnAt: t.ExpectedReturnAt,
-		ReturnedAt:       t.ReturnedAt,
-		UserObj:          toDomainUser(t.User),
-		Tools:            toDomainArrTransactionsTools(t.Tools),
+		Id:         t.Id,
+		UserId:     t.UserId,
+		IssuedAt:   t.IssuedAt,
+		ReturnedAt: t.ReturnedAt,
+		UserObj:    toDomainUser(t.User),
+		Tools:      toDomainArrTransactionsTools(t.Tools),
 	}
 }
 
