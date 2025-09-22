@@ -30,7 +30,6 @@ func (s *StationRepository) Create(ctx context.Context, station *domain.Station)
 	return toDomainStation(model), nil
 }
 
-// TODO: мб нужен Preload
 func (s *StationRepository) GetById(ctx context.Context, id int64) (*domain.Station, error) {
 	const op = "StationRepository.GetById"
 	var model StationModel
@@ -43,7 +42,6 @@ func (s *StationRepository) GetById(ctx context.Context, id int64) (*domain.Stat
 	return toDomainStation(&model), nil
 }
 
-// TODO: мб нужен Preload
 func (s *StationRepository) GetAll(ctx context.Context) ([]*domain.Station, error) {
 	const op = "StationRepository.GetAll"
 	var models []*StationModel
@@ -97,16 +95,31 @@ func (s *StationRepository) Update(ctx context.Context, station *domain.Station)
 	return updStation, nil
 }
 
+// мб еще можно и ячейки подгружать, но как будто все это лишнее
+func (s *StationRepository) GetByIdWithStores(ctx context.Context, id int64) (*domain.Station, error) {
+	const op = "StationRepository.GetByIdWithStores"
+	var model StationModel
+
+	result := s.DB.WithContext(ctx).Preload("Stores").First(&model, "id = ?", id)
+	if err := checkGetQueryResult(result, e.ErrStationNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainStation(&model), nil
+}
+
 func toStationModel(s *domain.Station) *StationModel {
 	return &StationModel{
-		Id:   s.Id,
-		Code: s.Code,
+		Id:     s.Id,
+		Code:   s.Code,
+		Stores: toModelArrStores(s.Stores),
 	}
 }
 
 func toDomainStation(s *StationModel) *domain.Station {
 	return &domain.Station{
-		Id:   s.Id,
-		Code: s.Code,
+		Id:     s.Id,
+		Code:   s.Code,
+		Stores: toDomainArrStores(s.Stores),
 	}
 }
