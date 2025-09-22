@@ -14,7 +14,7 @@ func NewImageRepository(bucket string) *ImageRepository {
 	return &ImageRepository{
 		bucket: bucket,
 	}
-}``
+}
 
 func (p *ImageRepository) Create(ctx context.Context, Image *domain.Image) (*domain.Image, error) {
 	const op = "ImageRepository.Create"

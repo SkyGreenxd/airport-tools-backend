@@ -82,3 +82,16 @@ type UserRepository interface {
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, user *domain.User) (*domain.User, error)
 }
+
+type CvScanRepository interface {
+	Create(ctx context.Context, cvScan *domain.CvScan) (*domain.CvScan, error)
+	GetById(ctx context.Context, id int64) (*domain.CvScan, error)
+	GetByTransactionId(ctx context.Context, transactionId int64) (*domain.CvScan, error)
+	Update(ctx context.Context, cvScan *domain.CvScan) (*domain.CvScan, error)
+}
+
+// TODO: понять с помощью чего я достаю фотку (id, bucket, url??)
+type PhotoRepository interface {
+	Create(ctx context.Context, photo *domain.Image) (*domain.Image, error)
+	GetById(ctx context.Context, id uint64) (*domain.Image, error)
+}
