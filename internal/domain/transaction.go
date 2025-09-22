@@ -12,12 +12,14 @@ const (
 // Transaction представляет запись о выдаче или возврате инструментов
 type Transaction struct {
 	Id               int64
-	UserId           int64              // Received в UI, у кого инструмент
-	Type             TypeTransaction    // тип транзакции
-	IssuedAt         time.Time          // дата выдачи
-	ExpectedReturnAt time.Time          // ожидаемая дата возврата
-	ReturnedAt       *time.Time         // фактическая дата возврата, может быть nil
-	Tools            []*TransactionTool // вложенный список инструментов
+	UserId           int64           // Received в UI, у кого инструмент
+	Type             TypeTransaction // тип транзакции
+	IssuedAt         time.Time       // дата выдачи
+	ExpectedReturnAt time.Time       // ожидаемая дата возврата
+	ReturnedAt       *time.Time      // фактическая дата возврата, может быть nil
+
+	UserObj *User
+	Tools   []*TransactionTool // вложенный список инструментов
 }
 
 // TODO: если по БЛ известно, когда возвращают инструменты
@@ -29,12 +31,6 @@ func NewTransaction(userId int64, typeTransaction TypeTransaction, ExpectedRetur
 		ExpectedReturnAt: ExpectedReturnAt,
 		ReturnedAt:       nil,
 	}
-}
-
-func (t *Transaction) AddTool(toolId int64, qty int) {
-	tool := NewTransactionTool(t.Id, toolId)
-
-	t.Tools = append(t.Tools, tool)
 }
 
 // MarkReturned устанавливает время возврата инструмента
