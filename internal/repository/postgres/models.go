@@ -53,12 +53,10 @@ type ToolTypeModel struct {
 }
 
 type TransactionModel struct {
-	Id               int64
-	UserId           int64
-	Type             domain.TypeTransaction
-	IssuedAt         time.Time
-	ExpectedReturnAt time.Time
-	ReturnedAt       *time.Time
+	Id         int64
+	UserId     int64
+	IssuedAt   time.Time
+	ReturnedAt *time.Time
 
 	User  *UserModel              `gorm:"foreignKey:Userf"`
 	Tools []*TransactionToolModel `gorm:"foreignKey:TransactionId"`
@@ -80,6 +78,15 @@ type UserModel struct {
 	Role       domain.Role
 
 	Transactions []*TransactionModel `gorm:"foreignKey:UserId"`
+}
+
+type CvScanModel struct {
+	Id            int64
+	TransactionId int64
+	Status        string
+	Reason        string
+	ImageUrl      string
+	ImageHash     string
 }
 
 func (UserModel) TableName() string {
