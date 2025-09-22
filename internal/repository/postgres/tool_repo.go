@@ -141,7 +141,6 @@ func (t *ToolRepository) GetByIdWithAllData(ctx context.Context, toolId int64) (
 	return toDomainTool(&model), nil
 }
 
-// TODO: изменить мапперы
 func toToolModel(t *domain.Tool) *ToolModel {
 	return &ToolModel{
 		Id:         t.Id,
@@ -150,17 +149,21 @@ func toToolModel(t *domain.Tool) *ToolModel {
 		LocationId: t.LocationId,
 		//SnBn:       t.SnBn,
 		ExpiresAt: t.ExpiresAt,
+		ToolType:  toToolTypeModel(t.ToolTypeObj),
+		Location:  toLocationModel(t.LocationObj),
 	}
 }
 
-func toDomainTool(tool *ToolModel) *domain.Tool {
+func toDomainTool(t *ToolModel) *domain.Tool {
 	return &domain.Tool{
-		Id:         tool.Id,
-		TypeToolId: tool.TypeToolId,
-		ToirId:     tool.ToirId,
-		LocationId: tool.LocationId,
-		//SnBn:       tool.SnBn,
-		ExpiresAt: tool.ExpiresAt,
+		Id:         t.Id,
+		TypeToolId: t.TypeToolId,
+		ToirId:     t.ToirId,
+		LocationId: t.LocationId,
+		//SnBn:       t.SnBn,
+		ExpiresAt:   t.ExpiresAt,
+		ToolTypeObj: toDomainToolType(t.ToolType),
+		LocationObj: toDomainLocation(t.Location),
 	}
 }
 
