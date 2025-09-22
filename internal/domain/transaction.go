@@ -2,34 +2,22 @@ package domain
 
 import "time"
 
-type TypeTransaction string
-
-const (
-	Issuance TypeTransaction = "Issuance" // выдача
-	Return   TypeTransaction = "Return"   // возврат
-)
-
 // Transaction представляет запись о выдаче или возврате инструментов
 type Transaction struct {
-	Id               int64
-	UserId           int64           // Received в UI, у кого инструмент
-	Type             TypeTransaction // тип транзакции
-	IssuedAt         time.Time       // дата выдачи
-	ExpectedReturnAt time.Time       // ожидаемая дата возврата
-	ReturnedAt       *time.Time      // фактическая дата возврата, может быть nil
+	Id         int64
+	UserId     int64      // Received в UI, у кого инструмент
+	IssuedAt   time.Time  // дата выдачи
+	ReturnedAt *time.Time // фактическая дата возврата, может быть nil
 
 	UserObj *User
 	Tools   []*TransactionTool // вложенный список инструментов
+
 }
 
-// TODO: если по БЛ известно, когда возвращают инструменты
-// то логичнее заполнять автоматически через код/бд
-func NewTransaction(userId int64, typeTransaction TypeTransaction, ExpectedReturnAt time.Time) *Transaction {
+func NewTransaction(userId int64) *Transaction {
 	return &Transaction{
-		UserId:           userId,
-		Type:             typeTransaction,
-		ExpectedReturnAt: ExpectedReturnAt,
-		ReturnedAt:       nil,
+		UserId:     userId,
+		ReturnedAt: nil,
 	}
 }
 
