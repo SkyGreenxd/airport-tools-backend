@@ -28,6 +28,8 @@ var (
 	ErrUserExists   = fmt.Errorf("user is exists")
 	ErrUserInUse    = fmt.Errorf("the user has outstanding transactions")
 
+	ErrCvScanNotFound = fmt.Errorf("cv_scan not found")
+
 	ErrNothingToChange = fmt.Errorf("nothing to change")
 	ErrIncorrectDate   = fmt.Errorf("incorrect date")
 )
