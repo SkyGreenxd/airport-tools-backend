@@ -35,8 +35,8 @@ type ToolModel struct {
 	TypeToolId int64
 	ToirId     int64
 	LocationId int64
-	SnBn       string
 	ExpiresAt  *time.Time
+	// SnBn       string
 
 	ToolType *ToolTypeModel `gorm:"foreignKey:TypeToolId"`
 	Location *LocationModel `gorm:"foreignKey:LocationId"`
@@ -46,10 +46,10 @@ type ToolTypeModel struct {
 	Id          int64
 	PartNumber  string
 	Description string
-	Co          string
-	MC          string
+	//Co          string
+	//MC          string
 
-	Tools []*ToolTypeModel `gorm:"foreignKey:TypeToolId"`
+	Tools []*ToolModel `gorm:"foreignKey:TypeToolId"`
 }
 
 type TransactionModel struct {
@@ -60,17 +60,17 @@ type TransactionModel struct {
 	ExpectedReturnAt time.Time
 	ReturnedAt       *time.Time
 
-	User  *UserModel              `gorm:"foreignKey:UserId"`
-	Tools []*TransactionToolModel `gorm:"foreignKey:TransactionID"`
+	User  *UserModel              `gorm:"foreignKey:Userf"`
+	Tools []*TransactionToolModel `gorm:"foreignKey:TransactionId"`
 }
 
 type TransactionToolModel struct {
-	ID            int64
-	TransactionID int64
-	ToolID        int64
+	Id            int64
+	TransactionId int64
+	ToolId        int64
 
-	Transaction TransactionModel `gorm:"foreignKey:TransactionID"`
-	Tool        ToolModel        `gorm:"foreignKey:ToolID"`
+	Transaction *TransactionModel `gorm:"foreignKey:TransactionId"`
+	Tool        *ToolModel        `gorm:"foreignKey:ToolId"`
 }
 
 type UserModel struct {
