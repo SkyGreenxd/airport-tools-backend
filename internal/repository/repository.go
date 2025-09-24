@@ -25,6 +25,7 @@ type ToolSetRepository interface {
 type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) (*domain.User, error)
 	GetById(ctx context.Context, id int64) (*domain.User, error)
+	GetByEmployeeId(ctx context.Context, employeeId string) (*domain.User, error)
 	GetByIdWithTransactions(ctx context.Context, id int64) (*domain.User, error)
 	GetAll(ctx context.Context) ([]*domain.User, error)
 	Delete(ctx context.Context, id int64) error
