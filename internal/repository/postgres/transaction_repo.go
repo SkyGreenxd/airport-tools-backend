@@ -42,11 +42,11 @@ func (t *TransactionRepository) GetById(ctx context.Context, id int64) (*domain.
 	return toDomainTransaction(&model), nil
 }
 
-func (t *TransactionRepository) GetByIdWithTools(ctx context.Context, id int64) (*domain.Transaction, error) {
-	const op = "TransactionRepository.GetByIdWithTools"
+func (t *TransactionRepository) GetByIdWithCvScans(ctx context.Context, id int64) (*domain.Transaction, error) {
+	const op = "TransactionRepository.GetByIdWithCvScans"
 
 	var model TransactionModel
-	result := t.DB.WithContext(ctx).Preload("Tools").First(&model, "id = ?", id)
+	result := t.DB.WithContext(ctx).Preload("CvScans").First(&model, "id = ?", id)
 	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -94,7 +94,8 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 	const op = "TransactionRepository.Update"
 
 	updates := map[string]interface{}{
-		"returned_at": transaction.ReturnedAt,
+		"status": transaction.Status,
+		"reason": transaction.Reason,
 	}
 
 	result := t.DB.WithContext(ctx).Model(&TransactionModel{}).Where("id = ?", transaction.Id).Updates(updates)
@@ -115,25 +116,41 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 }
 
 func toTransactionModel(t *domain.Transaction) *TransactionModel {
-	return &TransactionModel{
-		Id:         t.Id,
-		UserId:     t.UserId,
-		IssuedAt:   t.IssuedAt,
-		ReturnedAt: t.ReturnedAt,
-		User:       toUserModel(t.UserObj),
-		Tools:      toModelArrTransactionsTools(t.Tools),
+	model := &TransactionModel{
+		Id:     t.Id,
+		UserId: t.UserId,
+		Status: t.Status,
+		Reason: t.Reason,
 	}
+
+	if t.CvScans != nil {
+		model.CvScans = toArrCvScansModel(t.CvScans)
+	}
+
+	if t.User != nil {
+		model.User = toUserModel(t.User)
+	}
+
+	return model
 }
 
 func toDomainTransaction(t *TransactionModel) *domain.Transaction {
-	return &domain.Transaction{
-		Id:         t.Id,
-		UserId:     t.UserId,
-		IssuedAt:   t.IssuedAt,
-		ReturnedAt: t.ReturnedAt,
-		UserObj:    toDomainUser(t.User),
-		Tools:      toDomainArrTransactionsTools(t.Tools),
+	transaction := &domain.Transaction{
+		Id:     t.Id,
+		UserId: t.UserId,
+		Status: t.Status,
+		Reason: t.Reason,
 	}
+
+	if t.CvScans != nil {
+		transaction.CvScans = toArrDomainCvScans(t.CvScans)
+	}
+
+	if t.User != nil {
+		transaction.User = toDomainUser(t.User)
+	}
+
+	return transaction
 }
 
 func toModelArrTransactions(transactions []*domain.Transaction) []*TransactionModel {
