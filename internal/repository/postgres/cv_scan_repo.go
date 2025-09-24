@@ -54,47 +54,66 @@ func (c *CvStoreRepository) GetByTransactionId(ctx context.Context, transactionI
 	return toDomainCvScan(&model), nil
 }
 
-func (c *CvStoreRepository) Update(ctx context.Context, cvScan *domain.CvScan) (*domain.CvScan, error) {
-	const op = "CvStoreRepository.Update"
+func (c *CvStoreRepository) GetByIdWithTransaction(ctx context.Context, id int64) (*domain.CvScan, error) {
+	const op = "CvStoreRepository.GetByIdWithTransaction"
 
-	updates := map[string]interface{}{
-		"status": cvScan.Status,
-		"reason": cvScan.Reason,
-	}
-
-	result := c.DB.WithContext(ctx).Model(&CvScanModel{}).Where("id = ?", cvScan.Id).Updates(updates)
-	if err := result.Error; err != nil {
+	var model CvScanModel
+	result := c.DB.WithContext(ctx).Preload("Transaction").First(&model, "id = ?", id)
+	if err := checkGetQueryResult(result, e.ErrCvScanNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	if result.RowsAffected == 0 {
-		return nil, e.Wrap(op, e.ErrCvScanNotFound)
-	}
+	return toDomainCvScan(&model), nil
+}
 
-	updCvScan, err := c.GetById(ctx, cvScan.Id)
-	if err != nil {
+func (c *CvStoreRepository) GetByIdWithDetectedTools(ctx context.Context, id int64) (*domain.CvScan, error) {
+	const op = "CvStoreRepository.GetByIdWithDetectedTools"
+
+	var model CvScanModel
+	result := c.DB.WithContext(ctx).Preload("DetectedTools").First(&model, "id = ?", id)
+	if err := checkGetQueryResult(result, e.ErrCvScanNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	return updCvScan, nil
+	return toDomainCvScan(&model), nil
 }
 
 func toCvScanModel(c *domain.CvScan) *CvScanModel {
 	return &CvScanModel{
 		Id:            c.Id,
 		TransactionId: c.TransactionId,
-		Status:        c.Status,
-		Reason:        c.Reason,
-		Photo:         c.Photo,
+		ScanType:      c.ScanType,
+		ImageUrl:      c.ImageUrl,
+		Transaction:   toTransactionModel(c.TransactionObj),
+		DetectedTools: toArrCvScanDetailModel(c.DetectedTools),
 	}
 }
 
 func toDomainCvScan(c *CvScanModel) *domain.CvScan {
 	return &domain.CvScan{
-		Id:            c.Id,
-		TransactionId: c.TransactionId,
-		Status:        c.Status,
-		Reason:        c.Reason,
-		Photo:         c.Photo,
+		Id:             c.Id,
+		TransactionId:  c.TransactionId,
+		ScanType:       c.ScanType,
+		ImageUrl:       c.ImageUrl,
+		TransactionObj: toDomainTransaction(c.Transaction),
+		DetectedTools:  toArrDomainCvScanDetail(c.DetectedTools),
 	}
+}
+
+func toArrDomainCvScans(models []*CvScanModel) []*domain.CvScan {
+	result := make([]*domain.CvScan, len(models))
+	for i, model := range models {
+		result[i] = toDomainCvScan(model)
+	}
+
+	return result
+}
+
+func toArrCvScansModel(scans []*domain.CvScan) []*CvScanModel {
+	result := make([]*CvScanModel, len(scans))
+	for i, model := range scans {
+		result[i] = toCvScanModel(model)
+	}
+
+	return result
 }
