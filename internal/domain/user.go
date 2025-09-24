@@ -10,22 +10,22 @@ const (
 	SupplyManager  Role = "Supply Manager"  // Руководитель материально-технического снабжения
 )
 
-// User описывает пользователя
-// TODO: мб стоит привязать пользователя к аэропорту
 type User struct {
-	Id         int64
-	EmployeeId string // табельный номер
-	FullName   string // фио
-	Role       Role   // роль пользователя
+	Id               int64
+	EmployeeId       string
+	FullName         string
+	Role             Role
+	DefaultToolSetId int64
 
 	Transactions []*Transaction
 }
 
-func NewUser(employeeId, fullName, role string) *User {
+func NewUser(fullName, employeeId string, role Role, toolSetId int64) *User {
 	return &User{
-		EmployeeId: employeeId,
-		FullName:   fullName,
-		Role:       Role(role),
+		FullName:         fullName,
+		EmployeeId:       employeeId,
+		Role:             role,
+		DefaultToolSetId: toolSetId,
 	}
 }
 
