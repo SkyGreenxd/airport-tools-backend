@@ -5,6 +5,7 @@ import (
 	"airport-tools-backend/pkg/e"
 	"context"
 
+	"github.com/pgvector/pgvector-go"
 	"gorm.io/gorm"
 )
 
@@ -64,7 +65,7 @@ func toCvScanDetailModel(c *domain.CvScanDetail) *CvScanDetailModel {
 		CvScanId:           c.CvScanId,
 		DetectedToolTypeId: c.DetectedToolTypeId,
 		ImageHash:          c.ImageHash,
-		Embedding:          c.Embedding,
+		Embedding:          pgvector.NewVector(c.Embedding),
 	}
 }
 
@@ -74,7 +75,7 @@ func toDomainCvScanDetail(c *CvScanDetailModel) *domain.CvScanDetail {
 		CvScanId:           c.CvScanId,
 		DetectedToolTypeId: c.DetectedToolTypeId,
 		ImageHash:          c.ImageHash,
-		Embedding:          c.Embedding,
+		Embedding:          c.Embedding.Slice(),
 	}
 }
 
