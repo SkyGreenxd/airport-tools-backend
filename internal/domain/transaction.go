@@ -1,27 +1,20 @@
 package domain
 
-import "time"
-
 // Transaction представляет запись о выдаче или возврате инструментов
 type Transaction struct {
-	Id         int64
-	UserId     int64      // Received в UI, у кого инструмент
-	IssuedAt   time.Time  // дата выдачи
-	ReturnedAt *time.Time // фактическая дата возврата, может быть nil
+	Id     int64
+	UserId int64 // Received в UI, у кого инструмент
+	Status string
+	Reason *string
 
-	UserObj *User
-	Tools   []*TransactionTool // вложенный список инструментов
-
+	User    *User
+	CvScans []*CvScan
 }
 
-func NewTransaction(userId int64) *Transaction {
+func NewTransaction(userId int64, status string, reason *string) *Transaction {
 	return &Transaction{
-		UserId:     userId,
-		ReturnedAt: nil,
+		UserId: userId,
+		Status: status,
+		Reason: reason,
 	}
-}
-
-// MarkReturned устанавливает время возврата инструмента
-func (t *Transaction) MarkReturned(returnTime time.Time) {
-	t.ReturnedAt = &returnTime
 }
