@@ -3,5 +3,7 @@ CREATE TABLE IF NOT EXISTS tool_types (
     part_number VARCHAR(32) UNIQUE NOT NULL,
     name VARCHAR(256),
     reference_image_hash VARCHAR(256) UNIQUE,
-    reference_embedding VECTOR(512)
+    reference_embedding VECTOR(3)
 );
+
+-- TODO: заменить на VECTOR(1280)
