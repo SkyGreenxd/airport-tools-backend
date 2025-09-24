@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"airport-tools-backend/internal/domain"
+
+	"github.com/pgvector/pgvector-go"
 )
 
 type ToolTypeModel struct {
@@ -9,39 +11,41 @@ type ToolTypeModel struct {
 	PartNumber         string
 	Name               string
 	ReferenceImageHash string
-	ReferenceEmbedding []float32
+	// TODO: заменить на VECTOR(1280)
+	ReferenceEmbedding pgvector.Vector `gorm:"type:vector(3)"`
+
+	ToolSets []*ToolSetModel `gorm:"many2many:tool_set_items;joinForeignKey:ToolTypeId;joinReferences:ToolSetId"`
 }
 
 type ToolSetModel struct {
 	Id   int64
 	Name string
 
-	Tools []*ToolTypeModel
+	Tools []*ToolTypeModel `gorm:"many2many:tool_set_items;joinForeignKey:ToolSetId;joinReferences:ToolTypeId"`
 }
 type ToolSetItemModel struct {
-	Id         int64
-	ToolSetId  int64
-	ToolTypeId int64
+	ToolSetId  int64 `gorm:"column:tool_set_id"`
+	ToolTypeId int64 `gorm:"column:tool_type_id"`
 }
 
 type UserModel struct {
 	Id               int64
-	EmployeeId       int64
+	EmployeeId       string
 	FullName         string
 	Role             domain.Role
-	DefaultToolSetId int64
+	DefaultToolSetId int64 `gorm:"column:default_tool_set_id"`
 
-	Transactions []*TransactionModel
+	Transactions []*TransactionModel `gorm:"foreignkey:UserId"`
 }
 
 type TransactionModel struct {
 	Id     int64
 	UserId int64
 	Status string
-	Reason string
+	Reason *string
 
-	User    *UserModel
-	CvScans []*CvScanModel
+	User    *UserModel     `gorm:"foreignkey:UserId"`
+	CvScans []*CvScanModel `gorm:"foreignkey:TransactionId"`
 }
 
 type CvScanModel struct {
@@ -50,8 +54,8 @@ type CvScanModel struct {
 	ScanType      string
 	ImageUrl      string
 
-	Transaction   *TransactionModel
-	DetectedTools []*CvScanDetailModel
+	Transaction   *TransactionModel    `gorm:"foreignKey:TransactionId"`
+	DetectedTools []*CvScanDetailModel `gorm:"foreignKey:CvScanId"`
 }
 
 type CvScanDetailModel struct {
@@ -59,7 +63,8 @@ type CvScanDetailModel struct {
 	CvScanId           int64
 	DetectedToolTypeId int64
 	ImageHash          string
-	Embedding          []float32
+	// TODO: заменить на VECTOR(1280)
+	Embedding pgvector.Vector `gorm:"type:vector(3)"`
 }
 
 func (ToolTypeModel) TableName() string {
