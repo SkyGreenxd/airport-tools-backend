@@ -2,121 +2,90 @@ package postgres
 
 import (
 	"airport-tools-backend/internal/domain"
-	"time"
 )
 
-type StationModel struct {
-	Id   int64
-	Code string
-
-	Stores []*StoreModel `gorm:"foreignKey:StationId"`
-}
-
-type StoreModel struct {
-	Id        int64
-	StationId int64
-	Name      string
-
-	Station   *StationModel    `gorm:"foreignKey:StationId"`
-	Locations []*LocationModel `gorm:"foreignKey:StoreId"`
-}
-
-type LocationModel struct {
-	Id      int64
-	StoreId int64
-	Name    string
-
-	Store *StoreModel  `gorm:"foreignKey:StoreId"`
-	Tools []*ToolModel `gorm:"foreignKey:LocationId"`
-}
-
-type ToolModel struct {
-	Id         int64
-	TypeToolId int64
-	ToirId     int64
-	LocationId int64
-	ExpiresAt  *time.Time
-	// SnBn       string
-
-	ToolType *ToolTypeModel `gorm:"foreignKey:TypeToolId"`
-	Location *LocationModel `gorm:"foreignKey:LocationId"`
-}
-
 type ToolTypeModel struct {
-	Id          int64
-	PartNumber  string
-	Description string
-	//Co          string
-	//MC          string
-
-	Tools []*ToolModel `gorm:"foreignKey:TypeToolId"`
+	Id                 int64
+	PartNumber         string
+	Name               string
+	ReferenceImageHash string
+	ReferenceEmbedding []float32
 }
 
-type TransactionModel struct {
+type ToolSetModel struct {
+	Id   int64
+	Name string
+
+	Tools []*ToolTypeModel
+}
+type ToolSetItemModel struct {
 	Id         int64
-	UserId     int64
-	IssuedAt   time.Time
-	ReturnedAt *time.Time
-
-	User  *UserModel              `gorm:"foreignKey:Userf"`
-	Tools []*TransactionToolModel `gorm:"foreignKey:TransactionId"`
-}
-
-type TransactionToolModel struct {
-	Id            int64
-	TransactionId int64
-	ToolId        int64
-
-	Transaction *TransactionModel `gorm:"foreignKey:TransactionId"`
-	Tool        *ToolModel        `gorm:"foreignKey:ToolId"`
+	ToolSetId  int64
+	ToolTypeId int64
 }
 
 type UserModel struct {
-	Id         int64
-	EmployeeId string
-	FullName   string
-	Role       domain.Role
+	Id               int64
+	EmployeeId       int64
+	FullName         string
+	Role             domain.Role
+	DefaultToolSetId int64
 
-	Transactions []*TransactionModel `gorm:"foreignKey:UserId"`
+	Transactions []*TransactionModel
+}
+
+type TransactionModel struct {
+	Id     int64
+	UserId int64
+	Status string
+	Reason string
+
+	User    *UserModel
+	CvScans []*CvScanModel
 }
 
 type CvScanModel struct {
 	Id            int64
 	TransactionId int64
-	Status        string
-	Reason        string
+	ScanType      string
 	ImageUrl      string
-	ImageHash     string
+
+	Transaction   *TransactionModel
+	DetectedTools []*CvScanDetailModel
 }
 
-func (UserModel) TableName() string {
-	return "users"
-}
-
-func (TransactionToolModel) TableName() string {
-	return "transactions_tools"
-}
-
-func (TransactionModel) TableName() string {
-	return "transactions"
+type CvScanDetailModel struct {
+	Id                 int64
+	CvScanId           int64
+	DetectedToolTypeId int64
+	ImageHash          string
+	Embedding          []float32
 }
 
 func (ToolTypeModel) TableName() string {
 	return "tool_types"
 }
 
-func (ToolModel) TableName() string {
-	return "tools"
+func (ToolSetModel) TableName() string {
+	return "tool_sets"
 }
 
-func (StoreModel) TableName() string {
-	return "stores"
+func (ToolSetItemModel) TableName() string {
+	return "tool_set_items"
 }
 
-func (LocationModel) TableName() string {
-	return "locations"
+func (UserModel) TableName() string {
+	return "users"
 }
 
-func (StationModel) TableName() string {
-	return "stations"
+func (TransactionModel) TableName() string {
+	return "transactions"
+}
+
+func (CvScanModel) TableName() string {
+	return "cv_scans"
+}
+
+func (CvScanDetailModel) TableName() string {
+	return "cv_scan_details"
 }
