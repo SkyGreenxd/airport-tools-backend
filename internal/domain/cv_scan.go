@@ -3,18 +3,17 @@ package domain
 type CvScan struct {
 	Id            int64
 	TransactionId int64
-	Status        string
-	Reason        string
+	ScanType      string
 	ImageUrl      string
-	ImageHash     string
+
+	TransactionObj *Transaction
+	DetectedTools  []*CvScanDetail
 }
 
-func NewCvScan(transactionId int64, status, reason, imageUrl, imageHash string) *CvScan {
+func NewCvScan(transactionId int64, scanType, imageUrl string) *CvScan {
 	return &CvScan{
 		TransactionId: transactionId,
-		Status:        status,
-		Reason:        reason,
+		ScanType:      scanType,
 		ImageUrl:      imageUrl,
-		ImageHash:     imageHash,
 	}
 }
