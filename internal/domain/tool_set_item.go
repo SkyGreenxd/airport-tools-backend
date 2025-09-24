@@ -1,7 +1,6 @@
 package domain
 
 type ToolSetItem struct {
-	Id         int64
 	ToolSetId  int64
 	ToolTypeId int64
 }
