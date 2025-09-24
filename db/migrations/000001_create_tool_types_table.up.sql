@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS tool_types (
     id BIGSERIAL PRIMARY KEY,
     part_number VARCHAR(32) UNIQUE NOT NULL,
-    description TEXT
-    -- co VARCHAR(5) NOT NULL,
-    -- mc VARCHAR(10) NOT NULL
+    name VARCHAR(256),
+    reference_image_hash VARCHAR(256) UNIQUE,
+    reference_embedding VECTOR(512)
 );

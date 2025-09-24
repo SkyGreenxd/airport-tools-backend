@@ -1,0 +1,1 @@
+DROP tABLE IF EXISTS cv_scans;

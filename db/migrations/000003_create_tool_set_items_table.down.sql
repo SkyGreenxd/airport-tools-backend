@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS tool_set_items;
