@@ -42,23 +42,11 @@ func (u *UserRepository) GetById(ctx context.Context, id int64) (*domain.User, e
 	return toDomainUser(&model), nil
 }
 
-func (u *UserRepository) GetByEmployeeId(ctx context.Context, employeeId int64) (*domain.User, error) {
+func (u *UserRepository) GetByEmployeeId(ctx context.Context, employeeId string) (*domain.User, error) {
 	const op = "UserRepository.GetByEmployeeId"
 
 	var model UserModel
 	result := u.DB.WithContext(ctx).First(&model, "employee_id = ?", employeeId)
-	if err := checkGetQueryResult(result, e.ErrUserNotFound); err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	return toDomainUser(&model), nil
-}
-
-func (u *UserRepository) GetByFullName(ctx context.Context, fullName string) (*domain.User, error) {
-	const op = "UserRepository.GetByFullName"
-
-	var model UserModel
-	result := u.DB.WithContext(ctx).First(&model, "full_name = ?", fullName)
 	if err := checkGetQueryResult(result, e.ErrUserNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -91,12 +79,7 @@ func (u *UserRepository) GetAll(ctx context.Context) ([]*domain.User, error) {
 		return nil, e.ErrUserNotFound
 	}
 
-	users := make([]*domain.User, len(models))
-	for i, model := range models {
-		users[i] = toDomainUser(model)
-	}
-
-	return users, nil
+	return toArrDomainUser(models), nil
 }
 
 func (u *UserRepository) Delete(ctx context.Context, id int64) error {
@@ -115,12 +98,13 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain
 	const op = "UserRepository.Update"
 
 	updates := map[string]interface{}{
-		"full_name": user.FullName,
-		"role":      user.Role,
+		"full_name":           user.FullName,
+		"role":                user.Role,
+		"default_tool_set_id": user.DefaultToolSetId,
 	}
 
 	result := u.DB.WithContext(ctx).Model(&UserModel{}).Where("id = ?", user.Id).Updates(updates)
-	if err := postgresDuplicate(result, e.ErrLocationExists); err != nil {
+	if err := postgresDuplicate(result, e.ErrUserNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
@@ -137,21 +121,42 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain
 }
 
 func toUserModel(u *domain.User) *UserModel {
-	return &UserModel{
-		Id:           u.Id,
-		EmployeeId:   u.EmployeeId,
-		FullName:     u.FullName,
-		Role:         u.Role,
-		Transactions: toModelArrTransactions(u.Transactions),
+	model := &UserModel{
+		Id:               u.Id,
+		EmployeeId:       u.EmployeeId,
+		FullName:         u.FullName,
+		Role:             u.Role,
+		DefaultToolSetId: u.DefaultToolSetId,
 	}
+
+	if u.Transactions != nil {
+		model.Transactions = toModelArrTransactions(u.Transactions)
+	}
+
+	return model
 }
 
 func toDomainUser(u *UserModel) *domain.User {
-	return &domain.User{
-		Id:           u.Id,
-		EmployeeId:   u.EmployeeId,
-		FullName:     u.FullName,
-		Role:         u.Role,
-		Transactions: toDomainArrTransactions(u.Transactions),
+	user := &domain.User{
+		Id:               u.Id,
+		EmployeeId:       u.EmployeeId,
+		FullName:         u.FullName,
+		Role:             u.Role,
+		DefaultToolSetId: u.DefaultToolSetId,
 	}
+
+	if u.Transactions != nil {
+		user.Transactions = toDomainArrTransactions(u.Transactions)
+	}
+
+	return user
+}
+
+func toArrDomainUser(u []*UserModel) []*domain.User {
+	result := make([]*domain.User, len(u))
+	for i, u := range u {
+		result[i] = toDomainUser(u)
+	}
+
+	return result
 }
