@@ -8,18 +8,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type CvStoreRepository struct {
+type CvScanRepository struct {
 	DB *gorm.DB
 }
 
-func NewCvStoreRepository(db *gorm.DB) *CvStoreRepository {
-	return &CvStoreRepository{
+func NewCvScanRepository(db *gorm.DB) *CvScanRepository {
+	return &CvScanRepository{
 		DB: db,
 	}
 }
 
-func (c *CvStoreRepository) Create(ctx context.Context, cvScan *domain.CvScan) (*domain.CvScan, error) {
-	const op = "CvStoreRepository.Create"
+func (c *CvScanRepository) Create(ctx context.Context, cvScan *domain.CvScan) (*domain.CvScan, error) {
+	const op = "CvScanRepository.Create"
 
 	model := toCvScanModel(cvScan)
 	result := c.DB.WithContext(ctx).Create(model)
@@ -30,8 +30,8 @@ func (c *CvStoreRepository) Create(ctx context.Context, cvScan *domain.CvScan) (
 	return toDomainCvScan(model), nil
 }
 
-func (c *CvStoreRepository) GetById(ctx context.Context, id int64) (*domain.CvScan, error) {
-	const op = "CvStoreRepository.GetById"
+func (c *CvScanRepository) GetById(ctx context.Context, id int64) (*domain.CvScan, error) {
+	const op = "CvScanRepository.GetById"
 
 	var model CvScanModel
 	result := c.DB.WithContext(ctx).First(&model, "id = ?", id)
@@ -42,8 +42,8 @@ func (c *CvStoreRepository) GetById(ctx context.Context, id int64) (*domain.CvSc
 	return toDomainCvScan(&model), nil
 }
 
-func (c *CvStoreRepository) GetByTransactionId(ctx context.Context, transactionId int64) (*domain.CvScan, error) {
-	const op = "CvStoreRepository.GetByTransactionId"
+func (c *CvScanRepository) GetByTransactionId(ctx context.Context, transactionId int64) (*domain.CvScan, error) {
+	const op = "CvScanRepository.GetByTransactionId"
 
 	var model CvScanModel
 	result := c.DB.WithContext(ctx).First(&model, "transaction_id = ?", transactionId)
@@ -54,8 +54,8 @@ func (c *CvStoreRepository) GetByTransactionId(ctx context.Context, transactionI
 	return toDomainCvScan(&model), nil
 }
 
-func (c *CvStoreRepository) GetByIdWithTransaction(ctx context.Context, id int64) (*domain.CvScan, error) {
-	const op = "CvStoreRepository.GetByIdWithTransaction"
+func (c *CvScanRepository) GetByIdWithTransaction(ctx context.Context, id int64) (*domain.CvScan, error) {
+	const op = "CvScanRepository.GetByIdWithTransaction"
 
 	var model CvScanModel
 	result := c.DB.WithContext(ctx).Preload("Transaction").First(&model, "id = ?", id)
@@ -66,8 +66,8 @@ func (c *CvStoreRepository) GetByIdWithTransaction(ctx context.Context, id int64
 	return toDomainCvScan(&model), nil
 }
 
-func (c *CvStoreRepository) GetByIdWithDetectedTools(ctx context.Context, id int64) (*domain.CvScan, error) {
-	const op = "CvStoreRepository.GetByIdWithDetectedTools"
+func (c *CvScanRepository) GetByIdWithDetectedTools(ctx context.Context, id int64) (*domain.CvScan, error) {
+	const op = "CvScanRepository.GetByIdWithDetectedTools"
 
 	var model CvScanModel
 	result := c.DB.WithContext(ctx).Preload("DetectedTools").First(&model, "id = ?", id)
@@ -79,25 +79,41 @@ func (c *CvStoreRepository) GetByIdWithDetectedTools(ctx context.Context, id int
 }
 
 func toCvScanModel(c *domain.CvScan) *CvScanModel {
-	return &CvScanModel{
+	model := &CvScanModel{
 		Id:            c.Id,
 		TransactionId: c.TransactionId,
 		ScanType:      c.ScanType,
 		ImageUrl:      c.ImageUrl,
-		Transaction:   toTransactionModel(c.TransactionObj),
-		DetectedTools: toArrCvScanDetailModel(c.DetectedTools),
 	}
+
+	if c.DetectedTools != nil {
+		model.Transaction = toTransactionModel(c.TransactionObj)
+	}
+
+	if c.TransactionObj != nil {
+		model.DetectedTools = toArrCvScanDetailModel(c.DetectedTools)
+	}
+
+	return model
 }
 
 func toDomainCvScan(c *CvScanModel) *domain.CvScan {
-	return &domain.CvScan{
-		Id:             c.Id,
-		TransactionId:  c.TransactionId,
-		ScanType:       c.ScanType,
-		ImageUrl:       c.ImageUrl,
-		TransactionObj: toDomainTransaction(c.Transaction),
-		DetectedTools:  toArrDomainCvScanDetail(c.DetectedTools),
+	scan := &domain.CvScan{
+		Id:            c.Id,
+		TransactionId: c.TransactionId,
+		ScanType:      c.ScanType,
+		ImageUrl:      c.ImageUrl,
 	}
+
+	if c.DetectedTools != nil {
+		scan.TransactionObj = toDomainTransaction(c.Transaction)
+	}
+
+	if c.Transaction != nil {
+		scan.DetectedTools = toArrDomainCvScanDetail(c.DetectedTools)
+	}
+
+	return scan
 }
 
 func toArrDomainCvScans(models []*CvScanModel) []*domain.CvScan {
