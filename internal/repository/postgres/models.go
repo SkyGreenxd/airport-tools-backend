@@ -39,10 +39,11 @@ type UserModel struct {
 }
 
 type TransactionModel struct {
-	Id     int64
-	UserId int64
-	Status string
-	Reason *string
+	Id        int64
+	UserId    int64
+	ToolSetId int64
+	Status    domain.Status
+	Reason    *string
 
 	User    *UserModel     `gorm:"foreignkey:UserId"`
 	CvScans []*CvScanModel `gorm:"foreignkey:TransactionId"`
@@ -51,7 +52,7 @@ type TransactionModel struct {
 type CvScanModel struct {
 	Id            int64
 	TransactionId int64
-	ScanType      string
+	ScanType      domain.ScanType
 	ImageUrl      string
 
 	Transaction   *TransactionModel    `gorm:"foreignKey:TransactionId"`
@@ -62,6 +63,7 @@ type CvScanDetailModel struct {
 	Id                 int64
 	CvScanId           int64
 	DetectedToolTypeId int64
+	Confidence         float32
 	ImageHash          string
 	// TODO: заменить на VECTOR(1280)
 	Embedding pgvector.Vector `gorm:"type:vector(3)"`
