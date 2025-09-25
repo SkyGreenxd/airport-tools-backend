@@ -1,20 +1,30 @@
 package domain
 
 // Transaction представляет запись о выдаче или возврате инструментов
+
+type Status string
+
+const (
+	OPEN   Status = "OPEN"
+	CLOSED Status = "CLOSED"
+	MANUAL Status = "MANUAL VERIFICATION"
+)
+
 type Transaction struct {
-	Id     int64
-	UserId int64 // Received в UI, у кого инструмент
-	Status string
-	Reason *string
+	Id        int64
+	UserId    int64 // Received в UI, у кого инструмент
+	ToolSetId int64
+	Status    Status
+	Reason    *string
 
 	User    *User
 	CvScans []*CvScan
 }
 
-func NewTransaction(userId int64, status string, reason *string) *Transaction {
+func NewTransaction(userId, toolSetId int64) *Transaction {
 	return &Transaction{
-		UserId: userId,
-		Status: status,
-		Reason: reason,
+		UserId:    userId,
+		Status:    OPEN,
+		ToolSetId: toolSetId,
 	}
 }
