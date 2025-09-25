@@ -1,6 +1,9 @@
 package e
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrToolTypeNotFound = fmt.Errorf("tool type not found")
@@ -18,6 +21,8 @@ var (
 
 	ErrCvScanNotFound       = fmt.Errorf("cv_scan not found")
 	ErrCvScanDetailNotFound = fmt.Errorf("cv_scan detail not found")
+
+	ErrEmptyFields = errors.New("empty fields")
 
 	ErrNothingToChange = fmt.Errorf("nothing to change")
 	ErrIncorrectDate   = fmt.Errorf("incorrect date")
