@@ -64,6 +64,7 @@ func toCvScanDetailModel(c *domain.CvScanDetail) *CvScanDetailModel {
 		Id:                 c.Id,
 		CvScanId:           c.CvScanId,
 		DetectedToolTypeId: c.DetectedToolTypeId,
+		Confidence:         c.Confidence,
 		ImageHash:          c.ImageHash,
 		Embedding:          pgvector.NewVector(c.Embedding),
 	}
@@ -74,6 +75,7 @@ func toDomainCvScanDetail(c *CvScanDetailModel) *domain.CvScanDetail {
 		Id:                 c.Id,
 		CvScanId:           c.CvScanId,
 		DetectedToolTypeId: c.DetectedToolTypeId,
+		Confidence:         c.Confidence,
 		ImageHash:          c.ImageHash,
 		Embedding:          c.Embedding.Slice(),
 	}
