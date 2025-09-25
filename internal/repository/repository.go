@@ -35,6 +35,7 @@ type UserRepository interface {
 type TransactionRepository interface {
 	Create(ctx context.Context, transaction *domain.Transaction) (*domain.Transaction, error)
 	GetById(ctx context.Context, id int64) (*domain.Transaction, error)
+	GetByUserId(ctx context.Context, userId string) (*domain.Transaction, error)
 	GetByIdWithCvScans(ctx context.Context, id int64) (*domain.Transaction, error)
 	GetByIdWithUser(ctx context.Context, id int64) (*domain.Transaction, error)
 	GetAll(ctx context.Context) ([]*domain.Transaction, error)
