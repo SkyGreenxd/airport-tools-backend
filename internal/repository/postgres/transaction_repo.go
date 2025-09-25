@@ -42,6 +42,18 @@ func (t *TransactionRepository) GetById(ctx context.Context, id int64) (*domain.
 	return toDomainTransaction(&model), nil
 }
 
+func (t *TransactionRepository) GetByUserId(ctx context.Context, userId string) (*domain.Transaction, error) {
+	const op = "TransactionRepository.GetByEmployeeId"
+
+	var model TransactionModel
+	result := t.DB.WithContext(ctx).First(&model, "user_id = ?", userId)
+	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainTransaction(&model), nil
+}
+
 func (t *TransactionRepository) GetByIdWithCvScans(ctx context.Context, id int64) (*domain.Transaction, error) {
 	const op = "TransactionRepository.GetByIdWithCvScans"
 
@@ -117,10 +129,11 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 
 func toTransactionModel(t *domain.Transaction) *TransactionModel {
 	model := &TransactionModel{
-		Id:     t.Id,
-		UserId: t.UserId,
-		Status: t.Status,
-		Reason: t.Reason,
+		Id:        t.Id,
+		UserId:    t.UserId,
+		ToolSetId: t.ToolSetId,
+		Status:    t.Status,
+		Reason:    t.Reason,
 	}
 
 	if t.CvScans != nil {
@@ -136,10 +149,11 @@ func toTransactionModel(t *domain.Transaction) *TransactionModel {
 
 func toDomainTransaction(t *TransactionModel) *domain.Transaction {
 	transaction := &domain.Transaction{
-		Id:     t.Id,
-		UserId: t.UserId,
-		Status: t.Status,
-		Reason: t.Reason,
+		Id:        t.Id,
+		UserId:    t.UserId,
+		ToolSetId: t.ToolSetId,
+		Status:    t.Status,
+		Reason:    t.Reason,
 	}
 
 	if t.CvScans != nil {
