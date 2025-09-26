@@ -1,0 +1,225 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for managing airport tools",
+        "title": "Airport Tools Backend API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
+    "paths": {
+        "/api/v1/transaction/checkin": {
+            "post": {
+                "description": "Receives the engineer's personnel number and a photo of the tools, verifies them against the expected set,\u003cbr\u003eand returns image URL and four arrays:\u003cbr\u003e1) AccessTools - tools that passed automated checks\u003cbr\u003e2) ManualCheckTools - tools requiring manual verification\u003cbr\u003e3) UnknownTools - tools not in the expected set\u003cbr\u003e4) MissingTools - tools missing from the expected set\u003cbr\u003eIf not all tools are in Access, a MANUAL VERIFICATION flag is set.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Instrument delivery operation",
+                "parameters": [
+                    {
+                        "description": "Checkin request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.CheckReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.CheckRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/transaction/checkout": {
+            "post": {
+                "description": "Receives the engineer's personnel number and a photo of the tools,\u003cbr\u003everifies them against the expected set, and returns image URL and four arrays:\u003cbr\u003e1) AccessTools: tools that passed automated checks\u003cbr\u003e2) ManualCheckTools: tools requiring manual verification\u003cbr\u003e3) UnknownTools: tools not in the expected set\u003cbr\u003e4) MissingTools: tools missing from the expected set\u003cbr\u003eIf not all tools are in Access, a MANUAL VERIFICATION flag is set.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Instrument issuance operation",
+                "parameters": [
+                    {
+                        "description": "Checkout request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.CheckReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.CheckRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "v1.CheckReq": {
+            "type": "object",
+            "required": [
+                "employee_id",
+                "image"
+            ],
+            "properties": {
+                "employee_id": {
+                    "type": "string"
+                },
+                "image": {
+                    "$ref": "#/definitions/v1.ImageReq"
+                }
+            }
+        },
+        "v1.CheckRes": {
+            "type": "object",
+            "properties": {
+                "access_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.RecognizedToolDTO"
+                    }
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "manual_check_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.RecognizedToolDTO"
+                    }
+                },
+                "missing_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.ToolTypeDTO"
+                    }
+                },
+                "unknown_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.RecognizedToolDTO"
+                    }
+                }
+            }
+        },
+        "v1.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.ImageReq": {
+            "type": "object",
+            "required": [
+                "content_type",
+                "data",
+                "filename"
+            ],
+            "properties": {
+                "content_type": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "filename": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.RecognizedToolDTO": {
+            "type": "object",
+            "properties": {
+                "confidence": {
+                    "type": "number"
+                },
+                "tool_type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.ToolTypeDTO": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "part_number": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,158 @@
+basePath: /api/v1
+definitions:
+  v1.CheckReq:
+    properties:
+      employee_id:
+        type: string
+      image:
+        $ref: '#/definitions/v1.ImageReq'
+    required:
+    - employee_id
+    - image
+    type: object
+  v1.CheckRes:
+    properties:
+      access_tools:
+        items:
+          $ref: '#/definitions/v1.RecognizedToolDTO'
+        type: array
+      image_url:
+        type: string
+      manual_check_tools:
+        items:
+          $ref: '#/definitions/v1.RecognizedToolDTO'
+        type: array
+      missing_tools:
+        items:
+          $ref: '#/definitions/v1.ToolTypeDTO'
+        type: array
+      unknown_tools:
+        items:
+          $ref: '#/definitions/v1.RecognizedToolDTO'
+        type: array
+    type: object
+  v1.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  v1.ImageReq:
+    properties:
+      content_type:
+        type: string
+      data:
+        items:
+          type: integer
+        type: array
+      filename:
+        type: string
+    required:
+    - content_type
+    - data
+    - filename
+    type: object
+  v1.RecognizedToolDTO:
+    properties:
+      confidence:
+        type: number
+      tool_type_id:
+        type: integer
+    type: object
+  v1.ToolTypeDTO:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      part_number:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for managing airport tools
+  termsOfService: http://swagger.io/terms/
+  title: Airport Tools Backend API
+  version: "1.0"
+paths:
+  /api/v1/transaction/checkin:
+    post:
+      consumes:
+      - application/json
+      description: Receives the engineer's personnel number and a photo of the tools,
+        verifies them against the expected set,<br>and returns image URL and four
+        arrays:<br>1) AccessTools - tools that passed automated checks<br>2) ManualCheckTools
+        - tools requiring manual verification<br>3) UnknownTools - tools not in the
+        expected set<br>4) MissingTools - tools missing from the expected set<br>If
+        not all tools are in Access, a MANUAL VERIFICATION flag is set.
+      parameters:
+      - description: Checkin request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.CheckReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.CheckRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Instrument delivery operation
+      tags:
+      - transactions
+  /api/v1/transaction/checkout:
+    post:
+      consumes:
+      - application/json
+      description: 'Receives the engineer''s personnel number and a photo of the tools,<br>verifies
+        them against the expected set, and returns image URL and four arrays:<br>1)
+        AccessTools: tools that passed automated checks<br>2) ManualCheckTools: tools
+        requiring manual verification<br>3) UnknownTools: tools not in the expected
+        set<br>4) MissingTools: tools missing from the expected set<br>If not all
+        tools are in Access, a MANUAL VERIFICATION flag is set.'
+      parameters:
+      - description: Checkout request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.CheckReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.CheckRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Instrument issuance operation
+      tags:
+      - transactions
+swagger: "2.0"
