@@ -2,7 +2,7 @@ package app
 
 import (
 	"airport-tools-backend/internal/config"
-	"airport-tools-backend/internal/delivery"
+	v1 "airport-tools-backend/internal/delivery/v1"
 	"airport-tools-backend/internal/infrastructure"
 	"airport-tools-backend/internal/repository/postgres"
 	"airport-tools-backend/internal/repository/yandex_s3"
@@ -44,10 +44,10 @@ func Run() {
 	transactionRepo := postgres.NewTransactionRepository(pg.Db)
 	s3 := yandex_s3.NewImageRepository("dsf", "dsf", "sdfsd")
 	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, s3, toolSetRepo)
-	handler := delivery.NewHandler(service)
+	handler := v1.NewHandler(service)
 
 	r := gin.Default()
-	api := r.Group("")
+	api := r.Group("/api")
 	handler.Init(api)
 
 	serverConfig := config.LoadHttpServerConfig()
@@ -78,27 +78,3 @@ func Run() {
 
 	log.Println("server stopped gracefully")
 }
-
-//func printCheckRes(res *usecase.CheckRes) {
-//	fmt.Printf("Image URL: %s\n", res.ImageUrl)
-//
-//	fmt.Println("\nAccess Tools:")
-//	for _, t := range res.AccessTools {
-//		fmt.Printf("- ID: %d, Confidence: %.2f\n", t.ToolTypeId, t.Confidence)
-//	}
-//
-//	fmt.Println("\nManual Check Tools:")
-//	for _, t := range res.ManualCheckTools {
-//		fmt.Printf("- ID: %d, Confidence: %.2f\n", t.ToolTypeId, t.Confidence)
-//	}
-//
-//	fmt.Println("\nUnknown Tools:")
-//	for _, t := range res.UnknownTools {
-//		fmt.Printf("- ID: %d, Confidence: %.2f\n", t.ToolTypeId, t.Confidence)
-//	}
-//
-//	fmt.Println("\nMissing Tools:")
-//	for _, t := range res.MissingTools {
-//		fmt.Printf("- ID: %d, PartNumber: %s, Name: %s\n", t.Id, t.PartNumber, t.Name)
-//	}
-//}
