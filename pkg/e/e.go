@@ -25,7 +25,9 @@ var (
 	ErrEmptyFields = errors.New("empty fields")
 
 	ErrNothingToChange = fmt.Errorf("nothing to change")
-	ErrIncorrectDate   = fmt.Errorf("incorrect date")
+
+	ErrMLServiceNonOK  = errors.New("ML service returned non-OK HTTP status")
+	ErrMLServiceDecode = errors.New("failed to decode ML service response")
 )
 
 func Wrap(msg string, err error) error {
