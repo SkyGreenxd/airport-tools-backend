@@ -3,10 +3,17 @@ package usecase
 import (
 	"airport-tools-backend/internal/domain"
 	"airport-tools-backend/internal/repository"
-	"airport-tools-backend/internal/repository/yandex_s3"
 	"airport-tools-backend/pkg/e"
 	"context"
+	"fmt"
+	"log"
 	"math"
+)
+
+// TODO: заменить на реальные данные
+const (
+	ConfidenceCompare float32 = 0.90
+	CosineSimCompare  float64 = 0.6
 )
 
 type Service struct {
@@ -16,13 +23,13 @@ type Service struct {
 	toolTypeRepo     repository.ToolTypeRepository
 	transactionRepo  repository.TransactionRepository
 	mlGateway        MLGateway
-	yandexS3         yandex_s3.ImageRepository
+	yandexS3         repository.ImageRepository
 	toolSetRepo      repository.ToolSetRepository
 }
 
 func NewService(
 	u repository.UserRepository, c repository.CvScanRepository, cd repository.CvScanDetailRepository,
-	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, y yandex_s3.ImageRepository,
+	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, y repository.ImageRepository,
 	ts repository.ToolSetRepository,
 ) *Service {
 	return &Service{
@@ -52,13 +59,14 @@ func (s *Service) UploadImage(ctx context.Context, req ImageReq) (*UploadImageRe
 	return NewUploadImageRes(image.ImageId, image.ImageUrl), nil
 }
 
-func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
-	const op = "usecase.Checkin"
+// Checkout отвечает за выдачу инструментов инженеру
+func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
+	const op = "usecase.Checkout"
 
 	// проверка что фото не пустое, потом вынести можно в хэндлер
-	if req.Image.Filename == "" || req.Image.ContentType == "" || len(req.Image.Data) == 0 {
-		return nil, e.Wrap(op, e.ErrEmptyFields)
-	}
+	//if req.Image.Filename == "" || req.Image.ContentType == "" || len(req.Image.Data) == 0 {
+	//	return nil, e.Wrap(op, e.ErrEmptyFields)
+	//}
 
 	// проверка что инженер существует
 	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
@@ -86,6 +94,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 	}
 
 	// создание транзакции
+	// TODO: нельзя сделать новую выдачу инженеру если не закрыта прошлая транзакция
 	// TODO: мб не оч хорошо, что если в дальнейшем будут ошибки, то транзакция открыта
 	newTransaction := domain.NewTransaction(user.Id, referenceSet.Id)
 	transaction, err := s.transactionRepo.Create(ctx, newTransaction)
@@ -101,18 +110,19 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 
 	// проверка скана
 	// TODO: 0.98 и 0.90 лучше вынести в конфигурацию.
-	filterReq := NewFilterReq(0.98, 0.90, scanResult.Tools, referenceSet.Tools)
+	filterReq := NewFilterReq(ConfidenceCompare, CosineSimCompare, scanResult.Tools, referenceSet.Tools)
 	filterRes, err := filterRecognizedTools(filterReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImageRes.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools), nil
+	return NewCheckinRes(uploadImageRes.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
 }
 
 // TODO: допилить reason/status
-func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
-	const op = "usecase.Checkout"
+// Checkin отвечает за возврат инструментов инженером
+func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
+	const op = "usecase.Checkin"
 
 	// проверка что инженер существует
 	//TODO: мб можно сделать будет проверку на то что в транзакции у юзера тот айди???
@@ -140,7 +150,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	transaction, err := s.transactionRepo.GetByUserId(ctx, req.EmployeeId)
+	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, user.Id)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -151,8 +161,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 	}
 
 	// проверка скана
-	// TODO: 0.98 и 0.90 лучше вынести в конфигурацию.
-	filterReq := NewFilterReq(0.98, 0.90, scanResult.Tools, referenceSet.Tools)
+	filterReq := NewFilterReq(ConfidenceCompare, CosineSimCompare, scanResult.Tools, referenceSet.Tools)
 	filterRes, err := filterRecognizedTools(filterReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -160,13 +169,13 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 
 	// TODO: при ошибках тоже надо как то менять статус
 	var status domain.Status
-	var reason string
-	if len(filterRes.ManualCheckTools) == 0 && len(filterRes.UnknownTools) == 0 {
+	var reason domain.Reason
+	if len(filterRes.ManualCheckTools) == 0 && len(filterRes.UnknownTools) == 0 && len(filterRes.MissingTools) == 0 {
 		status = domain.CLOSED
-		reason = "all instruments have been handed over" // TODO: поменять потом
+		reason = domain.RETURNED
 	} else {
 		status = domain.MANUAL
-		reason = "there are unknown instruments" // TODO: поменять потом
+		reason = domain.PROBLEMS
 	}
 
 	transaction.Status = status
@@ -175,11 +184,21 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImage.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools), nil
+	return NewCheckinRes(uploadImage.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
 }
 
 func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 	const op = "usecase.CreateScan"
+
+	tools, err := s.toolTypeRepo.GetAll(ctx)
+	if err != nil {
+		return e.Wrap(op, err)
+	}
+
+	toolMap := make(map[int64]*domain.ToolType)
+	for _, t := range tools {
+		toolMap[t.Id] = t
+	}
 
 	newScan := domain.NewCvScan(req.TransactionId, req.ScanType, req.ImageUrl)
 	scan, err := s.cvScanRepo.Create(ctx, newScan)
@@ -187,11 +206,15 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 		return e.Wrap(op, err)
 	}
 
-	for _, tool := range req.Tools {
-		scanDetail := domain.NewCvScanDetail(scan.Id, tool.ToolTypeId, tool.HashTool, tool.Embedding)
-		_, err := s.cvScanDetailRepo.Create(ctx, scanDetail)
-		if err != nil {
-			return e.Wrap(op, err)
+	for _, recognized := range req.Tools {
+		if _, exists := toolMap[recognized.ToolTypeId]; exists {
+			scanDetail := domain.NewCvScanDetail(scan.Id, recognized.ToolTypeId, recognized.Confidence, recognized.HashTool, recognized.Embedding)
+			_, err := s.cvScanDetailRepo.Create(ctx, scanDetail)
+			if err != nil {
+				return e.Wrap(op, err)
+			}
+		} else {
+			log.Printf("unknown tool type: %v", recognized.ToolTypeId)
 		}
 	}
 
@@ -202,13 +225,16 @@ func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
 	accessTools := make([]*domain.RecognizedTool, 0, len(req.Tools))
 	manualCheckTools := make([]*domain.RecognizedTool, 0, len(req.Tools))
 	unknownTools := make([]*domain.RecognizedTool, 0, len(req.Tools))
+	missingTools := make([]*ToolTypeDTO, 0)
 
+	// создаём мапу ReferenceTools для быстрого поиска
 	// создаём мапу ReferenceTools для быстрого поиска
 	refMap := make(map[int64]*domain.ToolType)
 	for _, r := range req.ReferenceTools {
 		refMap[r.Id] = r
 	}
 
+	recognizedMap := make(map[int64]*domain.RecognizedTool)
 	for _, recognized := range req.Tools {
 		ref, exists := refMap[recognized.ToolTypeId]
 		if !exists {
@@ -218,14 +244,24 @@ func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
 		}
 
 		cosSim := cosineSimilarity(ref.ReferenceEmbedding, recognized.Embedding)
+		fmt.Printf("DEBUG: toolId: %d, Confidence: %f, cosSim: %f\n", recognized.ToolTypeId, recognized.Confidence, cosSim)
 		if cosSim >= req.CosineSimCompare && recognized.Confidence >= req.ConfidenceCompare {
 			accessTools = append(accessTools, recognized)
 		} else {
 			manualCheckTools = append(manualCheckTools, recognized)
 		}
+
+		recognizedMap[recognized.ToolTypeId] = recognized
 	}
 
-	return NewFilterRes(accessTools, manualCheckTools, unknownTools), nil
+	// отсутствующие инструменты из референсного набора
+	for _, ref := range req.ReferenceTools {
+		if _, ok := recognizedMap[ref.Id]; !ok {
+			missingTools = append(missingTools, ToToolTypeDTO(ref))
+		}
+	}
+
+	return NewFilterRes(accessTools, manualCheckTools, unknownTools, missingTools), nil
 }
 
 func cosineSimilarity(reference, recognized []float32) float64 {
