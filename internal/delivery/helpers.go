@@ -25,6 +25,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionNotFound):
 		code = http.StatusNotFound
 		message = "transaction not found"
+	case errors.Is(err, e.ErrTransactionUnfinished):
+		code = http.StatusBadRequest
+		message = "you have an unfinished issue"
 	default:
 		code = http.StatusInternalServerError
 		message = "internal server error"
