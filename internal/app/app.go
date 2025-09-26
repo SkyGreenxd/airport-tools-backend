@@ -1,0 +1,104 @@
+package app
+
+import (
+	"airport-tools-backend/internal/config"
+	"airport-tools-backend/internal/delivery"
+	"airport-tools-backend/internal/infrastructure"
+	"airport-tools-backend/internal/repository/postgres"
+	"airport-tools-backend/internal/repository/yandex_s3"
+	"airport-tools-backend/internal/server"
+	"airport-tools-backend/internal/usecase"
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
+	"github.com/gin-gonic/gin"
+)
+
+func Run() {
+	if err := config.LoadEnv(); err != nil {
+		log.Fatal(err)
+	}
+
+	pg, err := postgres.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func() {
+		if err := pg.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	ctx := context.TODO()
+	ml := infrastructure.NewMlGateway(http.DefaultClient, "http://localhost:8000")
+	userRepo := postgres.NewUserRepository(pg.Db)
+	cvScanDetailRepo := postgres.NewCvScanDetailRepository(pg.Db)
+	cvScanRepo := postgres.NewCvScanRepository(pg.Db)
+	toolSetRepo := postgres.NewToolSetRepository(pg.Db)
+	toolTypeRepo := postgres.NewToolTypeRepository(pg.Db)
+	transactionRepo := postgres.NewTransactionRepository(pg.Db)
+	s3 := yandex_s3.NewImageRepository("dsf", "dsf", "sdfsd")
+	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, s3, toolSetRepo)
+	handler := delivery.NewHandler(service)
+
+	r := gin.Default()
+	api := r.Group("")
+	handler.Init(api)
+
+	serverConfig := config.LoadHttpServerConfig()
+	server := server.NewServer(r, serverConfig)
+
+	// 9. Контекст для graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	// 10. Запуск сервера в горутине
+	go func() {
+		log.Printf("starting server on port %s", serverConfig.Port)
+		if err := server.Run(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("server failed: %v", err)
+		}
+	}()
+
+	// 11. Ожидание сигнала завершения
+	<-ctx.Done()
+	log.Println("shutting down server...")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := server.Stop(shutdownCtx); err != nil {
+		log.Fatalf("server forced to shutdown: %v", err)
+	}
+
+	log.Println("server stopped gracefully")
+}
+
+//func printCheckRes(res *usecase.CheckRes) {
+//	fmt.Printf("Image URL: %s\n", res.ImageUrl)
+//
+//	fmt.Println("\nAccess Tools:")
+//	for _, t := range res.AccessTools {
+//		fmt.Printf("- ID: %d, Confidence: %.2f\n", t.ToolTypeId, t.Confidence)
+//	}
+//
+//	fmt.Println("\nManual Check Tools:")
+//	for _, t := range res.ManualCheckTools {
+//		fmt.Printf("- ID: %d, Confidence: %.2f\n", t.ToolTypeId, t.Confidence)
+//	}
+//
+//	fmt.Println("\nUnknown Tools:")
+//	for _, t := range res.UnknownTools {
+//		fmt.Printf("- ID: %d, Confidence: %.2f\n", t.ToolTypeId, t.Confidence)
+//	}
+//
+//	fmt.Println("\nMissing Tools:")
+//	for _, t := range res.MissingTools {
+//		fmt.Printf("- ID: %d, PartNumber: %s, Name: %s\n", t.Id, t.PartNumber, t.Name)
+//	}
+//}
