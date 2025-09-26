@@ -43,7 +43,7 @@ type TransactionModel struct {
 	UserId    int64
 	ToolSetId int64
 	Status    domain.Status
-	Reason    *string
+	Reason    *domain.Reason
 
 	User    *UserModel     `gorm:"foreignkey:UserId"`
 	CvScans []*CvScanModel `gorm:"foreignkey:TransactionId"`
