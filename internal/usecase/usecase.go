@@ -12,8 +12,8 @@ import (
 
 // TODO: заменить на реальные данные
 const (
-	ConfidenceCompare float32 = 0.90
-	CosineSimCompare  float64 = 0.6
+	ConfidenceCompare float32 = 0.10
+	CosineSimCompare  float64 = 0.10
 )
 
 type Service struct {
@@ -74,6 +74,11 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
+	// проверка что у инженера нет открытых транзакций
+	if _, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, user.Id); err == nil {
+		return nil, e.Wrap(op, e.ErrTransactionUnfinished)
+	}
+
 	// сохранение фотки в s3
 	uploadImageRes, err := s.UploadImage(ctx, req.Image)
 	if err != nil {
@@ -131,6 +136,11 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
+	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, user.Id)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
 	// сохранение фотки в s3
 	uploadImage, err := s.UploadImage(ctx, req.Image)
 	if err != nil {
@@ -146,11 +156,6 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 
 	// Поиск сета
 	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, user.DefaultToolSetId)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, user.Id)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
