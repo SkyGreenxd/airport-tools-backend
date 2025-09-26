@@ -13,11 +13,18 @@ type ImageReq struct {
 	Data        []byte
 }
 
+type ToolTypeDTO struct {
+	Id         int64
+	PartNumber string
+	Name       string
+}
+
 type CheckRes struct {
 	ImageUrl         string
 	AccessTools      []*domain.RecognizedTool
 	ManualCheckTools []*domain.RecognizedTool
 	UnknownTools     []*domain.RecognizedTool
+	MissingTools     []*ToolTypeDTO
 }
 
 type ScanRequest struct {
@@ -47,11 +54,20 @@ type FilterRes struct {
 	AccessTools      []*domain.RecognizedTool
 	ManualCheckTools []*domain.RecognizedTool
 	UnknownTools     []*domain.RecognizedTool
+	MissingTools     []*ToolTypeDTO
 }
 
 type UploadImageRes struct {
 	ImageId  string
 	ImageUrl string
+}
+
+func ToToolTypeDTO(tool *domain.ToolType) *ToolTypeDTO {
+	return &ToolTypeDTO{
+		Id:         tool.Id,
+		PartNumber: tool.PartNumber,
+		Name:       tool.Name,
+	}
 }
 
 func NewUploadImageRes(imageId string, imageUrl string) *UploadImageRes {
@@ -61,20 +77,22 @@ func NewUploadImageRes(imageId string, imageUrl string) *UploadImageRes {
 	}
 }
 
-func NewCheckinRes(imageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool) *CheckRes {
+func NewCheckinRes(imageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *CheckRes {
 	return &CheckRes{
 		ImageUrl:         imageUrl,
 		AccessTools:      accessTools,
 		ManualCheckTools: manualCheckTools,
 		UnknownTools:     unknownTools,
+		MissingTools:     missingTools,
 	}
 }
 
-func NewFilterRes(accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool) *FilterRes {
+func NewFilterRes(accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *FilterRes {
 	return &FilterRes{
 		AccessTools:      accessTools,
 		ManualCheckTools: manualCheckTools,
 		UnknownTools:     unknownTools,
+		MissingTools:     missingTools,
 	}
 }
 
