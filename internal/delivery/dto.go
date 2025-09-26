@@ -5,6 +5,12 @@ import (
 	"airport-tools-backend/internal/usecase"
 )
 
+type MockCheckReq struct {
+	EmployeeId string `json:"employee_id"`
+	ImageId    string `json:"image_id"`
+	ImageUrl   string `json:"image_url"`
+}
+
 type CheckReq struct {
 	EmployeeId string   `json:"employee_id" binding:"required"`
 	Image      ImageReq `json:"image" binding:"required"`
