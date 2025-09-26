@@ -6,26 +6,41 @@ import (
 )
 
 type ImageRepository struct {
-	bucket string
-	// ...
+	Bucket string
+	KeyID  string
+	Secret string
+	// Client   *s3.Client
 }
 
-func NewImageRepository(bucket string) *ImageRepository {
+func NewImageRepository(bucket, keyId, secret string) *ImageRepository {
 	return &ImageRepository{
-		bucket: bucket,
+		Bucket: bucket,
+		KeyID:  keyId,
+		Secret: secret,
 	}
 }
 
-func (p *ImageRepository) Create(ctx context.Context, Image *domain.Image) (*domain.Image, error) {
-	const op = "ImageRepository.Create"
+// TODO: доделать функции
+func (i *ImageRepository) Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error) {
+	const op = "ImageRepository.Save"
 
+	return &domain.UploadImage{
+		ImageId:  "1",
+		ImageUrl: "/Users/skygreen/Downloads/DSCN4946.JPG",
+	}, nil
 }
 
-func (p *ImageRepository) GetById(ctx context.Context, id uint64) (*domain.Image, error) {
-	const op = "ImageRepository.GetById"
+// TODO: доделать функции
+func (i *ImageRepository) Get(ctx context.Context, name string) (*domain.Image, error) {
+	const op = "ImageRepository.Get"
 
+	return &domain.Image{}, nil
 }
 
 func toImageModel(p *domain.Image) *ImageModel {
-
+	return &ImageModel{
+		Id:   p.Id,
+		Name: p.Name,
+		Size: p.Size,
+	}
 }
