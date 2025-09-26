@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type MlGateway struct {
@@ -16,8 +17,11 @@ type MlGateway struct {
 	baseUrl string
 }
 
-func NewMlGateway(client *http.Client) *MlGateway {
-	return &MlGateway{}
+func NewMlGateway(client *http.Client, baseUrl string) *MlGateway {
+	return &MlGateway{
+		client:  client,
+		baseUrl: baseUrl,
+	}
 }
 
 type mlAPIResponse struct {
@@ -27,7 +31,7 @@ type mlAPIResponse struct {
 		ToolTypeId int64     `json:"class"`
 		Confidence float32   `json:"confidence"`
 		Embedding  []float32 `json:"embedding"`
-		Hash       string    `json:"hash"`
+		Hash       int       `json:"hash"`
 	} `json:"instruments"`
 	ImageUrl string `json:"debug_image_url"`
 }
@@ -41,6 +45,7 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 		url.QueryEscape(req.ImageId),
 		url.QueryEscape(req.ImageUrl),
 	)
+	// fmt.Println("Debug: " + getUrl)
 	res, err := ml.client.Get(getUrl)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -48,18 +53,18 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return nil, e.Wrap(op, fmt.Errorf("ml service returned non-200 status: %d", res.StatusCode))
+		return nil, e.Wrap(op, fmt.Errorf("%s: %d", e.ErrMLServiceNonOK, res.StatusCode))
 	}
 
 	var apiResp mlAPIResponse
 	decoder := json.NewDecoder(res.Body)
 	if err := decoder.Decode(&apiResp); err != nil {
-		return nil, fmt.Errorf("failed to decode ml service response: %w", err)
+		return nil, e.Wrap(op, fmt.Errorf("%s: %w", e.ErrMLServiceDecode, err))
 	}
 
 	var scanResult usecase.ScanResult
 	for _, instrument := range apiResp.Instruments {
-		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId, instrument.Confidence, instrument.Hash, instrument.Embedding)
+		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, strconv.Itoa(instrument.Hash), instrument.Embedding)
 		scanResult.Tools = append(scanResult.Tools, recognizedTool)
 	}
 
