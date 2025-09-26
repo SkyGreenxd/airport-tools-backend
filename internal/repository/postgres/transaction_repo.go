@@ -42,11 +42,25 @@ func (t *TransactionRepository) GetById(ctx context.Context, id int64) (*domain.
 	return toDomainTransaction(&model), nil
 }
 
-func (t *TransactionRepository) GetByUserId(ctx context.Context, userId string) (*domain.Transaction, error) {
+func (t *TransactionRepository) GetByUserId(ctx context.Context, userId int64) (*domain.Transaction, error) {
 	const op = "TransactionRepository.GetByEmployeeId"
 
 	var model TransactionModel
 	result := t.DB.WithContext(ctx).First(&model, "user_id = ?", userId)
+	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainTransaction(&model), nil
+}
+
+func (t *TransactionRepository) GetByUserIdWhereStatusIsOpenOrManual(ctx context.Context, userId int64) (*domain.Transaction, error) {
+	const op = "TransactionRepository.GetByUserIdWhereStatusIsOpenOrManual"
+	var model TransactionModel
+	result := t.DB.WithContext(ctx).
+		Where("user_id = ? AND status IN ?", userId, []domain.Status{domain.OPEN, domain.MANUAL}).
+		First(&model)
+
 	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
