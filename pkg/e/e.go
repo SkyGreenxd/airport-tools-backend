@@ -29,6 +29,8 @@ var (
 
 	ErrMLServiceNonOK  = errors.New("ML service returned non-OK HTTP status")
 	ErrMLServiceDecode = errors.New("failed to decode ML service response")
+
+	ErrInvalidRequestBody = errors.New("invalid request body")
 )
 
 func Wrap(msg string, err error) error {
