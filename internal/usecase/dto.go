@@ -2,6 +2,13 @@ package usecase
 
 import "airport-tools-backend/internal/domain"
 
+// TODO: удалить
+type MockCheckReq struct {
+	EmployeeId string
+	ImageId    string
+	ImageUrl   string
+}
+
 type CheckReq struct {
 	EmployeeId string
 	Image      ImageReq
