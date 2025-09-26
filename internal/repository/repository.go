@@ -57,3 +57,8 @@ type CvScanDetailRepository interface {
 	GetById(ctx context.Context, id int64) (*domain.CvScanDetail, error)
 	GetByCvScanId(ctx context.Context, cvScanId int64) ([]*domain.CvScanDetail, error)
 }
+
+type ImageRepository interface {
+	Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error)
+	Get(ctx context.Context, name string) (*domain.Image, error)
+}
