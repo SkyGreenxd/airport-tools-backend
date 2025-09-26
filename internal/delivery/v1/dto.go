@@ -1,4 +1,4 @@
-package delivery
+package v1
 
 import (
 	"airport-tools-backend/internal/domain"
@@ -6,9 +6,9 @@ import (
 )
 
 type MockCheckReq struct {
-	EmployeeId string `json:"employee_id"`
-	ImageId    string `json:"image_id"`
-	ImageUrl   string `json:"image_url"`
+	EmployeeId string `json:"employee_id" binding:"required"`
+	ImageId    string `json:"image_id" binding:"required"`
+	ImageUrl   string `json:"image_url" binding:"required"`
 }
 
 type CheckReq struct {
