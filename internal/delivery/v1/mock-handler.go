@@ -1,7 +1,8 @@
-package delivery
+package v1
 
 import (
 	"airport-tools-backend/internal/usecase"
+	"airport-tools-backend/pkg/e"
 	"log"
 	"net/http"
 
@@ -12,9 +13,7 @@ func (h *Handler) mockCheckout(c *gin.Context) {
 	var req MockCheckReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request body",
-		})
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 		return
 	}
 
@@ -35,9 +34,7 @@ func (h *Handler) mockCheckin(c *gin.Context) {
 	var req MockCheckReq
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "invalid request body",
-		})
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 		return
 	}
 
