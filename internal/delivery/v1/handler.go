@@ -3,7 +3,6 @@ package v1
 import (
 	"airport-tools-backend/internal/usecase"
 	"airport-tools-backend/pkg/e"
-	"log"
 	"net/http"
 
 	_ "airport-tools-backend/docs"
@@ -55,7 +54,6 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 func (h *Handler) checkout(c *gin.Context) {
 	var req CheckReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Println(err)
 		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 		return
 	}
@@ -63,6 +61,7 @@ func (h *Handler) checkout(c *gin.Context) {
 	res, err := h.service.Checkout(c.Request.Context(), ToUseCaseCheckReq(&req))
 	if err != nil {
 		ErrorToHttpRes(err, c)
+		return
 	}
 
 	c.JSON(http.StatusOK, ToDeliveryCheckRes(res))
@@ -85,7 +84,6 @@ func (h *Handler) checkout(c *gin.Context) {
 func (h *Handler) checkin(c *gin.Context) {
 	var req CheckReq
 	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Println(err)
 		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 		return
 	}
@@ -93,6 +91,7 @@ func (h *Handler) checkin(c *gin.Context) {
 	res, err := h.service.Checkin(c.Request.Context(), ToUseCaseCheckReq(&req))
 	if err != nil {
 		ErrorToHttpRes(err, c)
+		return
 	}
 
 	c.JSON(http.StatusOK, ToDeliveryCheckRes(res))

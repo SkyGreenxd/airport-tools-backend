@@ -5,7 +5,6 @@ import (
 	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/pkg/e"
 	"context"
-	"fmt"
 	"log"
 	"math"
 )
@@ -249,7 +248,7 @@ func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
 		}
 
 		cosSim := cosineSimilarity(ref.ReferenceEmbedding, recognized.Embedding)
-		fmt.Printf("DEBUG: toolId: %d, Confidence: %f, cosSim: %f\n", recognized.ToolTypeId, recognized.Confidence, cosSim)
+		// fmt.Printf("DEBUG: toolId: %d, Confidence: %f, cosSim: %f\n", recognized.ToolTypeId, recognized.Confidence, cosSim)
 		if cosSim >= req.CosineSimCompare && recognized.Confidence >= req.ConfidenceCompare {
 			accessTools = append(accessTools, recognized)
 		} else {
