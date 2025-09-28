@@ -3,8 +3,8 @@ package domain
 type ScanType string
 
 const (
-	Checkin  ScanType = "checkin"
-	Checkout ScanType = "checkout"
+	Checkin  ScanType = "checkin"  // сдача инструментов
+	Checkout ScanType = "checkout" // выдача инструментов
 )
 
 type CvScan struct {

@@ -1,6 +1,5 @@
 package domain
 
-// RecognizedTool более легкая сущность для работы в сервисе
 type RecognizedTool struct {
 	ToolTypeId int64
 	Confidence float32

@@ -5,9 +5,9 @@ import "airport-tools-backend/pkg/e"
 type Role string
 
 const (
-	Engineer       Role = "Engineer"        // Авиатехник / Инженер
-	QualityAuditor Role = "Quality Auditor" // Специалист службы качества / аудит
-	SupplyManager  Role = "Supply Manager"  // Руководитель материально-технического снабжения
+	Engineer Role = "Engineer" // Авиатехник / Инженер
+	// QualityAuditor Role = "Quality Auditor" // Специалист службы качества / аудит
+	// SupplyManager  Role = "Supply Manager"  // Руководитель материально-технического снабжения
 )
 
 type User struct {
@@ -29,17 +29,16 @@ func NewUser(fullName, employeeId string, role Role, toolSetId int64) *User {
 	}
 }
 
-// Функция для проверки роли, если она пришла извне
-func ValidateRole(r Role) bool {
-	switch r {
-	case Engineer, QualityAuditor, SupplyManager:
-		return true
+func (u *User) ValidateEmployeeId(newEmployeeId string) error {
+	if u.EmployeeId == newEmployeeId {
+		return e.ErrNothingToChange
 	}
 
-	return false
+	u.EmployeeId = newEmployeeId
+	return nil
 }
 
-func (u *User) ChangeFullName(newFullName string) error {
+func (u *User) ValidateFullName(newFullName string) error {
 	if u.FullName == newFullName {
 		return e.ErrNothingToChange
 	}
@@ -48,11 +47,20 @@ func (u *User) ChangeFullName(newFullName string) error {
 	return nil
 }
 
-func (u *User) ChangeRole(r Role) error {
-	if u.Role == r {
+func (u *User) ValidateRole(newRole Role) error {
+	if u.Role == newRole {
 		return e.ErrNothingToChange
 	}
 
-	u.Role = r
+	u.Role = newRole
+	return nil
+}
+
+func (u *User) ValidateDefaultToolSetId(newToolSetId int64) error {
+	if u.DefaultToolSetId == newToolSetId {
+		return e.ErrNothingToChange
+	}
+
+	u.DefaultToolSetId = newToolSetId
 	return nil
 }

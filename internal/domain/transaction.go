@@ -1,7 +1,5 @@
 package domain
 
-// Transaction представляет запись о выдаче или возврате инструментов
-
 type Status string
 type Reason string
 

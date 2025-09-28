@@ -1,6 +1,5 @@
 package domain
 
-// CvScanDetail сущность создана для работы с бд
 type CvScanDetail struct {
 	Id                 int64
 	CvScanId           int64

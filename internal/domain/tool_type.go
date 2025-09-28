@@ -2,13 +2,12 @@ package domain
 
 import "airport-tools-backend/pkg/e"
 
-// ToolType описывает тип инструмента
 type ToolType struct {
 	Id                 int64
-	PartNumber         string    // партийный номер
-	Name               string    // имя
-	ReferenceImageHash string    // хэш упражнения
-	ReferenceEmbedding []float32 // эмбеддинг
+	PartNumber         string
+	Name               string
+	ReferenceImageHash string
+	ReferenceEmbedding []float32
 
 	ToolSets []*ToolSet
 }
@@ -22,11 +21,10 @@ func NewToolType(partNumber, name, referenceImageHash string, referenceEmbedding
 	}
 }
 
-func (t *ToolType) ChangName(name string) error {
-	if t.Name == name {
+func (t *ToolType) ValidateName(newName string) error {
+	if t.Name == newName {
 		return e.ErrNothingToChange
 	}
 
-	t.Name = name
 	return nil
 }
