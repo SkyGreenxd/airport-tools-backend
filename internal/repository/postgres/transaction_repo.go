@@ -124,7 +124,8 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 		"reason": transaction.Reason,
 	}
 
-	result := t.DB.WithContext(ctx).Model(&TransactionModel{}).Where("id = ?", transaction.Id).Updates(updates)
+	var updTransaction TransactionModel
+	result := t.DB.WithContext(ctx).Model(&TransactionModel{}).Where("id = ?", transaction.Id).Updates(updates).Scan(&updTransaction)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -133,12 +134,7 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 		return nil, e.Wrap(op, e.ErrTransactionNotFound)
 	}
 
-	updTransaction, err := t.GetById(ctx, transaction.Id)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	return updTransaction, nil
+	return toDomainTransaction(&updTransaction), nil
 }
 
 func toTransactionModel(t *domain.Transaction) *TransactionModel {

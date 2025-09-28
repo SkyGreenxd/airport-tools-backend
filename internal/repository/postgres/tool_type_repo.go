@@ -78,7 +78,9 @@ func (t *ToolTypeRepository) Update(ctx context.Context, toolType *domain.ToolTy
 	updates := map[string]interface{}{
 		"name": toolType.Name,
 	}
-	result := t.DB.WithContext(ctx).Model(&ToolTypeModel{}).Where("id = ?", toolType.Id).Updates(updates)
+
+	var updToolType ToolTypeModel
+	result := t.DB.WithContext(ctx).Model(&ToolTypeModel{}).Where("id = ?", toolType.Id).Updates(updates).Scan(&updToolType)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -87,12 +89,7 @@ func (t *ToolTypeRepository) Update(ctx context.Context, toolType *domain.ToolTy
 		return nil, e.ErrToolTypeNotFound
 	}
 
-	updToolType, err := t.GetById(ctx, toolType.Id)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	return updToolType, nil
+	return toDomainToolType(&updToolType), nil
 }
 
 func toToolTypeModel(t *domain.ToolType) *ToolTypeModel {

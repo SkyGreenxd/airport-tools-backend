@@ -98,12 +98,14 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain
 	const op = "UserRepository.Update"
 
 	updates := map[string]interface{}{
+		"employee_id":         user.EmployeeId,
 		"full_name":           user.FullName,
 		"role":                user.Role,
 		"default_tool_set_id": user.DefaultToolSetId,
 	}
 
-	result := u.DB.WithContext(ctx).Model(&UserModel{}).Where("id = ?", user.Id).Updates(updates)
+	var updUser UserModel
+	result := u.DB.WithContext(ctx).Model(&UserModel{}).Where("id = ?", user.Id).Updates(updates).Scan(&updUser)
 	if err := postgresDuplicate(result, e.ErrUserNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -112,12 +114,7 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain
 		return nil, e.ErrUserNotFound
 	}
 
-	updUser, err := u.GetById(ctx, user.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	return updUser, nil
+	return toDomainUser(&updUser), nil
 }
 
 func toUserModel(u *domain.User) *UserModel {

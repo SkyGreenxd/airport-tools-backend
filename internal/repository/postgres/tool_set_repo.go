@@ -71,7 +71,8 @@ func (t *ToolSetRepository) Update(ctx context.Context, toolSet *domain.ToolSet)
 		"name": toolSet.Name,
 	}
 
-	result := t.DB.WithContext(ctx).Model(&ToolSetModel{}).Where("id = ?", toolSet.Id).Updates(updates)
+	var updSet ToolSetModel
+	result := t.DB.WithContext(ctx).Model(&ToolSetModel{}).Where("id = ?", toolSet.Id).Updates(updates).Scan(&updSet)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -80,12 +81,7 @@ func (t *ToolSetRepository) Update(ctx context.Context, toolSet *domain.ToolSet)
 		return nil, e.Wrap(op, e.ErrTransactionNotFound)
 	}
 
-	updSet, err := t.GetById(ctx, toolSet.Id)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	return updSet, nil
+	return toDomainToolSet(&updSet), nil
 }
 
 func (t *ToolSetRepository) GetByIdWithTools(ctx context.Context, id int64) (*domain.ToolSet, error) {
