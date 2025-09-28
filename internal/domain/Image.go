@@ -1,16 +1,17 @@
 package domain
 
-// TODO: дождаться гранта на yandex s3 / или юзать MinIO
-// TODO: создать таблицу для хранения фотки или хранить в cv_scans
 type Image struct {
-	Id   string
-	Name string
-	Size int64
+	Name     string
+	Size     int64
+	MimeType string
+	Data     []byte
 }
 
-func NewImage(name string, size int64) *Image {
+func NewImage(name string, size int64, mimeType string, data []byte) *Image {
 	return &Image{
-		Name: name,
-		Size: size,
+		Name:     name,
+		Size:     size,
+		MimeType: mimeType,
+		Data:     data,
 	}
 }

@@ -34,16 +34,23 @@ func Run() {
 		}
 	}()
 
-	ctx := context.TODO()
-	ml := infrastructure.NewMlGateway(http.DefaultClient, "http://localhost:8000")
 	userRepo := postgres.NewUserRepository(pg.Db)
 	cvScanDetailRepo := postgres.NewCvScanDetailRepository(pg.Db)
 	cvScanRepo := postgres.NewCvScanRepository(pg.Db)
 	toolSetRepo := postgres.NewToolSetRepository(pg.Db)
 	toolTypeRepo := postgres.NewToolTypeRepository(pg.Db)
 	transactionRepo := postgres.NewTransactionRepository(pg.Db)
-	s3 := yandex_s3.NewImageRepository("dsf", "dsf", "sdfsd")
+
+	// TODO: проверить все ли верно с S3
+	bucketName := os.Getenv("BUCKET_NAME")
+	s3, err := yandex_s3.InitS3(bucketName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ml := infrastructure.NewMlGateway(http.DefaultClient, "http://localhost:8000")
 	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, s3, toolSetRepo)
+
 	handler := v1.NewHandler(service)
 
 	r := gin.Default()

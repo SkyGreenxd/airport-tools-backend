@@ -1,13 +1,13 @@
 package domain
 
 type UploadImage struct {
-	ImageId  string
+	Key      string
 	ImageUrl string
 }
 
-func NewUploadImage(imageId, imageUrl string) *UploadImage {
+func NewUploadImage(key, imageUrl string) *UploadImage {
 	return &UploadImage{
-		ImageId:  imageId,
+		Key:      key,
 		ImageUrl: imageUrl,
 	}
 }

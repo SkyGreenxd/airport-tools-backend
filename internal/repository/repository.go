@@ -60,5 +60,4 @@ type CvScanDetailRepository interface {
 
 type ImageRepository interface {
 	Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error)
-	Get(ctx context.Context, name string) (*domain.Image, error)
 }

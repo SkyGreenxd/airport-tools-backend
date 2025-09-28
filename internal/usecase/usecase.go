@@ -5,6 +5,8 @@ import (
 	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/pkg/e"
 	"context"
+	"encoding/base64"
+	"fmt"
 	"log"
 	"math"
 )
@@ -22,7 +24,7 @@ type Service struct {
 	toolTypeRepo     repository.ToolTypeRepository
 	transactionRepo  repository.TransactionRepository
 	mlGateway        MLGateway
-	yandexS3         repository.ImageRepository
+	S3               repository.ImageRepository
 	toolSetRepo      repository.ToolSetRepository
 }
 
@@ -38,7 +40,7 @@ func NewService(
 		toolTypeRepo:     tt,
 		transactionRepo:  t,
 		mlGateway:        ml,
-		yandexS3:         y,
+		S3:               y,
 		toolSetRepo:      ts,
 	}
 }
@@ -49,23 +51,25 @@ func (s *Service) MlService() (string, error) {
 
 // TODO: доделать, реализовать возвращение айди (бакет+имя)
 func (s *Service) UploadImage(ctx context.Context, req ImageReq) (*UploadImageRes, error) {
-	newImage := domain.NewImage(req.Filename, int64(len(req.Data)))
-	image, err := s.yandexS3.Save(ctx, newImage)
+	const op = "usecase.UploadImage"
+
+	imgBytes, err := base64.StdEncoding.DecodeString(req.Data)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	newImage := domain.NewImage(req.Filename, int64(len(req.Data)), req.ContentType, imgBytes)
+	image, err := s.S3.Save(ctx, newImage)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewUploadImageRes(image.ImageId, image.ImageUrl), nil
+	return NewUploadImageRes(image.Key, image.ImageUrl), nil
 }
 
 // Checkout отвечает за выдачу инструментов инженеру
 func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
 	const op = "usecase.Checkout"
-
-	// проверка что фото не пустое, потом вынести можно в хэндлер
-	//if req.Image.Filename == "" || req.Image.ContentType == "" || len(req.Image.Data) == 0 {
-	//	return nil, e.Wrap(op, e.ErrEmptyFields)
-	//}
 
 	// проверка что инженер существует
 	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
@@ -85,7 +89,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 	}
 
 	// отправка фото в ML сервис
-	scanReq := NewScanReq(uploadImageRes.ImageId, uploadImageRes.ImageUrl)
+	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -147,7 +151,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 	}
 
 	// отправка фото в ML сервис
-	scanReq := NewScanReq(uploadImage.ImageId, uploadImage.ImageUrl)
+	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -248,7 +252,7 @@ func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
 		}
 
 		cosSim := cosineSimilarity(ref.ReferenceEmbedding, recognized.Embedding)
-		// fmt.Printf("DEBUG: toolId: %d, Confidence: %f, cosSim: %f\n", recognized.ToolTypeId, recognized.Confidence, cosSim)
+		fmt.Printf("DEBUG: toolId: %d, Confidence: %f, cosSim: %f\n", recognized.ToolTypeId, recognized.Confidence, cosSim)
 		if cosSim >= req.CosineSimCompare && recognized.Confidence >= req.ConfidenceCompare {
 			accessTools = append(accessTools, recognized)
 		} else {

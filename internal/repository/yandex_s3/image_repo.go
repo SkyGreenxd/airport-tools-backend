@@ -2,45 +2,48 @@ package yandex_s3
 
 import (
 	"airport-tools-backend/internal/domain"
+	"airport-tools-backend/pkg/e"
+	"bytes"
 	"context"
+	"fmt"
+	"mime"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/google/uuid"
 )
 
 type ImageRepository struct {
 	Bucket string
-	KeyID  string
-	Secret string
-	// Client   *s3.Client
+	Client *s3.Client
 }
 
-func NewImageRepository(bucket, keyId, secret string) *ImageRepository {
+func NewImageRepository(bucket string, client *s3.Client) *ImageRepository {
 	return &ImageRepository{
 		Bucket: bucket,
-		KeyID:  keyId,
-		Secret: secret,
+		Client: client,
 	}
 }
 
-// TODO: доделать функции
 func (i *ImageRepository) Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error) {
 	const op = "ImageRepository.Save"
 
-	return &domain.UploadImage{
-		ImageId:  "1",
-		ImageUrl: "/Users/skygreen/Downloads/DSCN4946.JPG",
-	}, nil
-}
-
-// TODO: доделать функции
-func (i *ImageRepository) Get(ctx context.Context, name string) (*domain.Image, error) {
-	const op = "ImageRepository.Get"
-
-	return &domain.Image{}, nil
-}
-
-func toImageModel(p *domain.Image) *ImageModel {
-	return &ImageModel{
-		Id:   p.Id,
-		Name: p.Name,
-		Size: p.Size,
+	reader := bytes.NewReader(img.Data)
+	exts, err := mime.ExtensionsByType(img.MimeType)
+	if err != nil {
+		return nil, e.Wrap(op, err)
 	}
+	key := fmt.Sprintf("%s_%s%s", uuid.New().String(), img.Name, exts[0])
+
+	if _, err := i.Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(i.Bucket),
+		Key:    aws.String(key),
+		Body:   reader,
+	}); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	url := fmt.Sprintf("https://storage.yandexcloud.net/%s/%s", i.Bucket, key)
+
+	return domain.NewUploadImage(key, url), nil
 }
