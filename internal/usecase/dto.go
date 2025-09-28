@@ -17,7 +17,7 @@ type CheckReq struct {
 type ImageReq struct {
 	Filename    string
 	ContentType string
-	Data        []byte
+	Data        string
 }
 
 type ToolTypeDTO struct {
@@ -65,7 +65,7 @@ type FilterRes struct {
 }
 
 type UploadImageRes struct {
-	ImageId  string
+	Key      string
 	ImageUrl string
 }
 
@@ -77,9 +77,9 @@ func ToToolTypeDTO(tool *domain.ToolType) *ToolTypeDTO {
 	}
 }
 
-func NewUploadImageRes(imageId string, imageUrl string) *UploadImageRes {
+func NewUploadImageRes(key string, imageUrl string) *UploadImageRes {
 	return &UploadImageRes{
-		ImageId:  imageId,
+		Key:      key,
 		ImageUrl: imageUrl,
 	}
 }
