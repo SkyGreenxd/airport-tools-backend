@@ -36,7 +36,6 @@ type mlAPIResponse struct {
 	ImageUrl string `json:"debug_image_url"`
 }
 
-// http://127.0.0.1:8000/analyze/?image_id={id}&url={url}
 func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*usecase.ScanResult, error) {
 	const op = "MlGateway.ScanTools"
 
@@ -45,8 +44,13 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 		url.QueryEscape(req.ImageId),
 		url.QueryEscape(req.ImageUrl),
 	)
-	// fmt.Println("Debug: " + getUrl)
-	res, err := ml.client.Get(getUrl)
+
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, getUrl, nil)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	res, err := ml.client.Do(httpReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
