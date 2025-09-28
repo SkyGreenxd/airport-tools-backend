@@ -49,7 +49,7 @@ func (s *Service) MlService() (string, error) {
 	return "", nil
 }
 
-// TODO: доделать, реализовать возвращение айди (бакет+имя)
+// TODO: можно потом реализовать проверку size фотки
 func (s *Service) UploadImage(ctx context.Context, req ImageReq) (*UploadImageRes, error) {
 	const op = "usecase.UploadImage"
 
