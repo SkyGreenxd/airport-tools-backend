@@ -30,3 +30,19 @@ func NewTransaction(userId, toolSetId int64) *Transaction {
 		ToolSetId: toolSetId,
 	}
 }
+
+func (t *Transaction) EvaluateStatus(manualCheckCount, unknownCount, missingCount int) {
+	var reason Reason
+	var status Status
+
+	if manualCheckCount == 0 && unknownCount == 0 && missingCount == 0 {
+		status = CLOSED
+		reason = RETURNED
+	} else {
+		status = MANUAL
+		reason = PROBLEMS
+	}
+
+	t.Status = status
+	t.Reason = &reason
+}

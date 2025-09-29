@@ -29,6 +29,34 @@ func NewUser(fullName, employeeId string, role Role, toolSetId int64) *User {
 	}
 }
 
+func (u *User) CanCheckout() error {
+	if len(u.Transactions) == 0 {
+		return nil
+	}
+
+	for _, transaction := range u.Transactions {
+		if transaction.Status == OPEN || transaction.Status == MANUAL {
+			return e.ErrTransactionUnfinished
+		}
+	}
+
+	return nil
+}
+
+func (u *User) CanCheckin() error {
+	if len(u.Transactions) == 0 {
+		return e.ErrTransactionAllFinished
+	}
+
+	for _, transaction := range u.Transactions {
+		if transaction.Status == OPEN || transaction.Status == MANUAL {
+			return nil
+		}
+	}
+
+	return e.ErrTransactionAllFinished
+}
+
 func (u *User) ValidateEmployeeId(newEmployeeId string) error {
 	if u.EmployeeId == newEmployeeId {
 		return e.ErrNothingToChange
