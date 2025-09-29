@@ -2,16 +2,13 @@ package usecase
 
 import "airport-tools-backend/internal/domain"
 
+// CheckReq представляет запрос на выдачу/сдачу инструментов
 type CheckReq struct {
 	EmployeeId string
 	Data       string
 }
-type ToolTypeDTO struct {
-	Id         int64
-	PartNumber string
-	Name       string
-}
 
+// CheckRes содержит результат проверки инструментов после сканирования.
 type CheckRes struct {
 	ImageUrl         string
 	AccessTools      []*domain.RecognizedTool
@@ -20,11 +17,19 @@ type CheckRes struct {
 	MissingTools     []*ToolTypeDTO
 }
 
+type ToolTypeDTO struct {
+	Id         int64
+	PartNumber string
+	Name       string
+}
+
+// ScanRequest используется для передачи изображения в ML-сервис.
 type ScanRequest struct {
 	ImageId  string
 	ImageUrl string
 }
 
+// ScanResult возвращает распознанные инструменты ML-сервиса.
 type ScanResult struct {
 	Tools []*domain.RecognizedTool
 }
