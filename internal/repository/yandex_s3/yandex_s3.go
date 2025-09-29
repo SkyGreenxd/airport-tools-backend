@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+// InitS3 инициализирует объект для работы с S3 хранилищем
 func InitS3(bucketName string) (*ImageRepository, error) {
 	const op = "yandex_s3.Load"
 
