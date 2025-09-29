@@ -1,5 +1,6 @@
 package domain
 
+// UploadImage описывает загруженное изображение в хранилище.
 type UploadImage struct {
 	Key      string
 	ImageUrl string

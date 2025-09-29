@@ -6,10 +6,12 @@ import (
 	"net/http"
 )
 
+// Server обёртка над http.Server для запуска и остановки HTTP-сервиса.
 type Server struct {
 	httpServer *http.Server
 }
 
+// NewServer создаёт новый HTTP-сервер с заданным обработчиком и конфигурацией.
 func NewServer(handler http.Handler, httpServer config.HttpServer) *Server {
 	return &Server{
 		httpServer: &http.Server{
