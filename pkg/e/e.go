@@ -23,8 +23,6 @@ var (
 	ErrCvScanNotFound       = fmt.Errorf("cv_scan not found")
 	ErrCvScanDetailNotFound = fmt.Errorf("cv_scan detail not found")
 
-	ErrEmptyFields = errors.New("empty fields")
-
 	ErrNothingToChange = fmt.Errorf("nothing to change")
 
 	ErrMLServiceNonOK  = errors.New("ML service returned non-OK HTTP status")
