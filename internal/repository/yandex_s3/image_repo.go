@@ -27,7 +27,7 @@ func (i *ImageRepository) Save(ctx context.Context, img *domain.Image) (*domain.
 	const op = "ImageRepository.Save"
 
 	reader := bytes.NewReader(img.Data)
-	key := fmt.Sprintf("%s_%s", img.Name, img.MimeType)
+	key := fmt.Sprintf("%s%s", img.Name, img.MimeType)
 
 	if _, err := i.Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(i.Bucket),
