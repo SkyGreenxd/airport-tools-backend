@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// checkGetQueryResult обрабатывает результат GORM-запроса и возвращает notFound, если запись не найдена
 func checkGetQueryResult(result *gorm.DB, notFound error) error {
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return notFound
@@ -19,7 +20,7 @@ func checkGetQueryResult(result *gorm.DB, notFound error) error {
 	return nil
 }
 
-// Проверка на дублирование уникального значения
+// postgresDuplicate проверяет, вызвана ли ошибка дублирования уникального значения
 func postgresDuplicate(result *gorm.DB, ErrIsExists error) error {
 	if err := result.Error; err != nil {
 		var pgErr *pgconn.PgError
@@ -33,7 +34,7 @@ func postgresDuplicate(result *gorm.DB, ErrIsExists error) error {
 	return nil
 }
 
-// Проверка на нарушение внешнего ключа
+// postgresForeignKeyViolation проверяет, была ли нарушена ссылка внешнего ключа
 func postgresForeignKeyViolation(result *gorm.DB, ErrInUse error) error {
 	if err := result.Error; err != nil {
 		var pgErr *pgconn.PgError

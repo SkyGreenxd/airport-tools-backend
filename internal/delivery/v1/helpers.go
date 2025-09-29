@@ -14,6 +14,7 @@ type HTTPError struct {
 	Message string `json:"message"`
 }
 
+// ErrorToHttpRes формирует HTTP-ответ на основе переданной ошибки
 func ErrorToHttpRes(err error, c *gin.Context) {
 	log.Println(err)
 
@@ -35,6 +36,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrInvalidRequestBody):
 		res.Code = http.StatusBadRequest
 		res.Message = "invalid request body"
+	case errors.Is(err, e.ErrTransactionAllFinished):
+		res.Code = http.StatusBadRequest
+		res.Message = "you have no open or pending transactions"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"
