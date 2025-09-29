@@ -6,17 +6,15 @@ type ToolType struct {
 	Id                 int64
 	PartNumber         string
 	Name               string
-	ReferenceImageHash string
 	ReferenceEmbedding []float32
 
 	ToolSets []*ToolSet
 }
 
-func NewToolType(partNumber, name, referenceImageHash string, referenceEmbedding []float32) *ToolType {
+func NewToolType(partNumber, name string, referenceEmbedding []float32) *ToolType {
 	return &ToolType{
 		PartNumber:         partNumber,
 		Name:               name,
-		ReferenceImageHash: referenceImageHash,
 		ReferenceEmbedding: referenceEmbedding,
 	}
 }

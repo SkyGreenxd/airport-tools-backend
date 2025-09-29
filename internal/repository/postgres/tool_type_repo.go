@@ -97,7 +97,6 @@ func toToolTypeModel(t *domain.ToolType) *ToolTypeModel {
 		Id:                 t.Id,
 		PartNumber:         t.PartNumber,
 		Name:               t.Name,
-		ReferenceImageHash: t.ReferenceImageHash,
 		ReferenceEmbedding: pgvector.NewVector(t.ReferenceEmbedding),
 	}
 }
@@ -107,7 +106,6 @@ func toDomainToolType(t *ToolTypeModel) *domain.ToolType {
 		Id:                 t.Id,
 		PartNumber:         t.PartNumber,
 		Name:               t.Name,
-		ReferenceImageHash: t.ReferenceImageHash,
 		ReferenceEmbedding: t.ReferenceEmbedding.Slice(),
 	}
 }
