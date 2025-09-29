@@ -17,6 +17,7 @@ type PgDatabase struct {
 	Db *gorm.DB
 }
 
+// Connect создаёт подключение к базе данных по URL из переменной окружения
 func Connect() (*PgDatabase, error) {
 	const op = "Connect"
 	path := os.Getenv("DB_URL")
@@ -29,6 +30,7 @@ func Connect() (*PgDatabase, error) {
 	return &PgDatabase{Db: db}, nil
 }
 
+// Ping проверяет соединение с базой данных
 func (pg *PgDatabase) Ping() error {
 	const op = "Ping"
 	sqlDb, err := pg.Db.DB()
@@ -58,6 +60,7 @@ func (pg *PgDatabase) Close() error {
 	return nil
 }
 
+// RunMigrations выполняет миграции базы данных из папки db/migrations
 func (pg *PgDatabase) RunMigrations() error {
 	const op = "RunMigrations"
 
