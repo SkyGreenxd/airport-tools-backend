@@ -11,8 +11,7 @@ type ToolTypeModel struct {
 	PartNumber         string
 	Name               string
 	ReferenceImageHash string
-	// TODO: заменить на VECTOR(1280)
-	ReferenceEmbedding pgvector.Vector `gorm:"type:vector(3)"`
+	ReferenceEmbedding pgvector.Vector `gorm:"type:vector(1280)"`
 
 	ToolSets []*ToolSetModel `gorm:"many2many:tool_set_items;joinForeignKey:ToolTypeId;joinReferences:ToolSetId"`
 }
@@ -65,8 +64,7 @@ type CvScanDetailModel struct {
 	DetectedToolTypeId int64
 	Confidence         float32
 	ImageHash          string
-	// TODO: заменить на VECTOR(1280)
-	Embedding pgvector.Vector `gorm:"type:vector(3)"`
+	Embedding          pgvector.Vector `gorm:"type:vector(1280)"`
 }
 
 func (ToolTypeModel) TableName() string {

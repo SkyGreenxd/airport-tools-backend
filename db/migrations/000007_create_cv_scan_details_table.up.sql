@@ -6,5 +6,3 @@ CREATE TABLE IF NOT EXISTS cv_scan_details (
     image_hash VARCHAR(256),
     embedding VECTOR(1280)
 );
-
--- TODO: заменить на VECTOR(1280)

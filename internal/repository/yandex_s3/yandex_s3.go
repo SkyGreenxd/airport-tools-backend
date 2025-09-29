@@ -8,9 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-// TODO: конфигурация/подключение к хранилищу
-// http(s)://<имя_бакета>.storage.yandexcloud.net/<ключ_объекта>?<query-параметры>
-
 func InitS3(bucketName string) (*ImageRepository, error) {
 	const op = "yandex_s3.Load"
 

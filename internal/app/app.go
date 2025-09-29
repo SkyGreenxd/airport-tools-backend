@@ -49,7 +49,6 @@ func Run() {
 	toolTypeRepo := postgres.NewToolTypeRepository(pg.Db)
 	transactionRepo := postgres.NewTransactionRepository(pg.Db)
 
-	// TODO: проверить все ли верно с S3
 	bucketName := os.Getenv("BUCKET_NAME")
 	s3, err := yandex_s3.InitS3(bucketName)
 	if err != nil {
@@ -69,11 +68,9 @@ func Run() {
 	serverConfig := config.LoadHttpServerConfig()
 	server := server.NewServer(r, serverConfig)
 
-	// 9. Контекст для graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	// 10. Запуск сервера в горутине
 	go func() {
 		log.Printf("starting server on port %s", serverConfig.Port)
 		if err := server.Run(); err != nil && err != http.ErrServerClosed {
@@ -81,7 +78,6 @@ func Run() {
 		}
 	}()
 
-	// 11. Ожидание сигнала завершения
 	<-ctx.Done()
 	log.Println("shutting down server...")
 
