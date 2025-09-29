@@ -9,6 +9,9 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"mime"
+
+	"github.com/google/uuid"
 )
 
 // TODO: заменить на реальные данные
@@ -50,15 +53,22 @@ func (s *Service) MlService() (string, error) {
 }
 
 // TODO: можно потом реализовать проверку size фотки
-func (s *Service) UploadImage(ctx context.Context, req ImageReq) (*UploadImageRes, error) {
+func (s *Service) UploadImage(ctx context.Context, data string) (*UploadImageRes, error) {
 	const op = "usecase.UploadImage"
 
-	imgBytes, err := base64.StdEncoding.DecodeString(req.Data)
+	imgBytes, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	newImage := domain.NewImage(req.Filename, int64(len(req.Data)), req.ContentType, imgBytes)
+	sizeImage := int64(len(imgBytes))
+	mimeTypes, err := mime.ExtensionsByType("image/jpeg")
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+	fileName := uuid.New().String()
+
+	newImage := domain.NewImage(fileName, sizeImage, mimeTypes[1], imgBytes)
 	image, err := s.S3.Save(ctx, newImage)
 	if err != nil {
 		return nil, err
@@ -83,7 +93,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 	}
 
 	// сохранение фотки в s3
-	uploadImageRes, err := s.UploadImage(ctx, req.Image)
+	uploadImageRes, err := s.UploadImage(ctx, req.Data)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -145,7 +155,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 	}
 
 	// сохранение фотки в s3
-	uploadImage, err := s.UploadImage(ctx, req.Image)
+	uploadImage, err := s.UploadImage(ctx, req.Data)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
