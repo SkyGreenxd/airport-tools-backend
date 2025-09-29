@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
+// MlGateway клиент для взаимодействия с ML-сервисом распознавания инструментов
 type MlGateway struct {
 	client  *http.Client
 	baseUrl string
@@ -24,6 +24,7 @@ func NewMlGateway(client *http.Client, baseUrl string) *MlGateway {
 	}
 }
 
+// mlAPIResponse структура для декодирования ответа ML-сервиса
 type mlAPIResponse struct {
 	ImageId     string `json:"image_id"`
 	Instruments []struct {
@@ -31,11 +32,11 @@ type mlAPIResponse struct {
 		ToolTypeId int64     `json:"class"`
 		Confidence float32   `json:"confidence"`
 		Embedding  []float32 `json:"embedding"`
-		Hash       int       `json:"hash"`
 	} `json:"instruments"`
 	ImageUrl string `json:"debug_image_url"`
 }
 
+// ScanTools отправляет изображение на ML-сервис и возвращает распознанные инструменты
 func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*usecase.ScanResult, error) {
 	const op = "MlGateway.ScanTools"
 
@@ -68,7 +69,7 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 
 	var scanResult usecase.ScanResult
 	for _, instrument := range apiResp.Instruments {
-		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, strconv.Itoa(instrument.Hash), instrument.Embedding)
+		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, instrument.Embedding)
 		scanResult.Tools = append(scanResult.Tools, recognizedTool)
 	}
 
