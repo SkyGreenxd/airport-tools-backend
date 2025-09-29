@@ -2,9 +2,14 @@ package postgres
 
 import (
 	"airport-tools-backend/pkg/e"
+	"errors"
+	"log"
 	"os"
 
-	"gorm.io/driver/postgres"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	pg "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +21,7 @@ func Connect() (*PgDatabase, error) {
 	const op = "Connect"
 	path := os.Getenv("DB_URL")
 
-	db, err := gorm.Open(postgres.Open(path), &gorm.Config{})
+	db, err := gorm.Open(pg.Open(path), &gorm.Config{})
 	if err != nil {
 		return nil, e.WrapWithFunc(op, "failed to connect database", err)
 	}
@@ -50,5 +55,41 @@ func (pg *PgDatabase) Close() error {
 		return e.WrapWithFunc(op, "failed to close sql db", err)
 	}
 
+	return nil
+}
+
+func (pg *PgDatabase) RunMigrations() error {
+	const op = "RunMigrations"
+
+	sqlDb, err := pg.Db.DB()
+	if err != nil {
+		return e.WrapWithFunc(op, "failed to get sql db instance", err)
+	}
+
+	driver, err := postgres.WithInstance(sqlDb, &postgres.Config{})
+	if err != nil {
+		return e.WrapWithFunc(op, "failed to create migrate driver", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://db/migrations", // путь до миграций
+		"postgres", driver,
+	)
+	if err != nil {
+		return e.WrapWithFunc(op, "failed to create migrate instance", err)
+	}
+
+	// Up применяет все миграции, которые ещё не применены
+	err = m.Up()
+	if err != nil {
+		if errors.Is(err, migrate.ErrNoChange) {
+			// Ничего не делаем, миграции уже применены
+			return nil
+		}
+		return e.WrapWithFunc(op, "migration failed", err)
+	}
+
+	// Логируем только если реально были применены миграции
+	log.Println("migrations applied successfully")
 	return nil
 }
