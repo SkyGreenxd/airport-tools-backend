@@ -13,8 +13,9 @@ var (
 	ErrToolSetNotFound = fmt.Errorf("tool set not found")
 	ErrToolSetExists   = fmt.Errorf("tool set exists")
 
-	ErrTransactionNotFound   = fmt.Errorf("transaction not found")
-	ErrTransactionUnfinished = fmt.Errorf("you have an unfinished issue")
+	ErrTransactionNotFound    = fmt.Errorf("transaction not found")
+	ErrTransactionUnfinished  = fmt.Errorf("you have an unfinished issue")
+	ErrTransactionAllFinished = fmt.Errorf("you have no open or pending transactions")
 
 	ErrUserNotFound = fmt.Errorf("user not found")
 	ErrUserExists   = fmt.Errorf("user is exists")
