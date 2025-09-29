@@ -57,7 +57,8 @@ func Run() {
 
 	mlUrl := os.Getenv("ML_SERVICE_URL")
 	ml := infrastructure.NewMlGateway(http.DefaultClient, mlUrl)
-	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, s3, toolSetRepo)
+	imageStorage := infrastructure.NewImageStorage(s3)
+	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo)
 
 	handler := v1.NewHandler(service)
 
