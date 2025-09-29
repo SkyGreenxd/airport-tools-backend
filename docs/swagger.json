@@ -12,7 +12,7 @@
     "paths": {
         "/api/v1/transaction/checkin": {
             "post": {
-                "description": "Receives the engineer's personnel number and a photo of the tools, verifies them against the expected set,\u003cbr\u003eand returns image URL and four arrays:\u003cbr\u003e1) AccessTools - tools that passed automated checks\u003cbr\u003e2) ManualCheckTools - tools requiring manual verification\u003cbr\u003e3) UnknownTools - tools not in the expected set\u003cbr\u003e4) MissingTools - tools missing from the expected set\u003cbr\u003eIf not all tools are in Access, a MANUAL VERIFICATION flag is set.",
+                "description": "Receives the engineer's personnel number and a photo of the tools in base64 format, verifies them against the expected set,\u003cbr\u003eand returns image URL and four arrays:\u003cbr\u003e1) AccessTools - tools that passed automated checks\u003cbr\u003e2) ManualCheckTools - tools requiring manual verification\u003cbr\u003e3) UnknownTools - tools not in the expected set\u003cbr\u003e4) MissingTools - tools missing from the expected set\u003cbr\u003eIf not all tools are in Access, a MANUAL VERIFICATION flag is set.",
                 "consumes": [
                     "application/json"
                 ],
@@ -64,7 +64,7 @@
         },
         "/api/v1/transaction/checkout": {
             "post": {
-                "description": "Receives the engineer's personnel number and a photo of the tools,\u003cbr\u003everifies them against the expected set, and returns image URL and four arrays:\u003cbr\u003e1) AccessTools: tools that passed automated checks\u003cbr\u003e2) ManualCheckTools: tools requiring manual verification\u003cbr\u003e3) UnknownTools: tools not in the expected set\u003cbr\u003e4) MissingTools: tools missing from the expected set\u003cbr\u003eIf not all tools are in Access, a MANUAL VERIFICATION flag is set.",
+                "description": "Receives the engineer's personnel number and a photo of the tools in base64 format,\u003cbr\u003everifies them against the expected set, and returns image URL and four arrays:\u003cbr\u003e1) AccessTools: tools that passed automated checks\u003cbr\u003e2) ManualCheckTools: tools requiring manual verification\u003cbr\u003e3) UnknownTools: tools not in the expected set\u003cbr\u003e4) MissingTools: tools missing from the expected set\u003cbr\u003eIf not all tools are in Access, a MANUAL VERIFICATION flag is set.",
                 "consumes": [
                     "application/json"
                 ],
@@ -119,15 +119,15 @@
         "v1.CheckReq": {
             "type": "object",
             "required": [
-                "employee_id",
-                "image"
+                "data",
+                "employee_id"
             ],
             "properties": {
-                "employee_id": {
+                "data": {
                     "type": "string"
                 },
-                "image": {
-                    "$ref": "#/definitions/v1.ImageReq"
+                "employee_id": {
+                    "type": "string"
                 }
             }
         },
@@ -170,28 +170,6 @@
                     "type": "integer"
                 },
                 "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.ImageReq": {
-            "type": "object",
-            "required": [
-                "content_type",
-                "data",
-                "filename"
-            ],
-            "properties": {
-                "content_type": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "filename": {
                     "type": "string"
                 }
             }

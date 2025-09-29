@@ -2,13 +2,13 @@ basePath: /api/v1
 definitions:
   v1.CheckReq:
     properties:
+      data:
+        type: string
       employee_id:
         type: string
-      image:
-        $ref: '#/definitions/v1.ImageReq'
     required:
+    - data
     - employee_id
-    - image
     type: object
   v1.CheckRes:
     properties:
@@ -38,21 +38,6 @@ definitions:
       message:
         type: string
     type: object
-  v1.ImageReq:
-    properties:
-      content_type:
-        type: string
-      data:
-        items:
-          type: integer
-        type: array
-      filename:
-        type: string
-    required:
-    - content_type
-    - data
-    - filename
-    type: object
   v1.RecognizedToolDTO:
     properties:
       confidence:
@@ -81,12 +66,13 @@ paths:
     post:
       consumes:
       - application/json
-      description: Receives the engineer's personnel number and a photo of the tools,
-        verifies them against the expected set,<br>and returns image URL and four
-        arrays:<br>1) AccessTools - tools that passed automated checks<br>2) ManualCheckTools
-        - tools requiring manual verification<br>3) UnknownTools - tools not in the
-        expected set<br>4) MissingTools - tools missing from the expected set<br>If
-        not all tools are in Access, a MANUAL VERIFICATION flag is set.
+      description: Receives the engineer's personnel number and a photo of the tools
+        in base64 format, verifies them against the expected set,<br>and returns image
+        URL and four arrays:<br>1) AccessTools - tools that passed automated checks<br>2)
+        ManualCheckTools - tools requiring manual verification<br>3) UnknownTools
+        - tools not in the expected set<br>4) MissingTools - tools missing from the
+        expected set<br>If not all tools are in Access, a MANUAL VERIFICATION flag
+        is set.
       parameters:
       - description: Checkin request
         in: body
@@ -120,12 +106,12 @@ paths:
     post:
       consumes:
       - application/json
-      description: 'Receives the engineer''s personnel number and a photo of the tools,<br>verifies
-        them against the expected set, and returns image URL and four arrays:<br>1)
-        AccessTools: tools that passed automated checks<br>2) ManualCheckTools: tools
-        requiring manual verification<br>3) UnknownTools: tools not in the expected
-        set<br>4) MissingTools: tools missing from the expected set<br>If not all
-        tools are in Access, a MANUAL VERIFICATION flag is set.'
+      description: 'Receives the engineer''s personnel number and a photo of the tools
+        in base64 format,<br>verifies them against the expected set, and returns image
+        URL and four arrays:<br>1) AccessTools: tools that passed automated checks<br>2)
+        ManualCheckTools: tools requiring manual verification<br>3) UnknownTools:
+        tools not in the expected set<br>4) MissingTools: tools missing from the expected
+        set<br>If not all tools are in Access, a MANUAL VERIFICATION flag is set.'
       parameters:
       - description: Checkout request
         in: body
