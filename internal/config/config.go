@@ -1,33 +1,25 @@
 package config
 
 import (
-	"airport-tools-backend/pkg/e"
 	"os"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
-func LoadEnv() error {
-	const op = "LoadEnv"
-
-	if err := godotenv.Load(); err != nil {
-		return e.Wrap(op, err)
-	}
-
-	return nil
-}
+const (
+	defaultPort = "8080"
+)
 
 type HttpServer struct {
-	Port         string        `mapstructure:"HTTP_PORT"`
-	ReadTimeout  time.Duration `mapstructure:"HTTP_READ_TIMEOUT"`
-	WriteTimeout time.Duration `mapstructure:"HTTP_WRITE_TIMEOUT"`
+	Port         string
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }
 
+// LoadHttpServerConfig загружает конфигурацию HTTP-сервера из переменных окружения
 func LoadHttpServerConfig() HttpServer {
 	port := os.Getenv("HTTP_PORT")
 	if port == "" {
-		port = "8080"
+		port = defaultPort
 	}
 
 	readTimeout, _ := time.ParseDuration(os.Getenv("HTTP_READ_TIMEOUT"))
