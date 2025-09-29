@@ -1,5 +1,5 @@
-INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embedding) VALUES
-('PN123456', 'adjustable_pliers', '123456', '[
+INSERT INTO tool_types (part_number, name, reference_embedding) VALUES
+('PN123456', 'adjustable_pliers', '[
     0.5534483194351196,
     -0.09446749091148376,
     1.0610271692276,
@@ -1281,7 +1281,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     1.0549920797348022,
     0.048036590218544006
   ]'::vector(1280)),
-('PN654321', 'adjustable_wrench', '654321', '[
+('PN654321', 'adjustable_wrench', '[
     -0.03610417619347572,
     0.09027543663978577,
     0.6651151180267334,
@@ -2563,7 +2563,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     -0.10606048256158829,
     0.9197128415107727
   ]'::vector(1280)),
-('PN112233', 'brace', '112233', '[
+('PN112233', 'brace', '[
     -0.17871521413326263,
     0.07802504301071167,
     -0.03526312857866287,
@@ -3845,7 +3845,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     -0.23237323760986328,
     0.47051799297332764
   ]'::vector(1280)),
-('PN445566', 'crosshead_screwdriver', '445566', '[
+('PN445566', 'crosshead_screwdriver', '[
     -0.17665520310401917,
     -0.05306354910135269,
     0.16024067997932434,
@@ -5127,7 +5127,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     0.6877070665359497,
     0.09728489071130753
   ]'::vector(1280)),
-('PN778899', 'flathead_screwdriver', '778899', '[
+('PN778899', 'flathead_screwdriver', '[
     -0.1077304556965828,
     0.15591435134410858,
     0.9873179793357849,
@@ -6409,7 +6409,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     -0.11186328530311584,
     -0.13431406021118164
   ]'::vector(1280)),
-('PN991122', 'offset_ph_screwdriver', '991122', '[
+('PN991122', 'offset_ph_screwdriver', '[
     0.1957547664642334,
     0.09293816983699799,
     0.6437185406684875,
@@ -7691,7 +7691,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     -0.06835277378559113,
     1.1376107931137085
   ]'::vector(1280)),
-('PN334455', 'oil_opener', '334455', '[
+('PN334455', 'oil_opener', '[
     0.9566205739974976,
     -0.11384451389312744,
     -0.10066834092140198,
@@ -8973,7 +8973,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     1.3491716384887695,
     0.6782991886138916
   ]'::vector(1280)),
-('PN667788', 'openend_wrench', '667788', '[
+('PN667788', 'openend_wrench', '[
     -0.1635667085647583,
     0.285672664642334,
     0.8131697773933411,
@@ -10255,7 +10255,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     0.05873782932758331,
     -0.12190437316894531
   ]'::vector(1280)),
-('PN888777', 'pliers', '888777', '[
+('PN888777', 'pliers', '[
     0.935009777545929,
     -0.11408612877130508,
     -0.07630625367164612,
@@ -11537,7 +11537,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     0.28718939423561096,
     -0.10741942375898361
   ]'::vector(1280)),
-('PN555444', 'side_cutters', '555444', '[
+('PN555444', 'side_cutters', '[
     0.19614748656749725,
     -0.06651502102613449,
     -0.08921369910240173,
@@ -12819,7 +12819,7 @@ INSERT INTO tool_types (part_number, name, reference_image_hash, reference_embed
     -0.049879513680934906,
     -0.1080116555094719
   ]'::vector(1280)),
-('PN222111', 'wire_twisting_pilers', '222111', '[
+('PN222111', 'wire_twisting_pilers', '[
     -0.06551933288574219,
     1.0110433101654053,
     0.24158263206481934,
