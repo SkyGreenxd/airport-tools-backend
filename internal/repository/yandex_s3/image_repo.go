@@ -6,11 +6,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"mime"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/google/uuid"
 )
 
 type ImageRepository struct {
@@ -29,11 +27,7 @@ func (i *ImageRepository) Save(ctx context.Context, img *domain.Image) (*domain.
 	const op = "ImageRepository.Save"
 
 	reader := bytes.NewReader(img.Data)
-	exts, err := mime.ExtensionsByType(img.MimeType)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-	key := fmt.Sprintf("%s_%s%s", uuid.New().String(), img.Name, exts[0])
+	key := fmt.Sprintf("%s_%s", img.Name, img.MimeType)
 
 	if _, err := i.Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(i.Bucket),
