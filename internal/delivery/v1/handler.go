@@ -31,8 +31,6 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 		{
 			transaction.POST("/checkout", h.checkout) // выдача инструментов инженеру
 			transaction.POST("/checkin", h.checkin)   // сдача инструментов инженером
-			transaction.POST("/mock-checkout", h.mockCheckout)
-			transaction.POST("/mock-checkin", h.mockCheckin)
 		}
 	}
 }
