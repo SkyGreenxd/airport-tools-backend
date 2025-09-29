@@ -10,7 +10,6 @@ type ToolTypeModel struct {
 	Id                 int64
 	PartNumber         string
 	Name               string
-	ReferenceImageHash string
 	ReferenceEmbedding pgvector.Vector `gorm:"type:vector(1280)"`
 
 	ToolSets []*ToolSetModel `gorm:"many2many:tool_set_items;joinForeignKey:ToolTypeId;joinReferences:ToolSetId"`
@@ -63,7 +62,6 @@ type CvScanDetailModel struct {
 	CvScanId           int64
 	DetectedToolTypeId int64
 	Confidence         float32
-	ImageHash          string
 	Embedding          pgvector.Vector `gorm:"type:vector(1280)"`
 }
 
