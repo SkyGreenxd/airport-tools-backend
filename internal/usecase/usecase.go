@@ -5,19 +5,13 @@ import (
 	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/pkg/e"
 	"context"
-	"encoding/base64"
-	"fmt"
 	"log"
-	"math"
-	"mime"
-
-	"github.com/google/uuid"
 )
 
 // TODO: заменить на реальные данные
 const (
-	ConfidenceCompare float32 = 0.10
-	CosineSimCompare  float64 = 0.10
+	ConfidenceCompare float32 = 0.85
+	CosineSimCompare  float64 = 0.70
 )
 
 type Service struct {
@@ -27,13 +21,13 @@ type Service struct {
 	toolTypeRepo     repository.ToolTypeRepository
 	transactionRepo  repository.TransactionRepository
 	mlGateway        MLGateway
-	S3               repository.ImageRepository
 	toolSetRepo      repository.ToolSetRepository
+	imageStorage     ImageStorage
 }
 
 func NewService(
 	u repository.UserRepository, c repository.CvScanRepository, cd repository.CvScanDetailRepository,
-	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, y repository.ImageRepository,
+	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, s3 ImageStorage,
 	ts repository.ToolSetRepository,
 ) *Service {
 	return &Service{
@@ -43,7 +37,7 @@ func NewService(
 		toolTypeRepo:     tt,
 		transactionRepo:  t,
 		mlGateway:        ml,
-		S3:               y,
+		imageStorage:     s3,
 		toolSetRepo:      ts,
 	}
 }
@@ -52,82 +46,47 @@ func (s *Service) MlService() (string, error) {
 	return "", nil
 }
 
-// TODO: можно потом реализовать проверку size фотки
-func (s *Service) UploadImage(ctx context.Context, data string) (*UploadImageRes, error) {
-	const op = "usecase.UploadImage"
-
-	imgBytes, err := base64.StdEncoding.DecodeString(data)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	sizeImage := int64(len(imgBytes))
-	mimeTypes, err := mime.ExtensionsByType("image/jpeg")
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-	fileName := uuid.New().String()
-
-	newImage := domain.NewImage(fileName, sizeImage, mimeTypes[1], imgBytes)
-	image, err := s.S3.Save(ctx, newImage)
-	if err != nil {
-		return nil, err
-	}
-
-	return NewUploadImageRes(image.Key, image.ImageUrl), nil
-}
-
-// Checkout отвечает за выдачу инструментов инженеру
+// Checkout обрабатывает выдачу инструментов инженеру
 func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
 	const op = "usecase.Checkout"
 
-	// проверка что инженер существует
-	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
+	user, err := s.userRepo.GetByEmployeeIdWithTransactions(ctx, req.EmployeeId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// проверка что у инженера нет открытых транзакций
-	if _, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, user.Id); err == nil {
-		return nil, e.Wrap(op, e.ErrTransactionUnfinished)
+	if err := user.CanCheckout(); err != nil {
+		return nil, e.Wrap(op, err)
 	}
 
 	// сохранение фотки в s3
-	uploadImageRes, err := s.UploadImage(ctx, req.Data)
+	uploadImageRes, err := s.imageStorage.UploadImage(ctx, req.Data)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// отправка фото в ML сервис
 	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// Поиск сета
 	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, user.DefaultToolSetId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// создание транзакции
-	// TODO: нельзя сделать новую выдачу инженеру если не закрыта прошлая транзакция
-	// TODO: мб не оч хорошо, что если в дальнейшем будут ошибки, то транзакция открыта
 	newTransaction := domain.NewTransaction(user.Id, referenceSet.Id)
 	transaction, err := s.transactionRepo.Create(ctx, newTransaction)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// добавление записей в бд cv_scan, cv_scan_detail
 	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkin, uploadImageRes.ImageUrl, scanResult.Tools)
 	if err := s.CreateScan(ctx, createScanReq); err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// проверка скана
-	// TODO: 0.98 и 0.90 лучше вынести в конфигурацию.
 	filterReq := NewFilterReq(ConfidenceCompare, CosineSimCompare, scanResult.Tools, referenceSet.Tools)
 	filterRes, err := filterRecognizedTools(filterReq)
 	if err != nil {
@@ -137,15 +96,16 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 	return NewCheckinRes(uploadImageRes.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
 }
 
-// TODO: допилить reason/status
-// Checkin отвечает за возврат инструментов инженером
+// Checkin обрабатывает возврат инструментов инженером
 func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
 	const op = "usecase.Checkin"
 
-	// проверка что инженер существует
-	//TODO: мб можно сделать будет проверку на то что в транзакции у юзера тот айди???
-	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
+	user, err := s.userRepo.GetByEmployeeIdWithTransactions(ctx, req.EmployeeId)
 	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	if err := user.CanCheckin(); err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
@@ -154,20 +114,17 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	// сохранение фотки в s3
-	uploadImage, err := s.UploadImage(ctx, req.Data)
+	uploadImage, err := s.imageStorage.UploadImage(ctx, req.Data)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// отправка фото в ML сервис
 	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// Поиск сета
 	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, user.DefaultToolSetId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -178,26 +135,14 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	// проверка скана
 	filterReq := NewFilterReq(ConfidenceCompare, CosineSimCompare, scanResult.Tools, referenceSet.Tools)
 	filterRes, err := filterRecognizedTools(filterReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	// TODO: при ошибках тоже надо как то менять статус
-	var status domain.Status
-	var reason domain.Reason
-	if len(filterRes.ManualCheckTools) == 0 && len(filterRes.UnknownTools) == 0 && len(filterRes.MissingTools) == 0 {
-		status = domain.CLOSED
-		reason = domain.RETURNED
-	} else {
-		status = domain.MANUAL
-		reason = domain.PROBLEMS
-	}
+	transaction.EvaluateStatus(len(filterRes.ManualCheckTools), len(filterRes.UnknownTools), len(filterRes.MissingTools))
 
-	transaction.Status = status
-	transaction.Reason = &reason
 	if _, err := s.transactionRepo.Update(ctx, transaction); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -205,6 +150,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 	return NewCheckinRes(uploadImage.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
 }
 
+// CreateScan создает записи в таблицы cv_scans, cv_scan_details
 func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 	const op = "usecase.CreateScan"
 
@@ -226,7 +172,7 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 
 	for _, recognized := range req.Tools {
 		if _, exists := toolMap[recognized.ToolTypeId]; exists {
-			scanDetail := domain.NewCvScanDetail(scan.Id, recognized.ToolTypeId, recognized.Confidence, recognized.HashTool, recognized.Embedding)
+			scanDetail := domain.NewCvScanDetail(scan.Id, recognized.ToolTypeId, recognized.Confidence, recognized.Embedding)
 			_, err := s.cvScanDetailRepo.Create(ctx, scanDetail)
 			if err != nil {
 				return e.Wrap(op, err)
@@ -237,57 +183,4 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 	}
 
 	return nil
-}
-
-func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
-	accessTools := make([]*domain.RecognizedTool, 0, len(req.Tools))
-	manualCheckTools := make([]*domain.RecognizedTool, 0, len(req.Tools))
-	unknownTools := make([]*domain.RecognizedTool, 0, len(req.Tools))
-	missingTools := make([]*ToolTypeDTO, 0)
-
-	// создаём мапу ReferenceTools для быстрого поиска
-	// создаём мапу ReferenceTools для быстрого поиска
-	refMap := make(map[int64]*domain.ToolType)
-	for _, r := range req.ReferenceTools {
-		refMap[r.Id] = r
-	}
-
-	recognizedMap := make(map[int64]*domain.RecognizedTool)
-	for _, recognized := range req.Tools {
-		ref, exists := refMap[recognized.ToolTypeId]
-		if !exists {
-			// инструмент неизвестен
-			unknownTools = append(unknownTools, recognized)
-			continue
-		}
-
-		cosSim := cosineSimilarity(ref.ReferenceEmbedding, recognized.Embedding)
-		fmt.Printf("DEBUG: toolId: %d, Confidence: %f, cosSim: %f\n", recognized.ToolTypeId, recognized.Confidence, cosSim)
-		if cosSim >= req.CosineSimCompare && recognized.Confidence >= req.ConfidenceCompare {
-			accessTools = append(accessTools, recognized)
-		} else {
-			manualCheckTools = append(manualCheckTools, recognized)
-		}
-
-		recognizedMap[recognized.ToolTypeId] = recognized
-	}
-
-	// отсутствующие инструменты из референсного набора
-	for _, ref := range req.ReferenceTools {
-		if _, ok := recognizedMap[ref.Id]; !ok {
-			missingTools = append(missingTools, ToToolTypeDTO(ref))
-		}
-	}
-
-	return NewFilterRes(accessTools, manualCheckTools, unknownTools, missingTools), nil
-}
-
-func cosineSimilarity(reference, recognized []float32) float64 {
-	var dot, normReference, normRecognized float64
-	for i := range reference {
-		dot += float64(reference[i] * recognized[i])
-		normReference += float64(reference[i] * reference[i])
-		normRecognized += float64(recognized[i] * recognized[i])
-	}
-	return dot / (math.Sqrt(normReference) * math.Sqrt(normRecognized))
 }
