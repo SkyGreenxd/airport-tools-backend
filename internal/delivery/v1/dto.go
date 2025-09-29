@@ -5,21 +5,9 @@ import (
 	"airport-tools-backend/internal/usecase"
 )
 
-type MockCheckReq struct {
-	EmployeeId string `json:"employee_id" binding:"required"`
-	ImageId    string `json:"image_id" binding:"required"`
-	ImageUrl   string `json:"image_url" binding:"required"`
-}
-
 type CheckReq struct {
-	EmployeeId string   `json:"employee_id" binding:"required"`
-	Image      ImageReq `json:"image" binding:"required"`
-}
-
-type ImageReq struct {
-	Filename    string `json:"filename" binding:"required"`
-	ContentType string `json:"content_type" binding:"required"`
-	Data        string `json:"data" binding:"required"`
+	EmployeeId string `json:"employee_id" binding:"required"`
+	Data       string `json:"data" binding:"required"`
 }
 
 type CheckRes struct {
@@ -87,14 +75,6 @@ func ToDeliveryCheckRes(res *usecase.CheckRes) *CheckRes {
 func ToUseCaseCheckReq(req *CheckReq) *usecase.CheckReq {
 	return &usecase.CheckReq{
 		EmployeeId: req.EmployeeId,
-		Image:      *ToUsecaseImageReq(&req.Image),
-	}
-}
-
-func ToUsecaseImageReq(req *ImageReq) *usecase.ImageReq {
-	return &usecase.ImageReq{
-		Filename:    req.Filename,
-		ContentType: req.ContentType,
-		Data:        req.Data,
+		Data:       req.Data,
 	}
 }
