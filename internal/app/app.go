@@ -19,12 +19,20 @@ import (
 )
 
 func Run() {
-	if err := config.LoadEnv(); err != nil {
-		log.Fatal(err)
-	}
+	//if err := config.LoadEnv(); err != nil {
+	//	log.Fatal(err)
+	//}
 
 	pg, err := postgres.Connect()
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := pg.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := pg.RunMigrations(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -48,7 +56,8 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	ml := infrastructure.NewMlGateway(http.DefaultClient, "http://localhost:8000")
+	mlUrl := os.Getenv("ML_SERVICE_URL")
+	ml := infrastructure.NewMlGateway(http.DefaultClient, mlUrl)
 	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, s3, toolSetRepo)
 
 	handler := v1.NewHandler(service)
