@@ -54,11 +54,11 @@ func (u *UserRepository) GetByEmployeeId(ctx context.Context, employeeId string)
 	return toDomainUser(&model), nil
 }
 
-func (u *UserRepository) GetByIdWithTransactions(ctx context.Context, id int64) (*domain.User, error) {
+func (u *UserRepository) GetByEmployeeIdWithTransactions(ctx context.Context, employeeId string) (*domain.User, error) {
 	const op = "UserRepository.GetByIdWithTransactions"
 
 	var model UserModel
-	result := u.DB.WithContext(ctx).Preload("Transactions").First(&model, "id = ?", id)
+	result := u.DB.WithContext(ctx).Preload("Transactions").First(&model, "employee_id = ?", employeeId)
 	if err := checkGetQueryResult(result, e.ErrUserNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
