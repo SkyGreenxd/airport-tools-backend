@@ -5,6 +5,7 @@ import (
 	"context"
 )
 
+// ToolTypeRepository интерфейс для работы с типами инструментов в базе данных
 type ToolTypeRepository interface {
 	Create(ctx context.Context, toolType *domain.ToolType) (*domain.ToolType, error)
 	GetById(ctx context.Context, id int64) (*domain.ToolType, error)
@@ -13,6 +14,7 @@ type ToolTypeRepository interface {
 	Update(ctx context.Context, toolType *domain.ToolType) (*domain.ToolType, error)
 }
 
+// ToolSetRepository интерфейс для работы с наборами инструментов в базе данных
 type ToolSetRepository interface {
 	Create(ctx context.Context, toolSet *domain.ToolSet) (*domain.ToolSet, error)
 	GetById(ctx context.Context, id int64) (*domain.ToolSet, error)
@@ -22,16 +24,18 @@ type ToolSetRepository interface {
 	GetByIdWithTools(ctx context.Context, id int64) (*domain.ToolSet, error)
 }
 
+// UserRepository интерфейс для работы с пользователями в базе данных
 type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) (*domain.User, error)
 	GetById(ctx context.Context, id int64) (*domain.User, error)
 	GetByEmployeeId(ctx context.Context, employeeId string) (*domain.User, error)
-	GetByIdWithTransactions(ctx context.Context, id int64) (*domain.User, error)
+	GetByEmployeeIdWithTransactions(ctx context.Context, employeeId string) (*domain.User, error)
 	GetAll(ctx context.Context) ([]*domain.User, error)
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, user *domain.User) (*domain.User, error)
 }
 
+// TransactionRepository интерфейс для работы с транзакциями инструментов в базе данных
 type TransactionRepository interface {
 	Create(ctx context.Context, transaction *domain.Transaction) (*domain.Transaction, error)
 	GetById(ctx context.Context, id int64) (*domain.Transaction, error)
@@ -44,6 +48,7 @@ type TransactionRepository interface {
 	Update(ctx context.Context, transaction *domain.Transaction) (*domain.Transaction, error)
 }
 
+// CvScanRepository интерфейс для работы со сканами инструментов в базе данных
 type CvScanRepository interface {
 	Create(ctx context.Context, cvScan *domain.CvScan) (*domain.CvScan, error)
 	GetById(ctx context.Context, id int64) (*domain.CvScan, error)
@@ -52,12 +57,14 @@ type CvScanRepository interface {
 	GetByIdWithDetectedTools(ctx context.Context, id int64) (*domain.CvScan, error)
 }
 
+// CvScanDetailRepository интерфейс для работы с детализацией сканов в базе данных
 type CvScanDetailRepository interface {
 	Create(ctx context.Context, cvScanDetail *domain.CvScanDetail) (*domain.CvScanDetail, error)
 	GetById(ctx context.Context, id int64) (*domain.CvScanDetail, error)
 	GetByCvScanId(ctx context.Context, cvScanId int64) ([]*domain.CvScanDetail, error)
 }
 
+// ImageRepository интерфейс для работы с хранением изображений
 type ImageRepository interface {
 	Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error)
 }
