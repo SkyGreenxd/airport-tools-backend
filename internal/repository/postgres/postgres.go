@@ -72,24 +72,21 @@ func (pg *PgDatabase) RunMigrations() error {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://db/migrations", // путь до миграций
+		"file://db/migrations",
 		"postgres", driver,
 	)
 	if err != nil {
 		return e.WrapWithFunc(op, "failed to create migrate instance", err)
 	}
 
-	// Up применяет все миграции, которые ещё не применены
 	err = m.Up()
 	if err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
-			// Ничего не делаем, миграции уже применены
 			return nil
 		}
 		return e.WrapWithFunc(op, "migration failed", err)
 	}
 
-	// Логируем только если реально были применены миграции
 	log.Println("migrations applied successfully")
 	return nil
 }
