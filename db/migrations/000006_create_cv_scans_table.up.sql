@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS cv_scans (
     transaction_id BIGINT NOT NULL REFERENCES transactions(id) ON DELETE CASCADE,
     scan_type VARCHAR(16) NOT NULL,
     image_url VARCHAR(256) NOT NULL,
+    debug_image_url VARCHAR(256) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
