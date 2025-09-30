@@ -25,8 +25,9 @@ type ToolTypeDTO struct {
 
 // ScanRequest используется для передачи изображения в ML-сервис.
 type ScanRequest struct {
-	ImageId  string
-	ImageUrl string
+	ImageId   string
+	ImageUrl  string
+	Threshold float32
 }
 
 // ScanResult возвращает распознанные инструменты ML-сервиса.
@@ -112,9 +113,10 @@ func NewCreateScanReq(transactionId int64, scanType domain.ScanType, imageUrl st
 	}
 }
 
-func NewScanReq(imageId, imageUrl string) *ScanRequest {
+func NewScanReq(imageId, imageUrl string, threshold float32) *ScanRequest {
 	return &ScanRequest{
-		ImageId:  imageId,
-		ImageUrl: imageUrl,
+		ImageId:   imageId,
+		ImageUrl:  imageUrl,
+		Threshold: threshold,
 	}
 }
