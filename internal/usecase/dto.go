@@ -18,6 +18,11 @@ type CheckRes struct {
 	MissingTools     []*ToolTypeDTO
 }
 
+type UploadImageReq struct {
+	Data string
+	Mode string
+}
+
 type ToolTypeDTO struct {
 	Id         int64
 	PartNumber string
@@ -41,6 +46,7 @@ type CreateScanReq struct {
 	TransactionId int64
 	ScanType      domain.ScanType
 	ImageUrl      string
+	DebugImageUrl string
 	Tools         []*domain.RecognizedTool
 }
 
@@ -107,11 +113,12 @@ func NewFilterReq(confidenceCompare float32, cosineSimCompare float64, Tools []*
 	}
 }
 
-func NewCreateScanReq(transactionId int64, scanType domain.ScanType, imageUrl string, tools []*domain.RecognizedTool) *CreateScanReq {
+func NewCreateScanReq(transactionId int64, scanType domain.ScanType, imageUrl, debugImageUrl string, tools []*domain.RecognizedTool) *CreateScanReq {
 	return &CreateScanReq{
 		TransactionId: transactionId,
 		ScanType:      scanType,
 		ImageUrl:      imageUrl,
+		DebugImageUrl: debugImageUrl,
 		Tools:         tools,
 	}
 }
@@ -121,5 +128,12 @@ func NewScanReq(imageId, imageUrl string, threshold float32) *ScanRequest {
 		ImageId:   imageId,
 		ImageUrl:  imageUrl,
 		Threshold: threshold,
+	}
+}
+
+func NewUploadImageReq(data, mode string) *UploadImageReq {
+	return &UploadImageReq{
+		Data: data,
+		Mode: mode,
 	}
 }

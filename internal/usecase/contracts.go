@@ -9,5 +9,5 @@ type MLGateway interface {
 
 // ImageStorage интерфейс для загрузки изображение в хранилище
 type ImageStorage interface {
-	UploadImage(ctx context.Context, data string) (*UploadImageRes, error)
+	UploadImage(ctx context.Context, req *UploadImageReq) (*UploadImageRes, error)
 }

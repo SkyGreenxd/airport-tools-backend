@@ -84,6 +84,7 @@ func toCvScanModel(c *domain.CvScan) *CvScanModel {
 		TransactionId: c.TransactionId,
 		ScanType:      c.ScanType,
 		ImageUrl:      c.ImageUrl,
+		DebugImageUrl: c.DebugImageUrl,
 		CreatedAt:     c.CreatedAt,
 	}
 
@@ -104,6 +105,7 @@ func toDomainCvScan(c *CvScanModel) *domain.CvScan {
 		TransactionId: c.TransactionId,
 		ScanType:      c.ScanType,
 		ImageUrl:      c.ImageUrl,
+		DebugImageUrl: c.DebugImageUrl,
 		CreatedAt:     c.CreatedAt,
 	}
 

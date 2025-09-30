@@ -14,16 +14,18 @@ type CvScan struct {
 	TransactionId int64
 	ScanType      ScanType
 	ImageUrl      string
+	DebugImageUrl string
 	CreatedAt     time.Time
 
 	TransactionObj *Transaction
 	DetectedTools  []*CvScanDetail
 }
 
-func NewCvScan(transactionId int64, scanType ScanType, imageUrl string) *CvScan {
+func NewCvScan(transactionId int64, scanType ScanType, imageUrl, debugImageUrl string) *CvScan {
 	return &CvScan{
 		TransactionId: transactionId,
 		ScanType:      scanType,
 		ImageUrl:      imageUrl,
+		DebugImageUrl: debugImageUrl,
 	}
 }
