@@ -32,13 +32,13 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 		res.Message = "transaction not found"
 	case errors.Is(err, e.ErrTransactionUnfinished):
 		res.Code = http.StatusBadRequest
-		res.Message = "you have an unfinished issue"
+		res.Message = "return previous tool set before taking a new one"
 	case errors.Is(err, e.ErrInvalidRequestBody):
 		res.Code = http.StatusBadRequest
 		res.Message = "invalid request body"
 	case errors.Is(err, e.ErrTransactionAllFinished):
 		res.Code = http.StatusBadRequest
-		res.Message = "you have no open or pending transactions"
+		res.Message = "no active tool set to return"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"
