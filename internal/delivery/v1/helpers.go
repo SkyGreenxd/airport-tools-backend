@@ -26,7 +26,7 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 		res.Message = "user not found"
 	case errors.Is(err, e.ErrToolSetNotFound):
 		res.Code = http.StatusNotFound
-		res.Message = "tool set not found"
+		res.Message = "assigned tool set not found"
 	case errors.Is(err, e.ErrTransactionNotFound):
 		res.Code = http.StatusNotFound
 		res.Message = "transaction not found"
