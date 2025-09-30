@@ -1,16 +1,15 @@
 services:
-  # Сервис базы данных PostgreSQL с pgvector
   db:
-    image: pgvector/pgvector:pg17 # Используем образ с нужной версией Postgres и pgvector
+    image: pgvector/pgvector:pg17
     container_name: my_postgres_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432" # Пробрасываем порт на хост для удобства подключения
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Сохраняем данные БД между перезапусками
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - app-net
     healthcheck:
@@ -21,7 +20,7 @@ services:
     restart: unless-stopped
 
   ml:
-    build: ../compvis       # Dockerfile для Python здесь
+    build: ../compvis
     container_name: ml_service
     ports:
       - "8000:8000"
@@ -29,26 +28,23 @@ services:
       - app-net
 
 
-  # Сервис вашего Go-приложения
   app:
-    build: . # Собираем образ из Dockerfile в текущей директории
+    build: .
     container_name: my_go_server
     ports:
-      - "${HTTP_PORT}:${HTTP_PORT}" # Пробрасываем порт из .env
+      - "${HTTP_PORT}:${HTTP_PORT}"
     env_file:
-      - .env # Подключаем все переменные из .env файла
+      - .env
     depends_on:
       db:
-        condition: service_healthy # Запускаем только после того, как БД будет готова
+        condition: service_healthy
     networks:
       - app-net
     restart: unless-stopped
 
-# Определяем общую сеть
 networks:
   app-net:
     driver: bridge
 
-# Определяем том для персистентного хранения данных БД
 volumes:
   postgres_data:
