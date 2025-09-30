@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"airport-tools-backend/internal/domain"
+	"time"
 
 	"github.com/pgvector/pgvector-go"
 )
@@ -42,6 +43,8 @@ type TransactionModel struct {
 	ToolSetId int64
 	Status    domain.Status
 	Reason    *domain.Reason
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	User    *UserModel     `gorm:"foreignkey:UserId"`
 	CvScans []*CvScanModel `gorm:"foreignkey:TransactionId"`
@@ -52,6 +55,7 @@ type CvScanModel struct {
 	TransactionId int64
 	ScanType      domain.ScanType
 	ImageUrl      string
+	CreatedAt     time.Time
 
 	Transaction   *TransactionModel    `gorm:"foreignKey:TransactionId"`
 	DetectedTools []*CvScanDetailModel `gorm:"foreignKey:CvScanId"`
