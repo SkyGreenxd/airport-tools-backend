@@ -55,6 +55,7 @@ type CvScanModel struct {
 	TransactionId int64
 	ScanType      domain.ScanType
 	ImageUrl      string
+	DebugImageUrl string
 	CreatedAt     time.Time
 
 	Transaction   *TransactionModel    `gorm:"foreignKey:TransactionId"`
