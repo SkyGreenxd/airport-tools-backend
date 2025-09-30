@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type ScanType string
 
 const (
@@ -12,6 +14,7 @@ type CvScan struct {
 	TransactionId int64
 	ScanType      ScanType
 	ImageUrl      string
+	CreatedAt     time.Time
 
 	TransactionObj *Transaction
 	DetectedTools  []*CvScanDetail
