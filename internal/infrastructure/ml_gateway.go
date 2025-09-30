@@ -40,10 +40,11 @@ type mlAPIResponse struct {
 func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*usecase.ScanResult, error) {
 	const op = "MlGateway.ScanTools"
 
-	getUrl := fmt.Sprintf("%s/analyze/?image_id=%s&url=%s",
+	getUrl := fmt.Sprintf("%s/analyze/?image_id=%s&url=%s&thresh=%s",
 		ml.baseUrl,
 		url.QueryEscape(req.ImageId),
 		url.QueryEscape(req.ImageUrl),
+		url.QueryEscape(fmt.Sprintf("%f", req.Threshold)),
 	)
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, getUrl, nil)

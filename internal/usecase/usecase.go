@@ -65,7 +65,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl)
+	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl, ConfidenceCompare)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -119,7 +119,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl)
+	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl, ConfidenceCompare)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
