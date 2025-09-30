@@ -11,6 +11,7 @@ type CheckReq struct {
 // CheckRes содержит результат проверки инструментов после сканирования.
 type CheckRes struct {
 	ImageUrl         string
+	DebugImageUrl    string
 	AccessTools      []*domain.RecognizedTool
 	ManualCheckTools []*domain.RecognizedTool
 	UnknownTools     []*domain.RecognizedTool
@@ -32,7 +33,8 @@ type ScanRequest struct {
 
 // ScanResult возвращает распознанные инструменты ML-сервиса.
 type ScanResult struct {
-	Tools []*domain.RecognizedTool
+	Tools         []*domain.RecognizedTool
+	DebugImageUrl string
 }
 
 type CreateScanReq struct {
@@ -76,9 +78,10 @@ func NewUploadImageRes(key string, imageUrl string) *UploadImageRes {
 	}
 }
 
-func NewCheckinRes(imageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *CheckRes {
+func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *CheckRes {
 	return &CheckRes{
 		ImageUrl:         imageUrl,
+		DebugImageUrl:    debugImageUrl,
 		AccessTools:      accessTools,
 		ManualCheckTools: manualCheckTools,
 		UnknownTools:     unknownTools,

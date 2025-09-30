@@ -12,6 +12,7 @@ type CheckReq struct {
 
 type CheckRes struct {
 	ImageUrl         string               `json:"image_url"`
+	DebugImageUrl    string               `json:"debug_image_url"`
 	AccessTools      []*RecognizedToolDTO `json:"access_tools"`
 	ManualCheckTools []*RecognizedToolDTO `json:"manual_check_tools"`
 	UnknownTools     []*RecognizedToolDTO `json:"unknown_tools"`
@@ -65,6 +66,7 @@ func toArrDeliveryRecognizedToolDTO(tools []*domain.RecognizedTool) []*Recognize
 func ToDeliveryCheckRes(res *usecase.CheckRes) *CheckRes {
 	return &CheckRes{
 		ImageUrl:         res.ImageUrl,
+		DebugImageUrl:    res.DebugImageUrl,
 		AccessTools:      toArrDeliveryRecognizedToolDTO(res.AccessTools),
 		ManualCheckTools: toArrDeliveryRecognizedToolDTO(res.ManualCheckTools),
 		UnknownTools:     toArrDeliveryRecognizedToolDTO(res.UnknownTools),

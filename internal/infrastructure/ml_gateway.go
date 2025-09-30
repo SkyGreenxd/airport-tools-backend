@@ -15,12 +15,14 @@ import (
 type MlGateway struct {
 	client  *http.Client
 	baseUrl string
+	s3      usecase.ImageStorage
 }
 
-func NewMlGateway(client *http.Client, baseUrl string) *MlGateway {
+func NewMlGateway(client *http.Client, baseUrl string, s3 usecase.ImageStorage) *MlGateway {
 	return &MlGateway{
 		client:  client,
 		baseUrl: baseUrl,
+		s3:      s3,
 	}
 }
 
@@ -33,6 +35,7 @@ type mlAPIResponse struct {
 		Confidence float32   `json:"confidence"`
 		Embedding  []float32 `json:"embedding"`
 	} `json:"instruments"`
+	DebugImage string `json:"debug_image"`
 }
 
 // ScanTools отправляет изображение на ML-сервис и возвращает распознанные инструменты
@@ -68,6 +71,12 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 	}
 
 	var scanResult usecase.ScanResult
+	uploadImageRes, err := ml.s3.UploadImage(ctx, apiResp.DebugImage)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	scanResult.DebugImageUrl = uploadImageRes.ImageUrl
 	for _, instrument := range apiResp.Instruments {
 		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, instrument.Embedding)
 		scanResult.Tools = append(scanResult.Tools, recognizedTool)

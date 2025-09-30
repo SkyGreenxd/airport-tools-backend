@@ -93,7 +93,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImageRes.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
+	return NewCheckinRes(uploadImageRes.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
 }
 
 // Checkin обрабатывает возврат инструментов инженером
@@ -147,7 +147,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImage.ImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
+	return NewCheckinRes(uploadImage.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
 }
 
 // CreateScan создает записи в таблицы cv_scans, cv_scan_details
