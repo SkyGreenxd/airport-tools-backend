@@ -4,6 +4,7 @@ import (
 	"airport-tools-backend/internal/domain"
 	"airport-tools-backend/pkg/e"
 	"context"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -120,8 +121,9 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 	const op = "TransactionRepository.Update"
 
 	updates := map[string]interface{}{
-		"status": transaction.Status,
-		"reason": transaction.Reason,
+		"status":     transaction.Status,
+		"reason":     transaction.Reason,
+		"updated_at": time.Now().UTC(),
 	}
 
 	var updTransaction TransactionModel
@@ -144,6 +146,8 @@ func toTransactionModel(t *domain.Transaction) *TransactionModel {
 		ToolSetId: t.ToolSetId,
 		Status:    t.Status,
 		Reason:    t.Reason,
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
 	}
 
 	if t.CvScans != nil {
@@ -164,6 +168,8 @@ func toDomainTransaction(t *TransactionModel) *domain.Transaction {
 		ToolSetId: t.ToolSetId,
 		Status:    t.Status,
 		Reason:    t.Reason,
+		CreatedAt: t.CreatedAt,
+		UpdatedAt: t.UpdatedAt,
 	}
 
 	if t.CvScans != nil {

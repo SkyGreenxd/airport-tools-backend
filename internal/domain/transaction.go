@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Status string
 type Reason string
 
@@ -18,6 +20,8 @@ type Transaction struct {
 	ToolSetId int64
 	Status    Status
 	Reason    *Reason
+	CreatedAt time.Time
+	UpdatedAt time.Time
 
 	User    *User
 	CvScans []*CvScan
