@@ -27,6 +27,13 @@ services:
     networks:
       - app-net
 
+  frontend:
+    build: ../frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    networks:
+      - app-net
 
   app:
     build: .
