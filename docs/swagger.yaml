@@ -16,6 +16,8 @@ definitions:
         items:
           $ref: '#/definitions/v1.RecognizedToolDTO'
         type: array
+      debug_image_url:
+        type: string
       image_url:
         type: string
       manual_check_tools:

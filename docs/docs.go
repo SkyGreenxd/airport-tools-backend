@@ -146,6 +146,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/v1.RecognizedToolDTO"
                     }
                 },
+                "debug_image_url": {
+                    "type": "string"
+                },
                 "image_url": {
                     "type": "string"
                 },
