@@ -7,6 +7,7 @@ import (
 	"airport-tools-backend/pkg/e"
 	"context"
 	"encoding/base64"
+	"fmt"
 	"mime"
 
 	"github.com/google/uuid"
@@ -23,10 +24,10 @@ func NewImageStorage(imageRepo repository.ImageRepository) *ImageStorage {
 }
 
 // UploadImage обрабатывает загрузку изображений в S3 хранилище
-func (i *ImageStorage) UploadImage(ctx context.Context, data string) (*usecase.UploadImageRes, error) {
+func (i *ImageStorage) UploadImage(ctx context.Context, req *usecase.UploadImageReq) (*usecase.UploadImageRes, error) {
 	const op = "ImageStorage.UploadImage"
 
-	imgBytes, err := base64.StdEncoding.DecodeString(data)
+	imgBytes, err := base64.StdEncoding.DecodeString(req.Data)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -36,7 +37,7 @@ func (i *ImageStorage) UploadImage(ctx context.Context, data string) (*usecase.U
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
-	fileName := uuid.New().String()
+	fileName := fmt.Sprintf("%s/%s", req.Mode, uuid.New().String())
 
 	newImage := domain.NewImage(fileName, sizeImage, mimeTypes[1], imgBytes)
 	image, err := i.imageRepo.Save(ctx, newImage)
