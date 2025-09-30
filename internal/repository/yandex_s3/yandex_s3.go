@@ -8,6 +8,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+const (
+	S3Url string = "https://storage.yandexcloud.net"
+)
+
 // InitS3 инициализирует объект для работы с S3 хранилищем
 func InitS3(bucketName string) (*ImageRepository, error) {
 	const op = "yandex_s3.Load"
@@ -19,5 +23,5 @@ func InitS3(bucketName string) (*ImageRepository, error) {
 
 	client := s3.NewFromConfig(cfg)
 
-	return NewImageRepository(bucketName, client), nil
+	return NewImageRepository(S3Url, bucketName, client), nil
 }

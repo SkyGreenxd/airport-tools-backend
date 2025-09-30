@@ -12,14 +12,16 @@ import (
 )
 
 type ImageRepository struct {
-	Bucket string
-	Client *s3.Client
+	BasedUrl string
+	Bucket   string
+	Client   *s3.Client
 }
 
-func NewImageRepository(bucket string, client *s3.Client) *ImageRepository {
+func NewImageRepository(basedUrl, bucket string, client *s3.Client) *ImageRepository {
 	return &ImageRepository{
-		Bucket: bucket,
-		Client: client,
+		BasedUrl: basedUrl,
+		Bucket:   bucket,
+		Client:   client,
 	}
 }
 
@@ -37,7 +39,7 @@ func (i *ImageRepository) Save(ctx context.Context, img *domain.Image) (*domain.
 		return nil, e.Wrap(op, err)
 	}
 
-	url := fmt.Sprintf("https://storage.yandexcloud.net/%s/%s", i.Bucket, key)
+	url := fmt.Sprintf("%s/%s/%s", i.BasedUrl, i.Bucket, key)
 
 	return domain.NewUploadImage(key, url), nil
 }
