@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "API for managing airport tools",
-        "title": "Airport Tools Backend API",
+        "title": "Airport Tools Vision API",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {},
         "version": "1.0"

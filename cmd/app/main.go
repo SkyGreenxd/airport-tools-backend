@@ -2,7 +2,7 @@ package main
 
 import "airport-tools-backend/internal/app"
 
-//	@title			Airport Tools Backend API
+//	@title			Airport Tools Vision API
 //	@version		1.0
 //	@description	API for managing airport tools
 //	@termsOfService	http://swagger.io/terms/

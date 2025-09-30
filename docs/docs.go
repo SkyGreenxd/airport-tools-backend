@@ -217,7 +217,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Airport Tools Backend API",
+	Title:            "Airport Tools Vision API",
 	Description:      "API for managing airport tools",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
