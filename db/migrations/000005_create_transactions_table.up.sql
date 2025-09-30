@@ -3,5 +3,7 @@ CREATE TABLE IF NOT EXISTS transactions(
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     tool_set_id BIGINT NOT NULL REFERENCES tool_sets(id) ON DELETE RESTRICT,
     status VARCHAR(32) NOT NULL DEFAULT 'OPEN',
-    reason VARCHAR(128)
+    reason VARCHAR(128),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
