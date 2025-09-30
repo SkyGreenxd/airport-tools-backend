@@ -1,7 +1,7 @@
 services:
   db:
     image: pgvector/pgvector:pg17
-    container_name: my_postgres_db
+    container_name: postgres_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -37,7 +37,7 @@ services:
 
   app:
     build: .
-    container_name: my_go_server
+    container_name: go_backend
     ports:
       - "${HTTP_PORT}:${HTTP_PORT}"
     env_file:
