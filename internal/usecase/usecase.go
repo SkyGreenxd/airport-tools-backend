@@ -12,6 +12,7 @@ import (
 const (
 	ConfidenceCompare float32 = 0.85
 	CosineSimCompare  float64 = 0.70
+	SourceImages      string  = "source_images"
 )
 
 type Service struct {
@@ -59,8 +60,8 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	// сохранение фотки в s3
-	uploadImageRes, err := s.imageStorage.UploadImage(ctx, req.Data)
+	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
+	uploadImageRes, err := s.imageStorage.UploadImage(ctx, uplImageReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -82,7 +83,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkin, uploadImageRes.ImageUrl, scanResult.Tools)
+	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkin, uploadImageRes.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
 	if err := s.CreateScan(ctx, createScanReq); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -114,7 +115,8 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	uploadImage, err := s.imageStorage.UploadImage(ctx, req.Data)
+	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
+	uploadImage, err := s.imageStorage.UploadImage(ctx, uplImageReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -130,7 +132,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkout, uploadImage.ImageUrl, scanResult.Tools)
+	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkout, uploadImage.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
 	if err := s.CreateScan(ctx, createScanReq); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -164,7 +166,7 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 		toolMap[t.Id] = t
 	}
 
-	newScan := domain.NewCvScan(req.TransactionId, req.ScanType, req.ImageUrl)
+	newScan := domain.NewCvScan(req.TransactionId, req.ScanType, req.ImageUrl, req.DebugImageUrl)
 	scan, err := s.cvScanRepo.Create(ctx, newScan)
 	if err != nil {
 		return e.Wrap(op, err)

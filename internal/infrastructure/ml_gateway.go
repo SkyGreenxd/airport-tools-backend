@@ -11,6 +11,10 @@ import (
 	"net/url"
 )
 
+const (
+	DebugImages string = "debug_images"
+)
+
 // MlGateway клиент для взаимодействия с ML-сервисом распознавания инструментов
 type MlGateway struct {
 	client  *http.Client
@@ -70,12 +74,13 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 		return nil, e.Wrap(op, fmt.Errorf("%s: %w", e.ErrMLServiceDecode, err))
 	}
 
-	var scanResult usecase.ScanResult
-	uploadImageRes, err := ml.s3.UploadImage(ctx, apiResp.DebugImage)
+	uplImageReq := usecase.NewUploadImageReq(apiResp.DebugImage, DebugImages)
+	uploadImageRes, err := ml.s3.UploadImage(ctx, uplImageReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
+	var scanResult usecase.ScanResult
 	scanResult.DebugImageUrl = uploadImageRes.ImageUrl
 	for _, instrument := range apiResp.Instruments {
 		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, instrument.Embedding)
