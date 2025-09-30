@@ -28,19 +28,18 @@ func NewMlGateway(client *http.Client, baseUrl string) *MlGateway {
 type mlAPIResponse struct {
 	ImageId     string `json:"image_id"`
 	Instruments []struct {
-		Bbox       []int     `json:"bbox"`
+		Bbox       []float32 `json:"bbox"`
 		ToolTypeId int64     `json:"class"`
 		Confidence float32   `json:"confidence"`
 		Embedding  []float32 `json:"embedding"`
 	} `json:"instruments"`
-	ImageUrl string `json:"debug_image_url"`
 }
 
 // ScanTools отправляет изображение на ML-сервис и возвращает распознанные инструменты
 func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*usecase.ScanResult, error) {
 	const op = "MlGateway.ScanTools"
 
-	getUrl := fmt.Sprintf("%s/analyze/?image_id=%s&url=%s&thresh=%s",
+	getUrl := fmt.Sprintf("%s/predict/?image_id=%s&url=%s&thresh=%s",
 		ml.baseUrl,
 		url.QueryEscape(req.ImageId),
 		url.QueryEscape(req.ImageUrl),
