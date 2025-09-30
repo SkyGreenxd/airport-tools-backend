@@ -4,6 +4,8 @@ import (
 	"airport-tools-backend/internal/config"
 	"context"
 	"net/http"
+
+	"github.com/rs/cors"
 )
 
 // Server обёртка над http.Server для запуска и остановки HTTP-сервиса.
@@ -13,10 +15,16 @@ type Server struct {
 
 // NewServer создаёт новый HTTP-сервер с заданным обработчиком и конфигурацией.
 func NewServer(handler http.Handler, httpServer config.HttpServer) *Server {
+	corsHandler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST"},
+		AllowCredentials: true,
+	}).Handler(handler)
+
 	return &Server{
 		httpServer: &http.Server{
 			Addr:         ":" + httpServer.Port,
-			Handler:      handler,
+			Handler:      corsHandler,
 			ReadTimeout:  httpServer.ReadTimeout,
 			WriteTimeout: httpServer.WriteTimeout,
 		},
