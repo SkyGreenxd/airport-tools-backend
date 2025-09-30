@@ -83,7 +83,7 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkin, uploadImageRes.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
+	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkout, uploadImageRes.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
 	if err := s.CreateScan(ctx, createScanReq); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -132,7 +132,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkout, uploadImage.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
+	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkin, uploadImage.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
 	if err := s.CreateScan(ctx, createScanReq); err != nil {
 		return nil, e.Wrap(op, err)
 	}
