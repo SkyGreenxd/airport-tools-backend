@@ -172,6 +172,9 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 
 	for _, recognized := range req.Tools {
 		if _, exists := toolMap[recognized.ToolTypeId]; exists {
+			if len(recognized.Embedding) == 0 {
+				recognized.Embedding = make([]float32, 1280)
+			}
 			scanDetail := domain.NewCvScanDetail(scan.Id, recognized.ToolTypeId, recognized.Confidence, recognized.Embedding)
 			_, err := s.cvScanDetailRepo.Create(ctx, scanDetail)
 			if err != nil {
