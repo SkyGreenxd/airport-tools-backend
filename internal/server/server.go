@@ -4,6 +4,7 @@ import (
 	"airport-tools-backend/internal/config"
 	"context"
 	"net/http"
+	"os"
 
 	"github.com/rs/cors"
 )
@@ -15,8 +16,10 @@ type Server struct {
 
 // NewServer создаёт новый HTTP-сервер с заданным обработчиком и конфигурацией.
 func NewServer(handler http.Handler, httpServer config.HttpServer) *Server {
+	frontURL := os.Getenv("FRONTEND_URL")
+
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedOrigins:   []string{frontURL},
 		AllowedMethods:   []string{"GET", "POST"},
 		AllowCredentials: true,
 	}).Handler(handler)
