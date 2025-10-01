@@ -73,8 +73,8 @@ paths:
         URL and four arrays:<br>1) AccessTools - tools that passed automated checks<br>2)
         ManualCheckTools - tools requiring manual verification<br>3) UnknownTools
         - tools not in the expected set<br>4) MissingTools - tools missing from the
-        expected set<br>If not all tools are in Access, a MANUAL VERIFICATION flag
-        is set.
+        expected set<br>If not all tools are in AccessTools, a MANUAL VERIFICATION
+        flag is set.
       parameters:
       - description: Checkin request
         in: body
@@ -113,7 +113,8 @@ paths:
         URL and four arrays:<br>1) AccessTools: tools that passed automated checks<br>2)
         ManualCheckTools: tools requiring manual verification<br>3) UnknownTools:
         tools not in the expected set<br>4) MissingTools: tools missing from the expected
-        set<br>If not all tools are in Access, a MANUAL VERIFICATION flag is set.'
+        set<br>If not all tools are in AccessTools, a MANUAL VERIFICATION flag is
+        set.'
       parameters:
       - description: Checkout request
         in: body

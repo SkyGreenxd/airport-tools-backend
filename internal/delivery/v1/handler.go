@@ -38,7 +38,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 // checkout
 //
 //	@Summary		Instrument issuance operation
-//	@Description	Receives the engineer's personnel number and a photo of the tools in base64 format,<br>verifies them against the expected set, and returns image URL and four arrays:<br>1) AccessTools: tools that passed automated checks<br>2) ManualCheckTools: tools requiring manual verification<br>3) UnknownTools: tools not in the expected set<br>4) MissingTools: tools missing from the expected set<br>If not all tools are in Access, a MANUAL VERIFICATION flag is set.
+//	@Description	Receives the engineer's personnel number and a photo of the tools in base64 format,<br>verifies them against the expected set, and returns image URL and four arrays:<br>1) AccessTools: tools that passed automated checks<br>2) ManualCheckTools: tools requiring manual verification<br>3) UnknownTools: tools not in the expected set<br>4) MissingTools: tools missing from the expected set<br>If not all tools are in AccessTools, a MANUAL VERIFICATION flag is set.
 //
 //	@Tags			transactions
 //	@Accept			json
@@ -68,7 +68,7 @@ func (h *Handler) checkout(c *gin.Context) {
 // checkin
 //
 //	@Summary		Instrument delivery operation
-//	@Description 	Receives the engineer's personnel number and a photo of the tools in base64 format, verifies them against the expected set,<br>and returns image URL and four arrays:<br>1) AccessTools - tools that passed automated checks<br>2) ManualCheckTools - tools requiring manual verification<br>3) UnknownTools - tools not in the expected set<br>4) MissingTools - tools missing from the expected set<br>If not all tools are in Access, a MANUAL VERIFICATION flag is set.
+//	@Description 	Receives the engineer's personnel number and a photo of the tools in base64 format, verifies them against the expected set,<br>and returns image URL and four arrays:<br>1) AccessTools - tools that passed automated checks<br>2) ManualCheckTools - tools requiring manual verification<br>3) UnknownTools - tools not in the expected set<br>4) MissingTools - tools missing from the expected set<br>If not all tools are in AccessTools, a MANUAL VERIFICATION flag is set.
 //
 //	@Tags			transactions
 //	@Accept			json
