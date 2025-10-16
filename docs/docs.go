@@ -16,9 +16,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/transaction/checkin": {
+        "/api/v1/transaction/check": {
             "post": {
-                "description": "Receives the engineer's personnel number and a photo of the tools in base64 format, verifies them against the expected set,\u003cbr\u003eand returns image URL and four arrays:\u003cbr\u003e1) AccessTools - tools that passed automated checks\u003cbr\u003e2) ManualCheckTools - tools requiring manual verification\u003cbr\u003e3) UnknownTools - tools not in the expected set\u003cbr\u003e4) MissingTools - tools missing from the expected set\u003cbr\u003eIf not all tools are in AccessTools, a MANUAL VERIFICATION flag is set.",
+                "description": "Принимает табельный номер инженера и фотографию инструментов в формате base64.\u003cbr\u003e",
                 "consumes": [
                     "application/json"
                 ],
@@ -28,10 +28,10 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Instrument delivery operation",
+                "summary": "Операция выдачи/сдачи инструментов",
                 "parameters": [
                     {
-                        "description": "Checkin request",
+                        "description": "Запрос на выдачу или сдачу инструментов",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -68,9 +68,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/transaction/checkout": {
+        "/api/v1/transaction/{transaction_id}/verification": {
             "post": {
-                "description": "Receives the engineer's personnel number and a photo of the tools in base64 format,\u003cbr\u003everifies them against the expected set, and returns image URL and four arrays:\u003cbr\u003e1) AccessTools: tools that passed automated checks\u003cbr\u003e2) ManualCheckTools: tools requiring manual verification\u003cbr\u003e3) UnknownTools: tools not in the expected set\u003cbr\u003e4) MissingTools: tools missing from the expected set\u003cbr\u003eIf not all tools are in AccessTools, a MANUAL VERIFICATION flag is set.",
+                "description": "После авторизации сотрудника QA отображается список всех незавершённых транзакций.\u003cbr\u003e",
                 "consumes": [
                     "application/json"
                 ],
@@ -80,15 +80,22 @@ const docTemplate = `{
                 "tags": [
                     "transactions"
                 ],
-                "summary": "Instrument issuance operation",
+                "summary": "QA-проверка и завершение транзакции",
                 "parameters": [
                     {
-                        "description": "Checkout request",
+                        "type": "string",
+                        "description": "Идентификатор транзакции",
+                        "name": "transaction_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные завершения QA-проверки",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.CheckReq"
+                            "$ref": "#/definitions/v1.VerificationReq"
                         }
                     }
                 ],
@@ -96,7 +103,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.CheckRes"
+                            "$ref": "#/definitions/v1.VerificationRes"
                         }
                     },
                     "400": {
@@ -119,9 +126,343 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/transactions/": {
+            "get": {
+                "description": "Возвращает список транзакций QA.\u003cbr\u003e",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Список транзакций",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Фильтр по статусу транзакции (например, manual_check_required)",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ListTransactionsRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/login": {
+            "post": {
+                "description": "Вход в систему по табельному номеру сотрудника.\u003cbr\u003e",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Вход в систему",
+                "parameters": [
+                    {
+                        "description": "Данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.LoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.LoginRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/register": {
+            "post": {
+                "description": "Регистрация сотрудника в системе.\u003cbr\u003e",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Регистрация сотрудника в системе",
+                "parameters": [
+                    {
+                        "description": "Данные для регистрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.RegisterReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/v1.RegisterRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "domain.CvScan": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "debugImageUrl": {
+                    "type": "string"
+                },
+                "detectedTools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.CvScanDetail"
+                    }
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "scanType": {
+                    "$ref": "#/definitions/domain.ScanType"
+                },
+                "transactionId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "transactionObj": {
+                    "$ref": "#/definitions/domain.Transaction"
+                }
+            }
+        },
+        "domain.CvScanDetail": {
+            "type": "object",
+            "properties": {
+                "confidence": {
+                    "type": "number",
+                    "format": "float32"
+                },
+                "cvScanId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "detectedToolTypeId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "embedding": {
+                    "type": "array",
+                    "items": {
+                        "type": "number",
+                        "format": "float32"
+                    }
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "domain.Reason": {
+            "type": "string",
+            "enum": [
+                "All instruments have been handed over",
+                "There are problems with the tools, a manual check is needed"
+            ],
+            "x-enum-varnames": [
+                "RETURNED",
+                "PROBLEMS"
+            ]
+        },
+        "domain.Role": {
+            "type": "string",
+            "enum": [
+                "Engineer",
+                "Quality Auditor"
+            ],
+            "x-enum-comments": {
+                "Engineer": "Авиатехник / Инженер",
+                "QualityAuditor": "Специалист службы качества / аудит"
+            },
+            "x-enum-descriptions": [
+                "Авиатехник / Инженер",
+                "Специалист службы качества / аудит"
+            ],
+            "x-enum-varnames": [
+                "Engineer",
+                "QualityAuditor"
+            ]
+        },
+        "domain.ScanType": {
+            "type": "string",
+            "enum": [
+                "checkin",
+                "checkout"
+            ],
+            "x-enum-comments": {
+                "Checkin": "сдача инструментов",
+                "Checkout": "выдача инструментов"
+            },
+            "x-enum-descriptions": [
+                "сдача инструментов",
+                "выдача инструментов"
+            ],
+            "x-enum-varnames": [
+                "Checkin",
+                "Checkout"
+            ]
+        },
+        "domain.Status": {
+            "type": "string",
+            "enum": [
+                "OPEN",
+                "CLOSED",
+                "MANUAL VERIFICATION"
+            ],
+            "x-enum-varnames": [
+                "OPEN",
+                "CLOSED",
+                "MANUAL"
+            ]
+        },
+        "domain.Transaction": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "cvScans": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.CvScan"
+                    }
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "reason": {
+                    "$ref": "#/definitions/domain.Reason"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.Status"
+                },
+                "toolSetId": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/domain.User"
+                },
+                "userId": {
+                    "description": "Received в UI, у кого инструмент",
+                    "type": "integer",
+                    "format": "int64"
+                }
+            }
+        },
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "employeeId": {
+                    "type": "string"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "role": {
+                    "$ref": "#/definitions/domain.Role"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Transaction"
+                    }
+                }
+            }
+        },
         "v1.CheckReq": {
             "type": "object",
             "required": [
@@ -183,6 +524,36 @@ const docTemplate = `{
                 }
             }
         },
+        "v1.ListTransactionsRes": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.Transaction"
+                    }
+                }
+            }
+        },
+        "v1.LoginReq": {
+            "type": "object",
+            "required": [
+                "employee_id"
+            ],
+            "properties": {
+                "employee_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.LoginRes": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "v1.RecognizedToolDTO": {
             "type": "object",
             "properties": {
@@ -191,6 +562,33 @@ const docTemplate = `{
                 },
                 "tool_type_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "v1.RegisterReq": {
+            "type": "object",
+            "required": [
+                "employee_id",
+                "full_name",
+                "role"
+            ],
+            "properties": {
+                "employee_id": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.RegisterRes": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
                 }
             }
         },
@@ -204,6 +602,49 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "part_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.VerificationReq": {
+            "type": "object",
+            "required": [
+                "qa_employee_id",
+                "transaction_id"
+            ],
+            "properties": {
+                "notes": {
+                    "type": "string"
+                },
+                "qa_employee_id": {
+                    "type": "string"
+                },
+                "transaction_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.VerificationRes": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "Краткое текстовое подтверждение",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Новый статус",
+                    "type": "string"
+                },
+                "transaction_id": {
+                    "description": "ID транзакции, которую QA завершил",
+                    "type": "string"
+                },
+                "verified_at": {
+                    "description": "Время завершения проверки",
+                    "type": "string"
+                },
+                "verified_by": {
+                    "description": "Табельный номер или имя QA",
                     "type": "string"
                 }
             }
