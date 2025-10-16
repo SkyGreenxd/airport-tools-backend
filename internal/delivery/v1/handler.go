@@ -106,7 +106,14 @@ func (h *Handler) verification(c *gin.Context) {
 //	@Failure		500		{object}	HTTPError
 //	@Router			/api/v1/transactions/ [get]
 func (h *Handler) list(c *gin.Context) {
+	status := c.Query("status")
+	res, err := h.service.List(c.Request.Context(), status)
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
 
+	c.JSON(http.StatusOK, toDeliveryListTransactionsRes(res.Transactions))
 }
 
 // login
