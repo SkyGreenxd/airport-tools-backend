@@ -19,12 +19,11 @@ type User struct {
 	Transactions []*Transaction
 }
 
-func NewUser(fullName, employeeId string, role Role, toolSetId int64) *User {
+func NewUser(fullName, employeeId string, role Role) *User {
 	return &User{
-		FullName:         fullName,
-		EmployeeId:       employeeId,
-		Role:             role,
-		DefaultToolSetId: toolSetId,
+		FullName:   fullName,
+		EmployeeId: employeeId,
+		Role:       role,
 	}
 }
 
@@ -34,7 +33,7 @@ func (u *User) CanCheckout() error {
 	}
 
 	for _, transaction := range u.Transactions {
-		if transaction.Status == OPEN || transaction.Status == MANUAL {
+		if transaction.Status == OPEN || transaction.Status == QA {
 			return e.ErrTransactionUnfinished
 		}
 	}
@@ -48,7 +47,7 @@ func (u *User) CanCheckin() error {
 	}
 
 	for _, transaction := range u.Transactions {
-		if transaction.Status == OPEN || transaction.Status == MANUAL {
+		if transaction.Status == OPEN || transaction.Status == QA {
 			return nil
 		}
 	}
@@ -74,20 +73,20 @@ func (u *User) ValidateFullName(newFullName string) error {
 	return nil
 }
 
-func (u *User) ValidateRole(newRole Role) error {
+func ValidateRole(role Role) error {
+	switch role {
+	case Engineer, QualityAuditor:
+		return nil
+	default:
+		return e.ErrUserRoleNotFound
+	}
+}
+
+func (u *User) ChangeRole(newRole Role) error {
 	if u.Role == newRole {
 		return e.ErrNothingToChange
 	}
 
 	u.Role = newRole
-	return nil
-}
-
-func (u *User) ValidateDefaultToolSetId(newToolSetId int64) error {
-	if u.DefaultToolSetId == newToolSetId {
-		return e.ErrNothingToChange
-	}
-
-	u.DefaultToolSetId = newToolSetId
 	return nil
 }
