@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,9 +19,9 @@ type HTTPError struct {
 // TODO: заменить ошибки на русские
 func ErrorToHttpRes(err error, c *gin.Context) {
 	log.Println(err)
-	
+
 	var res HTTPError
-	
+
 	switch {
 	case errors.Is(err, e.ErrUserNotFound):
 		res.Code = http.StatusNotFound
@@ -46,11 +46,11 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 		res.Message = "3 неудачные попытки сканирования. Данные отправлены на проверку QA"
 	case errors.Is(err, e.ErrTransactionCheckQA):
 		res.Code = http.StatusConflict
-		res.Message = "Вы не можете получить новые инструменты пока вас проверяет QA"
+		res.Message = "Вы не можете получить новые инструменты, пока вас проверяет QA"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"
 	}
-	
+
 	c.JSON(res.Code, res)
 }
