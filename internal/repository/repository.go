@@ -46,6 +46,8 @@ type TransactionRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Transaction, error)
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, transaction *domain.Transaction) (*domain.Transaction, error)
+	GetAllWithUser(ctx context.Context) ([]*domain.Transaction, error)
+	GetAllWhereStatusIsQAWithUser(ctx context.Context) ([]*domain.Transaction, error)
 }
 
 // CvScanRepository интерфейс для работы со сканами инструментов в базе данных
