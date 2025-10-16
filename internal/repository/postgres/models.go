@@ -7,6 +7,8 @@ import (
 	"github.com/pgvector/pgvector-go"
 )
 
+// TODO: добавить новую таблицу
+
 type ToolTypeModel struct {
 	Id                 int64
 	PartNumber         string
@@ -28,23 +30,23 @@ type ToolSetItemModel struct {
 }
 
 type UserModel struct {
-	Id               int64
-	EmployeeId       string
-	FullName         string
-	Role             domain.Role
-	DefaultToolSetId int64 `gorm:"column:default_tool_set_id"`
+	Id         int64
+	EmployeeId string
+	FullName   string
+	Role       domain.Role
 
 	Transactions []*TransactionModel `gorm:"foreignkey:UserId"`
 }
 
 type TransactionModel struct {
-	Id        int64
-	UserId    int64
-	ToolSetId int64
-	Status    domain.Status
-	Reason    *domain.Reason
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id            int64
+	UserId        int64
+	ToolSetId     int64
+	CountOfChecks int64
+	Status        domain.Status
+	Reason        *domain.Reason
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 
 	User    *UserModel     `gorm:"foreignkey:UserId"`
 	CvScans []*CvScanModel `gorm:"foreignkey:TransactionId"`
