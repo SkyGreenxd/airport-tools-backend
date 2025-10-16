@@ -37,7 +37,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 		user := v1.Group("/user")
 		{
 			user.POST("/login", h.login)       // вход в систему по табельному номеру
-			user.GET("/login", h.getRoles)     // получить список ролей
+			user.GET("/roles", h.getRoles)     // получить список ролей
 			user.POST("/register", h.register) // регистрация в системе
 		}
 	}
