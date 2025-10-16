@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type GetRolesRes struct {
+	Roles []string `json:"roles"`
+}
+
 type VerificationReq struct {
 	TransactionID int64  `json:"transaction_id" binding:"required"`
 	QAEmployeeId  string `json:"qa_employee_id" binding:"required"`

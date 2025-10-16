@@ -160,6 +160,13 @@ definitions:
           $ref: '#/definitions/v1.RecognizedToolDTO'
         type: array
     type: object
+  v1.GetRolesRes:
+    properties:
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
   v1.HTTPError:
     properties:
       code:
@@ -461,7 +468,7 @@ paths:
           description: Список ролей
           schema:
             items:
-              type: string
+              $ref: '#/definitions/v1.GetRolesRes'
             type: array
         "500":
           description: Внутренняя ошибка сервера

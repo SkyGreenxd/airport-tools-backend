@@ -152,7 +152,7 @@ func (h *Handler) register(c *gin.Context) {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{array}		string	"Список ролей"
+//	@Success		200	{array}		GetRolesRes	"Список ролей"
 //	@Failure		500	{object}	HTTPError	"Внутренняя ошибка сервера"
 //	@Router			/api/v1/user/roles [get]
 func (h *Handler) getRoles(c *gin.Context) {
