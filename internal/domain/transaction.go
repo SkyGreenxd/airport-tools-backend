@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"airport-tools-backend/pkg/e"
+	"time"
+)
 
 type Status string
 type Reason string
@@ -8,20 +11,17 @@ type Reason string
 const (
 	OPEN   Status = "OPEN"
 	CLOSED Status = "CLOSED"
-	MANUAL Status = "MANUAL VERIFICATION"
-
-	RETURNED Reason = "All instruments have been handed over"
-	PROBLEMS Reason = "There are problems with the tools, a manual check is needed"
+	QA     Status = "QA VERIFICATION"
 )
 
 type Transaction struct {
-	Id        int64
-	UserId    int64 // Received в UI, у кого инструмент
-	ToolSetId int64
-	Status    Status
-	Reason    *Reason
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id            int64
+	UserId        int64 // Received в UI, у кого инструмент
+	ToolSetId     int64
+	CountOfChecks int64
+	Status        Status
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 
 	User    *User
 	CvScans []*CvScan
@@ -29,24 +29,38 @@ type Transaction struct {
 
 func NewTransaction(userId, toolSetId int64) *Transaction {
 	return &Transaction{
-		UserId:    userId,
-		Status:    OPEN,
-		ToolSetId: toolSetId,
+		UserId:        userId,
+		Status:        OPEN,
+		ToolSetId:     toolSetId,
+		CountOfChecks: 0,
 	}
 }
 
+// TODO: подумать подходит ли ща под QA проверку
+// мб для QA сделать отдельную функцию
 func (t *Transaction) EvaluateStatus(manualCheckCount, unknownCount, missingCount int) {
-	var reason Reason
 	var status Status
 
-	if manualCheckCount == 0 && unknownCount == 0 && missingCount == 0 {
+	sum := 0
+	sum += manualCheckCount
+	sum += unknownCount
+	sum += missingCount
+
+	if sum == 0 {
 		status = CLOSED
-		reason = RETURNED
+	} else if sum >= 4 {
+		status = QA
 	} else {
-		status = MANUAL
-		reason = PROBLEMS
+		status = OPEN
 	}
 
 	t.Status = status
-	t.Reason = &reason
+}
+
+func (t *Transaction) CheckCountOfChecks() error {
+	if t.CountOfChecks >= 3 {
+		return e.ErrTransactionLimit
+	}
+
+	return nil
 }
