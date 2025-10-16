@@ -23,6 +23,7 @@ type CheckRes struct {
 	ManualCheckTools []*domain.RecognizedTool
 	UnknownTools     []*domain.RecognizedTool
 	MissingTools     []*ToolTypeDTO
+	TransactionType  string
 }
 
 type UploadImageReq struct {
@@ -91,7 +92,7 @@ func NewUploadImageRes(key string, imageUrl string) *UploadImageRes {
 	}
 }
 
-func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *CheckRes {
+func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO, transactionType string) *CheckRes {
 	return &CheckRes{
 		ImageUrl:         imageUrl,
 		DebugImageUrl:    debugImageUrl,
@@ -99,6 +100,7 @@ func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools
 		ManualCheckTools: manualCheckTools,
 		UnknownTools:     unknownTools,
 		MissingTools:     missingTools,
+		TransactionType:  transactionType,
 	}
 }
 

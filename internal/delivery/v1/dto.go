@@ -59,6 +59,7 @@ type CheckRes struct {
 	ManualCheckTools []*RecognizedToolDTO `json:"manual_check_tools"`
 	UnknownTools     []*RecognizedToolDTO `json:"unknown_tools"`
 	MissingTools     []*ToolTypeDTO       `json:"missing_tools"`
+	TransactionType  string               `json:"transaction_type"`
 }
 
 type RecognizedToolDTO struct {
@@ -113,6 +114,7 @@ func ToDeliveryCheckRes(res *usecase.CheckRes) *CheckRes {
 		ManualCheckTools: toArrDeliveryRecognizedToolDTO(res.ManualCheckTools),
 		UnknownTools:     toArrDeliveryRecognizedToolDTO(res.UnknownTools),
 		MissingTools:     toArrDeliveryToolTypeDTO(res.MissingTools),
+		TransactionType:  res.TransactionType,
 	}
 }
 

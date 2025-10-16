@@ -14,6 +14,8 @@ const (
 	CosineSimCompare  float64 = 0.70
 	SourceImages      string  = "source_images"
 	DefaultSetId      int64   = 1
+	Checkin           string  = "Checkin"
+	Checkout          string  = "Checkout"
 )
 
 type Service struct {
@@ -117,7 +119,7 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImageRes.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
+	return NewCheckinRes(uploadImageRes.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools, Checkout), nil
 }
 
 // Checkin обрабатывает возврат инструментов инженером
@@ -169,7 +171,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImage.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools), nil
+	return NewCheckinRes(uploadImage.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools, Checkin), nil
 }
 
 // CreateScan создает записи в таблицы cv_scans, cv_scan_details
