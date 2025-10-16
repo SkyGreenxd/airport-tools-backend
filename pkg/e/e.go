@@ -16,10 +16,12 @@ var (
 	ErrTransactionNotFound    = fmt.Errorf("transaction not found")
 	ErrTransactionUnfinished  = fmt.Errorf("you have an unfinished issue")
 	ErrTransactionAllFinished = fmt.Errorf("you have no open or pending transactions")
+	ErrTransactionLimit       = fmt.Errorf("3 unsuccessful scan attempts. Data sent for QA review.")
 
-	ErrUserNotFound = fmt.Errorf("user not found")
-	ErrUserExists   = fmt.Errorf("user is exists")
-	ErrUserInUse    = fmt.Errorf("the user has outstanding transactions")
+	ErrUserNotFound     = fmt.Errorf("user not found")
+	ErrUserExists       = fmt.Errorf("user is exists")
+	ErrUserInUse        = fmt.Errorf("the user has outstanding transactions")
+	ErrUserRoleNotFound = fmt.Errorf("role not found")
 
 	ErrCvScanNotFound       = fmt.Errorf("cv_scan not found")
 	ErrCvScanDetailNotFound = fmt.Errorf("cv_scan detail not found")
