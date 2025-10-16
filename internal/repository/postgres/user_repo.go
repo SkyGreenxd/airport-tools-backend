@@ -94,14 +94,14 @@ func (u *UserRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
+// TODO: проверить
 func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain.User, error) {
 	const op = "UserRepository.Update"
 
 	updates := map[string]interface{}{
-		"employee_id":         user.EmployeeId,
-		"full_name":           user.FullName,
-		"role":                user.Role,
-		"default_tool_set_id": user.DefaultToolSetId,
+		"employee_id": user.EmployeeId,
+		"full_name":   user.FullName,
+		"role":        user.Role,
 	}
 
 	var updUser UserModel
@@ -119,11 +119,10 @@ func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain
 
 func toUserModel(u *domain.User) *UserModel {
 	model := &UserModel{
-		Id:               u.Id,
-		EmployeeId:       u.EmployeeId,
-		FullName:         u.FullName,
-		Role:             u.Role,
-		DefaultToolSetId: u.DefaultToolSetId,
+		Id:         u.Id,
+		EmployeeId: u.EmployeeId,
+		FullName:   u.FullName,
+		Role:       u.Role,
 	}
 
 	if u.Transactions != nil {
@@ -135,11 +134,10 @@ func toUserModel(u *domain.User) *UserModel {
 
 func toDomainUser(u *UserModel) *domain.User {
 	user := &domain.User{
-		Id:               u.Id,
-		EmployeeId:       u.EmployeeId,
-		FullName:         u.FullName,
-		Role:             u.Role,
-		DefaultToolSetId: u.DefaultToolSetId,
+		Id:         u.Id,
+		EmployeeId: u.EmployeeId,
+		FullName:   u.FullName,
+		Role:       u.Role,
 	}
 
 	if u.Transactions != nil {
