@@ -248,3 +248,11 @@ func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
 
 	return NewLoginRes(user.Role), nil
 }
+
+// TODO: добавить таблицу ролей чтобы не хардкодить
+func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
+	const op = "usecase.GetRoles"
+
+	roles := []domain.Role{domain.Engineer, domain.QualityAuditor}
+	return NewGetRolesRes(roles), nil
+}

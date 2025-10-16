@@ -55,7 +55,7 @@ definitions:
     properties:
       roles:
         items:
-          type: string
+          $ref: '#/definitions/domain.Role'
         type: array
     type: object
   v1.HTTPError:

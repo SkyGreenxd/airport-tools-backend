@@ -389,7 +389,7 @@ const docTemplate = `{
                 "roles": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/domain.Role"
                     }
                 }
             }

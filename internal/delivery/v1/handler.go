@@ -175,7 +175,13 @@ func (h *Handler) register(c *gin.Context) {
 //	@Failure		500	{object}	HTTPError	"Внутренняя ошибка сервера"
 //	@Router			/api/v1/user/roles [get]
 func (h *Handler) getRoles(c *gin.Context) {
+	res, err := h.service.GetRoles(c.Request.Context())
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
 
+	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
 }
 
 //func (h *Handler) checkout(c *gin.Context) {

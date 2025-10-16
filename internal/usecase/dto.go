@@ -30,6 +30,16 @@ type LoginRes struct {
 	Role domain.Role
 }
 
+type GetRolesRes struct {
+	Roles []domain.Role
+}
+
+func NewGetRolesRes(roles []domain.Role) *GetRolesRes {
+	return &GetRolesRes{
+		Roles: roles,
+	}
+}
+
 func NewLoginRes(role domain.Role) *LoginRes {
 	return &LoginRes{
 		Role: role,

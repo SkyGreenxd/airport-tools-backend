@@ -7,7 +7,13 @@ import (
 )
 
 type GetRolesRes struct {
-	Roles []string `json:"roles"`
+	Roles []domain.Role `json:"roles"`
+}
+
+func toDeliveryGetRolesRes(roles *usecase.GetRolesRes) GetRolesRes {
+	return GetRolesRes{
+		roles.Roles,
+	}
 }
 
 type VerificationReq struct {
