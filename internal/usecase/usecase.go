@@ -213,3 +213,27 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 
 	return nil
 }
+
+func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes, error) {
+	const op = "usecase.List"
+
+	if status == "" {
+		transactions, err := s.transactionRepo.GetAllWithUser(ctx)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		result := NewListTransactionsRes(toListTransactionsRes(transactions))
+		return result, nil
+	} else if status == "qa" {
+		transactions, err := s.transactionRepo.GetAllWhereStatusIsQAWithUser(ctx)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		result := NewListTransactionsRes(toListTransactionsRes(transactions))
+		return result, nil
+	}
+
+	return nil, e.ErrRequestNotSupported
+}
