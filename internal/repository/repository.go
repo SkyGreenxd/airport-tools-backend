@@ -68,3 +68,9 @@ type CvScanDetailRepository interface {
 type ImageRepository interface {
 	Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error)
 }
+
+// TODO:
+type TransactionResolutionsRepository interface {
+	// Create
+	// GetAll
+}
