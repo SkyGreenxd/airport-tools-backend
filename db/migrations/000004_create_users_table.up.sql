@@ -2,6 +2,5 @@ CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     employee_id VARCHAR(128) UNIQUE NOT NULL,
     full_name TEXT NOT NULL,
-    role VARCHAR(32) NOT NULL,
-    default_tool_set_id BIGINT REFERENCES tool_sets(id) ON DELETE RESTRICT
+    role VARCHAR(32) NOT NULL
 );
