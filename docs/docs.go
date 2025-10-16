@@ -308,6 +308,25 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.Role": {
+            "type": "string",
+            "enum": [
+                "Engineer",
+                "Quality Auditor"
+            ],
+            "x-enum-comments": {
+                "Engineer": "Авиатехник / Инженер",
+                "QualityAuditor": "Специалист службы качества / аудит"
+            },
+            "x-enum-descriptions": [
+                "Авиатехник / Инженер",
+                "Специалист службы качества / аудит"
+            ],
+            "x-enum-varnames": [
+                "Engineer",
+                "QualityAuditor"
+            ]
+        },
         "v1.CheckReq": {
             "type": "object",
             "required": [
@@ -412,7 +431,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "role": {
-                    "type": "string"
+                    "$ref": "#/definitions/domain.Role"
                 }
             }
         },
