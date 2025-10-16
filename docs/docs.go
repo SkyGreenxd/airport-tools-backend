@@ -308,183 +308,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "domain.CvScan": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "debugImageUrl": {
-                    "type": "string"
-                },
-                "detectedTools": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.CvScanDetail"
-                    }
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "imageUrl": {
-                    "type": "string"
-                },
-                "scanType": {
-                    "$ref": "#/definitions/domain.ScanType"
-                },
-                "transactionId": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "transactionObj": {
-                    "$ref": "#/definitions/domain.Transaction"
-                }
-            }
-        },
-        "domain.CvScanDetail": {
-            "type": "object",
-            "properties": {
-                "confidence": {
-                    "type": "number",
-                    "format": "float32"
-                },
-                "cvScanId": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "detectedToolTypeId": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "embedding": {
-                    "type": "array",
-                    "items": {
-                        "type": "number",
-                        "format": "float32"
-                    }
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                }
-            }
-        },
-        "domain.Role": {
-            "type": "string",
-            "enum": [
-                "Engineer",
-                "Quality Auditor"
-            ],
-            "x-enum-comments": {
-                "Engineer": "Авиатехник / Инженер",
-                "QualityAuditor": "Специалист службы качества / аудит"
-            },
-            "x-enum-descriptions": [
-                "Авиатехник / Инженер",
-                "Специалист службы качества / аудит"
-            ],
-            "x-enum-varnames": [
-                "Engineer",
-                "QualityAuditor"
-            ]
-        },
-        "domain.ScanType": {
-            "type": "string",
-            "enum": [
-                "checkin",
-                "checkout"
-            ],
-            "x-enum-comments": {
-                "Checkin": "сдача инструментов",
-                "Checkout": "выдача инструментов"
-            },
-            "x-enum-descriptions": [
-                "сдача инструментов",
-                "выдача инструментов"
-            ],
-            "x-enum-varnames": [
-                "Checkin",
-                "Checkout"
-            ]
-        },
-        "domain.Status": {
-            "type": "string",
-            "enum": [
-                "OPEN",
-                "CLOSED",
-                "QA VERIFICATION"
-            ],
-            "x-enum-varnames": [
-                "OPEN",
-                "CLOSED",
-                "QA"
-            ]
-        },
-        "domain.Transaction": {
-            "type": "object",
-            "properties": {
-                "countOfChecks": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "cvScans": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.CvScan"
-                    }
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "status": {
-                    "$ref": "#/definitions/domain.Status"
-                },
-                "toolSetId": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/domain.User"
-                },
-                "userId": {
-                    "description": "Received в UI, у кого инструмент",
-                    "type": "integer",
-                    "format": "int64"
-                }
-            }
-        },
-        "domain.User": {
-            "type": "object",
-            "properties": {
-                "employeeId": {
-                    "type": "string"
-                },
-                "fullName": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer",
-                    "format": "int64"
-                },
-                "role": {
-                    "$ref": "#/definitions/domain.Role"
-                },
-                "transactions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/domain.Transaction"
-                    }
-                }
-            }
-        },
         "v1.CheckReq": {
             "type": "object",
             "required": [
@@ -530,6 +353,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/v1.ToolTypeDTO"
                     }
                 },
+                "transaction_type": {
+                    "type": "string"
+                },
                 "unknown_tools": {
                     "type": "array",
                     "items": {
@@ -566,7 +392,7 @@ const docTemplate = `{
                 "transactions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.Transaction"
+                        "$ref": "#/definitions/v1.TransactionDTO"
                     }
                 }
             }
@@ -593,6 +419,12 @@ const docTemplate = `{
         "v1.RecognizedToolDTO": {
             "type": "object",
             "properties": {
+                "bbox": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
                 "confidence": {
                     "type": "number"
                 },
@@ -638,6 +470,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "part_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.TransactionDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "tool_set_id": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/v1.UserDto"
+                }
+            }
+        },
+        "v1.UserDto": {
+            "type": "object",
+            "properties": {
+                "employee_id": {
+                    "type": "string"
+                },
+                "full_name": {
                     "type": "string"
                 }
             }

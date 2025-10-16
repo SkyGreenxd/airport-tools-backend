@@ -1,130 +1,5 @@
 basePath: /api/v1
 definitions:
-  domain.CvScan:
-    properties:
-      createdAt:
-        type: string
-      debugImageUrl:
-        type: string
-      detectedTools:
-        items:
-          $ref: '#/definitions/domain.CvScanDetail'
-        type: array
-      id:
-        format: int64
-        type: integer
-      imageUrl:
-        type: string
-      scanType:
-        $ref: '#/definitions/domain.ScanType'
-      transactionId:
-        format: int64
-        type: integer
-      transactionObj:
-        $ref: '#/definitions/domain.Transaction'
-    type: object
-  domain.CvScanDetail:
-    properties:
-      confidence:
-        format: float32
-        type: number
-      cvScanId:
-        format: int64
-        type: integer
-      detectedToolTypeId:
-        format: int64
-        type: integer
-      embedding:
-        items:
-          format: float32
-          type: number
-        type: array
-      id:
-        format: int64
-        type: integer
-    type: object
-  domain.Role:
-    enum:
-    - Engineer
-    - Quality Auditor
-    type: string
-    x-enum-comments:
-      Engineer: Авиатехник / Инженер
-      QualityAuditor: Специалист службы качества / аудит
-    x-enum-descriptions:
-    - Авиатехник / Инженер
-    - Специалист службы качества / аудит
-    x-enum-varnames:
-    - Engineer
-    - QualityAuditor
-  domain.ScanType:
-    enum:
-    - checkin
-    - checkout
-    type: string
-    x-enum-comments:
-      Checkin: сдача инструментов
-      Checkout: выдача инструментов
-    x-enum-descriptions:
-    - сдача инструментов
-    - выдача инструментов
-    x-enum-varnames:
-    - Checkin
-    - Checkout
-  domain.Status:
-    enum:
-    - OPEN
-    - CLOSED
-    - QA VERIFICATION
-    type: string
-    x-enum-varnames:
-    - OPEN
-    - CLOSED
-    - QA
-  domain.Transaction:
-    properties:
-      countOfChecks:
-        format: int64
-        type: integer
-      createdAt:
-        type: string
-      cvScans:
-        items:
-          $ref: '#/definitions/domain.CvScan'
-        type: array
-      id:
-        format: int64
-        type: integer
-      status:
-        $ref: '#/definitions/domain.Status'
-      toolSetId:
-        format: int64
-        type: integer
-      updatedAt:
-        type: string
-      user:
-        $ref: '#/definitions/domain.User'
-      userId:
-        description: Received в UI, у кого инструмент
-        format: int64
-        type: integer
-    type: object
-  domain.User:
-    properties:
-      employeeId:
-        type: string
-      fullName:
-        type: string
-      id:
-        format: int64
-        type: integer
-      role:
-        $ref: '#/definitions/domain.Role'
-      transactions:
-        items:
-          $ref: '#/definitions/domain.Transaction'
-        type: array
-    type: object
   v1.CheckReq:
     properties:
       data:
@@ -155,6 +30,8 @@ definitions:
         items:
           $ref: '#/definitions/v1.ToolTypeDTO'
         type: array
+      transaction_type:
+        type: string
       unknown_tools:
         items:
           $ref: '#/definitions/v1.RecognizedToolDTO'
@@ -178,7 +55,7 @@ definitions:
     properties:
       transactions:
         items:
-          $ref: '#/definitions/domain.Transaction'
+          $ref: '#/definitions/v1.TransactionDTO'
         type: array
     type: object
   v1.LoginReq:
@@ -195,6 +72,10 @@ definitions:
     type: object
   v1.RecognizedToolDTO:
     properties:
+      bbox:
+        items:
+          type: number
+        type: array
       confidence:
         type: number
       tool_type_id:
@@ -225,6 +106,24 @@ definitions:
       name:
         type: string
       part_number:
+        type: string
+    type: object
+  v1.TransactionDTO:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      tool_set_id:
+        type: integer
+      user:
+        $ref: '#/definitions/v1.UserDto'
+    type: object
+  v1.UserDto:
+    properties:
+      employee_id:
+        type: string
+      full_name:
         type: string
     type: object
   v1.VerificationReq:
