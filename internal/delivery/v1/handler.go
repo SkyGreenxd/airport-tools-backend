@@ -95,12 +95,12 @@ func (h *Handler) verification(c *gin.Context) {
 // list
 //
 //	@Summary		Список транзакций
-//	@Description	Возвращает список транзакций QA.<br> Можно фильтровать по статусу с помощью query-параметра `status`.<br> Например, `?status=qa` вернёт только транзакции, требующие ручной проверки.<br> Каждая транзакция содержит минимальные данные: ID, инженера, дату создания, текущий статус.
+//	@Description	Возвращает список транзакций QA.<br> Можно фильтровать по статусу с помощью query-параметра `status`.<br> Допустимое значение: 'qa' вернёт только транзакции, требующие проверки QA.<br> Каждая транзакция содержит минимальные данные: ID, инженера, дату создания, текущий статус.
 //
 //	@Tags			transactions
 //	@Accept			json
 //	@Produce		json
-//	@Param			status	query		string	false	"Фильтр по статусу транзакции (например, manual_check_required)"
+//	@Param			status	query		string	false	"Фильтр по статусу транзакции"
 //	@Success		200		{object}	ListTransactionsRes
 //	@Failure		400		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
