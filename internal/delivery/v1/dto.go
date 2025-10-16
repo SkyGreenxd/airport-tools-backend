@@ -63,8 +63,9 @@ type CheckRes struct {
 }
 
 type RecognizedToolDTO struct {
-	ToolTypeId int64   `json:"tool_type_id"`
-	Confidence float32 `json:"confidence"`
+	ToolTypeId int64     `json:"tool_type_id"`
+	Confidence float32   `json:"confidence"`
+	Bbox       []float32 `json:"bbox"`
 }
 
 type ToolTypeDTO struct {
@@ -77,6 +78,7 @@ func toDeliveryRecognizedToolDTO(tool *domain.RecognizedTool) *RecognizedToolDTO
 	return &RecognizedToolDTO{
 		ToolTypeId: tool.ToolTypeId,
 		Confidence: tool.Confidence,
+		Bbox:       tool.Bbox,
 	}
 }
 

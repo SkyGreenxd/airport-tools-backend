@@ -8,7 +8,7 @@ type RecognizedTool struct {
 	Bbox       []float32
 }
 
-// TODO: переделать код который с этим полем связаны
+// TODO: проверить сохраняются ли BBOX
 func NewRecognizedTool(toolTypeId int64, confidence float32, embedding, bbox []float32) *RecognizedTool {
 	return &RecognizedTool{
 		ToolTypeId: toolTypeId,
