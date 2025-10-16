@@ -37,6 +37,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 		user := v1.Group("/user")
 		{
 			user.POST("/login", h.login)       // вход в систему по табельному номеру
+			user.GET("/login", h.getRoles)     // получить список ролей
 			user.POST("/register", h.register) // регистрация в системе
 		}
 	}
@@ -164,6 +165,20 @@ func (h *Handler) login(c *gin.Context) {
 //	@Failure		500		{object}	HTTPError
 //	@Router			/api/v1/user/register [post]
 func (h *Handler) register(c *gin.Context) {
+
+}
+
+// getRoles
+//
+//	@Summary		Получить список ролей
+//	@Description	Возвращает список всех возможных ролей пользователей в системе.
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{array}		string	"Список ролей"
+//	@Failure		500	{object}	HTTPError	"Внутренняя ошибка сервера"
+//	@Router			/api/v1/user/roles [get]
+func (h *Handler) getRoles(c *gin.Context) {
 
 }
 
