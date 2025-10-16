@@ -25,7 +25,50 @@ type VerificationRes struct {
 }
 
 type ListTransactionsRes struct {
-	Transactions []domain.Transaction `json:"transactions"`
+	Transactions []TransactionDTO `json:"transactions"`
+}
+
+type TransactionDTO struct {
+	Id        int64     `json:"id"`
+	ToolSetId int64     `json:"tool_set_id"`
+	CreatedAt time.Time `json:"created_at"`
+	User      UserDto   `json:"user"`
+}
+
+type UserDto struct {
+	FullName   string `json:"full_name"`
+	EmployeeId string `json:"employee_id"`
+}
+
+func NewListTransactionsRes(transactions []TransactionDTO) *ListTransactionsRes {
+	return &ListTransactionsRes{
+		Transactions: transactions,
+	}
+}
+
+func toDeliveryListTransactionsRes(transactions []*usecase.TransactionDTO) *ListTransactionsRes {
+	res := make([]TransactionDTO, len(transactions))
+	for i, transaction := range transactions {
+		res[i] = *toDeliveryTransactionDTO(transaction)
+	}
+
+	return NewListTransactionsRes(res)
+}
+
+func toDeliveryTransactionDTO(transaction *usecase.TransactionDTO) *TransactionDTO {
+	return &TransactionDTO{
+		Id:        transaction.Id,
+		ToolSetId: transaction.ToolSetId,
+		CreatedAt: transaction.CreatedAt,
+		User:      toDeliveryUserDto(transaction.User),
+	}
+}
+
+func toDeliveryUserDto(user usecase.UserDto) UserDto {
+	return UserDto{
+		FullName:   user.FullName,
+		EmployeeId: user.EmployeeId,
+	}
 }
 
 type RegisterReq struct {

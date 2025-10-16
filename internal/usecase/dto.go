@@ -1,7 +1,64 @@
 package usecase
 
-import "airport-tools-backend/internal/domain"
+import (
+	"airport-tools-backend/internal/domain"
+	"time"
+)
 
+// ListTransactionsRes список транзакций
+type ListTransactionsRes struct {
+	Transactions []*TransactionDTO
+}
+
+func NewListTransactionsRes(tools []*TransactionDTO) *ListTransactionsRes {
+	return &ListTransactionsRes{
+		Transactions: tools,
+	}
+}
+
+type TransactionDTO struct {
+	Id        int64
+	ToolSetId int64
+	CreatedAt time.Time
+	User      UserDto
+}
+
+type UserDto struct {
+	FullName   string
+	EmployeeId string
+}
+
+func toListTransactionsRes(tools []*domain.Transaction) []*TransactionDTO {
+	result := make([]*TransactionDTO, len(tools))
+	for i, tool := range tools {
+		result[i] = toTransactionDTO(tool)
+	}
+
+	return result
+}
+
+func toTransactionDTO(transaction *domain.Transaction) *TransactionDTO {
+	var userDto UserDto
+	if transaction.User != nil {
+		userDto = toUserDTO(*transaction.User)
+	}
+
+	return &TransactionDTO{
+		Id:        transaction.Id,
+		ToolSetId: transaction.ToolSetId,
+		CreatedAt: transaction.CreatedAt,
+		User:      userDto,
+	}
+}
+
+func toUserDTO(user domain.User) UserDto {
+	return UserDto{
+		FullName:   user.FullName,
+		EmployeeId: user.EmployeeId,
+	}
+}
+
+// TransactionProcess внутренняя структура для сдачи/выдачи инструментов
 type TransactionProcess struct {
 	UserId    int64
 	Data      string
