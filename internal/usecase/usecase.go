@@ -256,3 +256,15 @@ func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
 	roles := []domain.Role{domain.Engineer, domain.QualityAuditor}
 	return NewGetRolesRes(roles), nil
 }
+
+func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes, error) {
+	const op = "usecase.Register"
+
+	newUser := domain.NewUser(req.FullName, req.EmployeeId, req.Role)
+	user, err := s.userRepo.Create(ctx, newUser)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return NewRegisterRes(user.Id), nil
+}

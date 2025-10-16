@@ -461,7 +461,7 @@
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
+                    "$ref": "#/definitions/domain.Role"
                 }
             }
         },
@@ -469,7 +469,7 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 }
             }
         },

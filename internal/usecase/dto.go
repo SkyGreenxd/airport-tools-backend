@@ -10,6 +10,16 @@ type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
 }
 
+type RegisterReq struct {
+	EmployeeId string
+	FullName   string
+	Role       domain.Role
+}
+
+type RegisterRes struct {
+	Id int64
+}
+
 type TransactionDTO struct {
 	Id        int64
 	ToolSetId int64
@@ -32,54 +42,6 @@ type LoginRes struct {
 
 type GetRolesRes struct {
 	Roles []domain.Role
-}
-
-func NewGetRolesRes(roles []domain.Role) *GetRolesRes {
-	return &GetRolesRes{
-		Roles: roles,
-	}
-}
-
-func NewLoginRes(role domain.Role) *LoginRes {
-	return &LoginRes{
-		Role: role,
-	}
-}
-
-func NewListTransactionsRes(tools []*TransactionDTO) *ListTransactionsRes {
-	return &ListTransactionsRes{
-		Transactions: tools,
-	}
-}
-
-func toListTransactionsRes(tools []*domain.Transaction) []*TransactionDTO {
-	result := make([]*TransactionDTO, len(tools))
-	for i, tool := range tools {
-		result[i] = toTransactionDTO(tool)
-	}
-
-	return result
-}
-
-func toTransactionDTO(transaction *domain.Transaction) *TransactionDTO {
-	var userDto UserDto
-	if transaction.User != nil {
-		userDto = toUserDTO(*transaction.User)
-	}
-
-	return &TransactionDTO{
-		Id:        transaction.Id,
-		ToolSetId: transaction.ToolSetId,
-		CreatedAt: transaction.CreatedAt,
-		User:      userDto,
-	}
-}
-
-func toUserDTO(user domain.User) UserDto {
-	return UserDto{
-		FullName:   user.FullName,
-		EmployeeId: user.EmployeeId,
-	}
 }
 
 // TransactionProcess внутренняя структура для сдачи/выдачи инструментов
@@ -233,5 +195,59 @@ func NewTransactionProcess(userId int64, data string, toolSetId int64) *Transact
 		UserId:    userId,
 		Data:      data,
 		ToolSetId: toolSetId,
+	}
+}
+
+func NewGetRolesRes(roles []domain.Role) *GetRolesRes {
+	return &GetRolesRes{
+		Roles: roles,
+	}
+}
+
+func NewLoginRes(role domain.Role) *LoginRes {
+	return &LoginRes{
+		Role: role,
+	}
+}
+
+func NewListTransactionsRes(tools []*TransactionDTO) *ListTransactionsRes {
+	return &ListTransactionsRes{
+		Transactions: tools,
+	}
+}
+
+func toListTransactionsRes(tools []*domain.Transaction) []*TransactionDTO {
+	result := make([]*TransactionDTO, len(tools))
+	for i, tool := range tools {
+		result[i] = toTransactionDTO(tool)
+	}
+
+	return result
+}
+
+func toTransactionDTO(transaction *domain.Transaction) *TransactionDTO {
+	var userDto UserDto
+	if transaction.User != nil {
+		userDto = toUserDTO(*transaction.User)
+	}
+
+	return &TransactionDTO{
+		Id:        transaction.Id,
+		ToolSetId: transaction.ToolSetId,
+		CreatedAt: transaction.CreatedAt,
+		User:      userDto,
+	}
+}
+
+func toUserDTO(user domain.User) UserDto {
+	return UserDto{
+		FullName:   user.FullName,
+		EmployeeId: user.EmployeeId,
+	}
+}
+
+func NewRegisterRes(id int64) *RegisterRes {
+	return &RegisterRes{
+		Id: id,
 	}
 }

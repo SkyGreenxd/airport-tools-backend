@@ -47,13 +47,13 @@ type UserDto struct {
 }
 
 type RegisterReq struct {
-	EmployeeId string `json:"employee_id" binding:"required"`
-	FullName   string `json:"full_name" binding:"required"`
-	Role       string `json:"role" binding:"required"`
+	EmployeeId string      `json:"employee_id" binding:"required"`
+	FullName   string      `json:"full_name" binding:"required"`
+	Role       domain.Role `json:"role" binding:"required"`
 }
 
 type RegisterRes struct {
-	Id string `json:"id"`
+	Id int64 `json:"id"`
 }
 
 type LoginReq struct {
@@ -186,5 +186,19 @@ func toUseCaseLoginReq(req LoginReq) *usecase.LoginReq {
 func toDeliveryLoginRes(res *usecase.LoginRes) LoginRes {
 	return LoginRes{
 		Role: res.Role,
+	}
+}
+
+func toUseCaseRegisterReq(req RegisterReq) *usecase.RegisterReq {
+	return &usecase.RegisterReq{
+		EmployeeId: req.EmployeeId,
+		FullName:   req.FullName,
+		Role:       req.Role,
+	}
+}
+
+func toDeliveryRegisterRes(res *usecase.RegisterRes) RegisterRes {
+	return RegisterRes{
+		Id: res.Id,
 	}
 }

@@ -47,6 +47,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionCheckQA):
 		res.Code = http.StatusConflict
 		res.Message = "Вы не можете получить новые инструменты, пока вас проверяет QA"
+	case errors.Is(err, e.ErrUserExists):
+		res.Code = http.StatusConflict
+		res.Message = "Пользователь с таким табельным номером уже существует"
 	case errors.Is(err, e.ErrRequestNotSupported):
 		res.Code = http.StatusBadRequest
 		res.Message = "Некорректное значение параметра 'status'. Допустимое значение: 'qa'"
