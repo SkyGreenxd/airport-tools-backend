@@ -5,12 +5,15 @@ type RecognizedTool struct {
 	ToolTypeId int64
 	Confidence float32
 	Embedding  []float32
+	Bbox       []float32
 }
 
-func NewRecognizedTool(toolTypeId int64, confidence float32, embedding []float32) *RecognizedTool {
+// TODO: переделать код который с этим полем связаны
+func NewRecognizedTool(toolTypeId int64, confidence float32, embedding, bbox []float32) *RecognizedTool {
 	return &RecognizedTool{
 		ToolTypeId: toolTypeId,
 		Confidence: confidence,
 		Embedding:  embedding,
+		Bbox:       bbox,
 	}
 }

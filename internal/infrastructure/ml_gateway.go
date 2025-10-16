@@ -83,7 +83,7 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 	var scanResult usecase.ScanResult
 	scanResult.DebugImageUrl = uploadImageRes.ImageUrl
 	for _, instrument := range apiResp.Instruments {
-		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, instrument.Embedding)
+		recognizedTool := domain.NewRecognizedTool(instrument.ToolTypeId+1, instrument.Confidence, instrument.Embedding, instrument.Bbox)
 		scanResult.Tools = append(scanResult.Tools, recognizedTool)
 	}
 
