@@ -53,6 +53,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrRequestNotSupported):
 		res.Code = http.StatusBadRequest
 		res.Message = "Некорректное значение параметра 'status'. Допустимое значение: 'qa'"
+	case errors.Is(err, e.ErrUserRoleNotFound):
+		res.Code = http.StatusNotFound
+		res.Message = "Такой роли не существует"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"
