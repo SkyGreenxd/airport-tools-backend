@@ -273,6 +273,38 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v1/user/roles": {
+            "get": {
+                "description": "Возвращает список всех возможных ролей пользователей в системе.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Получить список ролей",
+                "responses": {
+                    "200": {
+                        "description": "Список ролей",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -338,17 +370,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.Reason": {
-            "type": "string",
-            "enum": [
-                "All instruments have been handed over",
-                "There are problems with the tools, a manual check is needed"
-            ],
-            "x-enum-varnames": [
-                "RETURNED",
-                "PROBLEMS"
-            ]
-        },
         "domain.Role": {
             "type": "string",
             "enum": [
@@ -392,17 +413,21 @@ const docTemplate = `{
             "enum": [
                 "OPEN",
                 "CLOSED",
-                "MANUAL VERIFICATION"
+                "QA VERIFICATION"
             ],
             "x-enum-varnames": [
                 "OPEN",
                 "CLOSED",
-                "MANUAL"
+                "QA"
             ]
         },
         "domain.Transaction": {
             "type": "object",
             "properties": {
+                "countOfChecks": {
+                    "type": "integer",
+                    "format": "int64"
+                },
                 "createdAt": {
                     "type": "string"
                 },
@@ -415,9 +440,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "format": "int64"
-                },
-                "reason": {
-                    "$ref": "#/definitions/domain.Reason"
                 },
                 "status": {
                     "$ref": "#/definitions/domain.Status"
@@ -475,6 +497,9 @@ const docTemplate = `{
                 },
                 "employee_id": {
                     "type": "string"
+                },
+                "tool_set_id": {
+                    "type": "integer"
                 }
             }
         },

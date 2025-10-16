@@ -43,14 +43,6 @@ definitions:
         format: int64
         type: integer
     type: object
-  domain.Reason:
-    enum:
-    - All instruments have been handed over
-    - There are problems with the tools, a manual check is needed
-    type: string
-    x-enum-varnames:
-    - RETURNED
-    - PROBLEMS
   domain.Role:
     enum:
     - Engineer
@@ -83,14 +75,17 @@ definitions:
     enum:
     - OPEN
     - CLOSED
-    - MANUAL VERIFICATION
+    - QA VERIFICATION
     type: string
     x-enum-varnames:
     - OPEN
     - CLOSED
-    - MANUAL
+    - QA
   domain.Transaction:
     properties:
+      countOfChecks:
+        format: int64
+        type: integer
       createdAt:
         type: string
       cvScans:
@@ -100,8 +95,6 @@ definitions:
       id:
         format: int64
         type: integer
-      reason:
-        $ref: '#/definitions/domain.Reason'
       status:
         $ref: '#/definitions/domain.Status'
       toolSetId:
@@ -138,6 +131,8 @@ definitions:
         type: string
       employee_id:
         type: string
+      tool_set_id:
+        type: integer
     required:
     - data
     - employee_id
@@ -432,6 +427,27 @@ paths:
           schema:
             $ref: '#/definitions/v1.HTTPError'
       summary: Регистрация сотрудника в системе
+      tags:
+      - user
+  /api/v1/user/roles:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех возможных ролей пользователей в системе.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список ролей
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Получить список ролей
       tags:
       - user
 swagger: "2.0"
