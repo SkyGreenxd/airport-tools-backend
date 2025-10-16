@@ -2,10 +2,17 @@ package usecase
 
 import "airport-tools-backend/internal/domain"
 
+type TransactionProcess struct {
+	UserId    int64
+	Data      string
+	ToolSetId int64
+}
+
 // CheckReq представляет запрос на выдачу/сдачу инструментов
 type CheckReq struct {
 	EmployeeId string
 	Data       string
+	ToolSetId  int64
 }
 
 // CheckRes содержит результат проверки инструментов после сканирования.
@@ -135,5 +142,13 @@ func NewUploadImageReq(data, mode string) *UploadImageReq {
 	return &UploadImageReq{
 		Data: data,
 		Mode: mode,
+	}
+}
+
+func NewTransactionProcess(userId int64, data string, toolSetId int64) *TransactionProcess {
+	return &TransactionProcess{
+		UserId:    userId,
+		Data:      data,
+		ToolSetId: toolSetId,
 	}
 }
