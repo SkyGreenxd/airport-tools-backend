@@ -107,6 +107,30 @@ func (t *TransactionRepository) GetAll(ctx context.Context) ([]*domain.Transacti
 	return toDomainArrTransactions(models), nil
 }
 
+func (t *TransactionRepository) GetAllWithUser(ctx context.Context) ([]*domain.Transaction, error) {
+	const op = "TransactionRepository.GetAllWithUser"
+
+	var models []*TransactionModel
+	result := t.DB.WithContext(ctx).Preload("User").Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainArrTransactions(models), nil
+}
+
+func (t *TransactionRepository) GetAllWhereStatusIsQAWithUser(ctx context.Context) ([]*domain.Transaction, error) {
+	const op = "TransactionRepository.GetAllWhereStatusIsQA"
+
+	var models []*TransactionModel
+	result := t.DB.WithContext(ctx).Preload("User").Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainArrTransactions(models), nil
+}
+
 func (t *TransactionRepository) Delete(ctx context.Context, id int64) error {
 	const op = "TransactionRepository.Delete"
 
