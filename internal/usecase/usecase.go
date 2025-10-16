@@ -237,3 +237,14 @@ func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes
 
 	return nil, e.ErrRequestNotSupported
 }
+
+func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
+	const op = "usecase.Login"
+
+	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return NewLoginRes(user.Role), nil
+}

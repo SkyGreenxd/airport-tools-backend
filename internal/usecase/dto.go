@@ -10,12 +10,6 @@ type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
 }
 
-func NewListTransactionsRes(tools []*TransactionDTO) *ListTransactionsRes {
-	return &ListTransactionsRes{
-		Transactions: tools,
-	}
-}
-
 type TransactionDTO struct {
 	Id        int64
 	ToolSetId int64
@@ -26,6 +20,26 @@ type TransactionDTO struct {
 type UserDto struct {
 	FullName   string
 	EmployeeId string
+}
+
+type LoginReq struct {
+	EmployeeId string
+}
+
+type LoginRes struct {
+	Role domain.Role
+}
+
+func NewLoginRes(role domain.Role) *LoginRes {
+	return &LoginRes{
+		Role: role,
+	}
+}
+
+func NewListTransactionsRes(tools []*TransactionDTO) *ListTransactionsRes {
+	return &ListTransactionsRes{
+		Transactions: tools,
+	}
 }
 
 func toListTransactionsRes(tools []*domain.Transaction) []*TransactionDTO {

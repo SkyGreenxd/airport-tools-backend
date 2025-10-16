@@ -131,7 +131,19 @@ func (h *Handler) list(c *gin.Context) {
 //	@Failure		500		{object}	HTTPError
 //	@Router			/api/v1/user/login [post]
 func (h *Handler) login(c *gin.Context) {
+	var req LoginReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		return
+	}
 
+	res, err := h.service.Login(c.Request.Context(), toUseCaseLoginReq(req))
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, toDeliveryLoginRes(res))
 }
 
 // register

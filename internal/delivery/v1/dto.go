@@ -40,6 +40,52 @@ type UserDto struct {
 	EmployeeId string `json:"employee_id"`
 }
 
+type RegisterReq struct {
+	EmployeeId string `json:"employee_id" binding:"required"`
+	FullName   string `json:"full_name" binding:"required"`
+	Role       string `json:"role" binding:"required"`
+}
+
+type RegisterRes struct {
+	Id string `json:"id"`
+}
+
+type LoginReq struct {
+	EmployeeId string `json:"employee_id" binding:"required"`
+}
+
+type LoginRes struct {
+	Role domain.Role `json:"role"`
+}
+
+type CheckReq struct {
+	EmployeeId string `json:"employee_id" binding:"required"`
+	Data       string `json:"data" binding:"required"`
+	ToolSetId  int64  `json:"tool_set_id"`
+}
+
+type CheckRes struct {
+	ImageUrl         string               `json:"image_url"`
+	DebugImageUrl    string               `json:"debug_image_url"`
+	AccessTools      []*RecognizedToolDTO `json:"access_tools"`
+	ManualCheckTools []*RecognizedToolDTO `json:"manual_check_tools"`
+	UnknownTools     []*RecognizedToolDTO `json:"unknown_tools"`
+	MissingTools     []*ToolTypeDTO       `json:"missing_tools"`
+	TransactionType  string               `json:"transaction_type"`
+}
+
+type RecognizedToolDTO struct {
+	ToolTypeId int64     `json:"tool_type_id"`
+	Confidence float32   `json:"confidence"`
+	Bbox       []float32 `json:"bbox"`
+}
+
+type ToolTypeDTO struct {
+	Id         int64  `json:"id"`
+	PartNumber string `json:"part_number"`
+	Name       string `json:"name"`
+}
+
 func NewListTransactionsRes(transactions []TransactionDTO) *ListTransactionsRes {
 	return &ListTransactionsRes{
 		Transactions: transactions,
@@ -69,52 +115,6 @@ func toDeliveryUserDto(user usecase.UserDto) UserDto {
 		FullName:   user.FullName,
 		EmployeeId: user.EmployeeId,
 	}
-}
-
-type RegisterReq struct {
-	EmployeeId string `json:"employee_id" binding:"required"`
-	FullName   string `json:"full_name" binding:"required"`
-	Role       string `json:"role" binding:"required"`
-}
-
-type RegisterRes struct {
-	Id string `json:"id"`
-}
-
-type LoginReq struct {
-	EmployeeId string `json:"employee_id" binding:"required"`
-}
-
-type LoginRes struct {
-	Role string `json:"role"`
-}
-
-type CheckReq struct {
-	EmployeeId string `json:"employee_id" binding:"required"`
-	Data       string `json:"data" binding:"required"`
-	ToolSetId  int64  `json:"tool_set_id"`
-}
-
-type CheckRes struct {
-	ImageUrl         string               `json:"image_url"`
-	DebugImageUrl    string               `json:"debug_image_url"`
-	AccessTools      []*RecognizedToolDTO `json:"access_tools"`
-	ManualCheckTools []*RecognizedToolDTO `json:"manual_check_tools"`
-	UnknownTools     []*RecognizedToolDTO `json:"unknown_tools"`
-	MissingTools     []*ToolTypeDTO       `json:"missing_tools"`
-	TransactionType  string               `json:"transaction_type"`
-}
-
-type RecognizedToolDTO struct {
-	ToolTypeId int64     `json:"tool_type_id"`
-	Confidence float32   `json:"confidence"`
-	Bbox       []float32 `json:"bbox"`
-}
-
-type ToolTypeDTO struct {
-	Id         int64  `json:"id"`
-	PartNumber string `json:"part_number"`
-	Name       string `json:"name"`
 }
 
 func toDeliveryRecognizedToolDTO(tool *domain.RecognizedTool) *RecognizedToolDTO {
@@ -168,5 +168,17 @@ func ToUseCaseCheckReq(req *CheckReq) *usecase.CheckReq {
 		EmployeeId: req.EmployeeId,
 		Data:       req.Data,
 		ToolSetId:  req.ToolSetId,
+	}
+}
+
+func toUseCaseLoginReq(req LoginReq) *usecase.LoginReq {
+	return &usecase.LoginReq{
+		EmployeeId: req.EmployeeId,
+	}
+}
+
+func toDeliveryLoginRes(res *usecase.LoginRes) LoginRes {
+	return LoginRes{
+		Role: res.Role,
 	}
 }
