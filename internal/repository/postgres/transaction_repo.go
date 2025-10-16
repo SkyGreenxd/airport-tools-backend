@@ -9,6 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: добавить count
+
 type TransactionRepository struct {
 	DB *gorm.DB
 }
@@ -117,12 +119,12 @@ func (t *TransactionRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
+// TODO: переделать
 func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.Transaction) (*domain.Transaction, error) {
 	const op = "TransactionRepository.Update"
 
 	updates := map[string]interface{}{
 		"status":     transaction.Status,
-		"reason":     transaction.Reason,
 		"updated_at": time.Now().UTC(),
 	}
 
@@ -141,13 +143,13 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 
 func toTransactionModel(t *domain.Transaction) *TransactionModel {
 	model := &TransactionModel{
-		Id:        t.Id,
-		UserId:    t.UserId,
-		ToolSetId: t.ToolSetId,
-		Status:    t.Status,
-		Reason:    t.Reason,
-		CreatedAt: t.CreatedAt,
-		UpdatedAt: t.UpdatedAt,
+		Id:            t.Id,
+		UserId:        t.UserId,
+		ToolSetId:     t.ToolSetId,
+		CountOfChecks: t.CountOfChecks,
+		Status:        t.Status,
+		CreatedAt:     t.CreatedAt,
+		UpdatedAt:     t.UpdatedAt,
 	}
 
 	if t.CvScans != nil {
@@ -163,13 +165,13 @@ func toTransactionModel(t *domain.Transaction) *TransactionModel {
 
 func toDomainTransaction(t *TransactionModel) *domain.Transaction {
 	transaction := &domain.Transaction{
-		Id:        t.Id,
-		UserId:    t.UserId,
-		ToolSetId: t.ToolSetId,
-		Status:    t.Status,
-		Reason:    t.Reason,
-		CreatedAt: t.CreatedAt,
-		UpdatedAt: t.UpdatedAt,
+		Id:            t.Id,
+		UserId:        t.UserId,
+		ToolSetId:     t.ToolSetId,
+		CountOfChecks: t.CountOfChecks,
+		Status:        t.Status,
+		CreatedAt:     t.CreatedAt,
+		UpdatedAt:     t.UpdatedAt,
 	}
 
 	if t.CvScans != nil {
