@@ -124,8 +124,9 @@ func (t *TransactionRepository) Update(ctx context.Context, transaction *domain.
 	const op = "TransactionRepository.Update"
 
 	updates := map[string]interface{}{
-		"status":     transaction.Status,
-		"updated_at": time.Now().UTC(),
+		"status":          transaction.Status,
+		"updated_at":      time.Now().UTC(),
+		"count_of_checks": transaction.CountOfChecks,
 	}
 
 	var updTransaction TransactionModel

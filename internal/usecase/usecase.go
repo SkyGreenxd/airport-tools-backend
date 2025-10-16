@@ -166,8 +166,8 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 		return nil, e.Wrap(op, err)
 	}
 
-	transaction.EvaluateStatus(len(filterRes.ManualCheckTools), len(filterRes.UnknownTools), len(filterRes.MissingTools))
 	transaction.CountOfChecks++
+	transaction.EvaluateStatus(len(filterRes.ManualCheckTools), len(filterRes.UnknownTools), len(filterRes.MissingTools))
 
 	if _, err := s.transactionRepo.Update(ctx, transaction); err != nil {
 		return nil, e.Wrap(op, err)
