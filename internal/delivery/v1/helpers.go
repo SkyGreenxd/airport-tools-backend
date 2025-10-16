@@ -47,6 +47,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionCheckQA):
 		res.Code = http.StatusConflict
 		res.Message = "Вы не можете получить новые инструменты, пока вас проверяет QA"
+	case errors.Is(err, e.ErrRequestNotSupported):
+		res.Code = http.StatusBadRequest
+		res.Message = "Некорректное значение параметра 'status'. Допустимое значение: qa."
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"
