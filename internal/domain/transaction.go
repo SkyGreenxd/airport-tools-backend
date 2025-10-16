@@ -6,7 +6,6 @@ import (
 )
 
 type Status string
-type Reason string
 
 const (
 	OPEN   Status = "OPEN"

@@ -44,7 +44,6 @@ type TransactionModel struct {
 	ToolSetId     int64
 	CountOfChecks int64
 	Status        domain.Status
-	Reason        *domain.Reason
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 
