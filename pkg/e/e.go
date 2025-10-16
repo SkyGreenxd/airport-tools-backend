@@ -33,6 +33,8 @@ var (
 	ErrMLServiceDecode = errors.New("failed to decode ML service response")
 
 	ErrInvalidRequestBody = errors.New("invalid request body")
+
+	ErrRequestNotSupported = errors.New("request not supported")
 )
 
 func Wrap(msg string, err error) error {
