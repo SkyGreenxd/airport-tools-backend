@@ -17,6 +17,7 @@ var (
 	ErrTransactionUnfinished  = fmt.Errorf("you have an unfinished issue")
 	ErrTransactionAllFinished = fmt.Errorf("you have no open or pending transactions")
 	ErrTransactionLimit       = fmt.Errorf("3 unsuccessful scan attempts. Data sent for QA review")
+	ErrTransactionCheckQA     = fmt.Errorf("You cannot get new tools while you are being verified QA")
 
 	ErrUserNotFound     = fmt.Errorf("user not found")
 	ErrUserExists       = fmt.Errorf("user is exists")

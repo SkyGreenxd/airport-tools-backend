@@ -33,7 +33,7 @@ func (u *User) CanCheckout() error {
 	}
 
 	for _, transaction := range u.Transactions {
-		if transaction.Status == OPEN {
+		if transaction.Status == OPEN || transaction.Status == QA {
 			return e.ErrTransactionUnfinished
 		}
 	}
@@ -49,6 +49,8 @@ func (u *User) CanCheckin() error {
 	for _, transaction := range u.Transactions {
 		if transaction.Status == OPEN {
 			return nil
+		} else if transaction.Status == QA {
+			return e.ErrTransactionCheckQA
 		}
 	}
 
