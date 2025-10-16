@@ -260,6 +260,10 @@ func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
 func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes, error) {
 	const op = "usecase.Register"
 
+	if err := domain.ValidateRole(req.Role); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
 	newUser := domain.NewUser(req.FullName, req.EmployeeId, req.Role)
 	user, err := s.userRepo.Create(ctx, newUser)
 	if err != nil {
