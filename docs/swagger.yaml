@@ -164,6 +164,37 @@ info:
   title: Airport Tools Vision API
   version: "1.0"
 paths:
+  /api/v1/transaction:
+    get:
+      consumes:
+      - application/json
+      description: 'Возвращает список транзакций QA.<br> Можно фильтровать по статусу
+        с помощью query-параметра `status`.<br> Например, `?status=qa` вернёт только
+        транзакции, требующие ручной проверки.<br> Каждая транзакция содержит минимальные
+        данные: ID, инженера, дату создания, текущий статус.'
+      parameters:
+      - description: Фильтр по статусу транзакции (например, manual_check_required)
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ListTransactionsRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Список транзакций
+      tags:
+      - transactions
   /api/v1/transaction/{transaction_id}/verification:
     post:
       consumes:
@@ -251,37 +282,6 @@ paths:
           schema:
             $ref: '#/definitions/v1.HTTPError'
       summary: Операция выдачи/сдачи инструментов
-      tags:
-      - transactions
-  /api/v1/transactions/:
-    get:
-      consumes:
-      - application/json
-      description: 'Возвращает список транзакций QA.<br> Можно фильтровать по статусу
-        с помощью query-параметра `status`.<br> Например, `?status=qa` вернёт только
-        транзакции, требующие ручной проверки.<br> Каждая транзакция содержит минимальные
-        данные: ID, инженера, дату создания, текущий статус.'
-      parameters:
-      - description: Фильтр по статусу транзакции (например, manual_check_required)
-        in: query
-        name: status
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.ListTransactionsRes'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-      summary: Список транзакций
       tags:
       - transactions
   /api/v1/user/login:

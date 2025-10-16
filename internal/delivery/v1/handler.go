@@ -104,7 +104,7 @@ func (h *Handler) verification(c *gin.Context) {
 //	@Success		200		{object}	ListTransactionsRes
 //	@Failure		400		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
-//	@Router			/api/v1/transactions/ [get]
+//	@Router			/api/v1/transaction [get]
 func (h *Handler) list(c *gin.Context) {
 	status := c.Query("status")
 	res, err := h.service.List(c.Request.Context(), status)
