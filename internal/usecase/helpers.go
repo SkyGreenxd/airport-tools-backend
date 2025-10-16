@@ -6,14 +6,14 @@ import (
 )
 
 // cosineSimilarity вычисляет косинусное сходство между двумя векторами
-func cosineSimilarity(reference, recognized []float32) float64 {
+func cosineSimilarity(reference, recognized []float32) float32 {
 	var dot, normReference, normRecognized float64
 	for i := range reference {
 		dot += float64(reference[i] * recognized[i])
 		normReference += float64(reference[i] * reference[i])
 		normRecognized += float64(recognized[i] * recognized[i])
 	}
-	return dot / (math.Sqrt(normReference) * math.Sqrt(normRecognized))
+	return float32(dot / (math.Sqrt(normReference) * math.Sqrt(normRecognized)))
 }
 
 // filterRecognizedTools разделяет инструменты на категории

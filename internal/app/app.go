@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -58,7 +59,18 @@ func Run() {
 	mlUrl := os.Getenv("ML_SERVICE_URL")
 	imageStorage := infrastructure.NewImageStorage(s3)
 	ml := infrastructure.NewMlGateway(http.DefaultClient, mlUrl, imageStorage)
-	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo)
+
+	strConfidence := os.Getenv("CONFIDENCE")
+	confidence, err := strconv.ParseFloat(strConfidence, 32)
+	if err != nil {
+		log.Fatal(err)
+	}
+	strCosineSim := os.Getenv("COSSINE_SIM")
+	cosineSim, err := strconv.ParseFloat(strCosineSim, 32)
+	if err != nil {
+		log.Fatal(err)
+	}
+	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim))
 
 	handler := v1.NewHandler(service)
 

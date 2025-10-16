@@ -60,7 +60,7 @@ type CreateScanReq struct {
 
 type FilterReq struct {
 	ConfidenceCompare float32
-	CosineSimCompare  float64
+	CosineSimCompare  float32
 	Tools             []*domain.RecognizedTool
 	ReferenceTools    []*domain.ToolType
 }
@@ -113,7 +113,7 @@ func NewFilterRes(accessTools, manualCheckTools, unknownTools []*domain.Recogniz
 	}
 }
 
-func NewFilterReq(confidenceCompare float32, cosineSimCompare float64, Tools []*domain.RecognizedTool, referenceTools []*domain.ToolType) *FilterReq {
+func NewFilterReq(confidenceCompare, cosineSimCompare float32, Tools []*domain.RecognizedTool, referenceTools []*domain.ToolType) *FilterReq {
 	return &FilterReq{
 		ConfidenceCompare: confidenceCompare,
 		CosineSimCompare:  cosineSimCompare,

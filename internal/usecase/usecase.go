@@ -10,39 +10,41 @@ import (
 
 // TODO: заменить на реальные данные
 const (
-	ConfidenceCompare float32 = 0.70
-	CosineSimCompare  float64 = 0.70
-	SourceImages      string  = "source_images"
-	DefaultSetId      int64   = 1
-	Checkin           string  = "Checkin"
-	Checkout          string  = "Checkout"
+	SourceImages string = "source_images"
+	DefaultSetId int64  = 1
+	Checkin      string = "Checkin"
+	Checkout     string = "Checkout"
 )
 
 type Service struct {
-	userRepo         repository.UserRepository
-	cvScanRepo       repository.CvScanRepository
-	cvScanDetailRepo repository.CvScanDetailRepository
-	toolTypeRepo     repository.ToolTypeRepository
-	transactionRepo  repository.TransactionRepository
-	mlGateway        MLGateway
-	toolSetRepo      repository.ToolSetRepository
-	imageStorage     ImageStorage
+	userRepo          repository.UserRepository
+	cvScanRepo        repository.CvScanRepository
+	cvScanDetailRepo  repository.CvScanDetailRepository
+	toolTypeRepo      repository.ToolTypeRepository
+	transactionRepo   repository.TransactionRepository
+	mlGateway         MLGateway
+	toolSetRepo       repository.ToolSetRepository
+	imageStorage      ImageStorage
+	ConfidenceCompare float32
+	CosineSimCompare  float32
 }
 
 func NewService(
 	u repository.UserRepository, c repository.CvScanRepository, cd repository.CvScanDetailRepository,
 	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, s3 ImageStorage,
-	ts repository.ToolSetRepository,
+	ts repository.ToolSetRepository, condfidence, cosineSim float32,
 ) *Service {
 	return &Service{
-		userRepo:         u,
-		cvScanRepo:       c,
-		cvScanDetailRepo: cd,
-		toolTypeRepo:     tt,
-		transactionRepo:  t,
-		mlGateway:        ml,
-		imageStorage:     s3,
-		toolSetRepo:      ts,
+		userRepo:          u,
+		cvScanRepo:        c,
+		cvScanDetailRepo:  cd,
+		toolTypeRepo:      tt,
+		transactionRepo:   t,
+		mlGateway:         ml,
+		imageStorage:      s3,
+		toolSetRepo:       ts,
+		ConfidenceCompare: condfidence,
+		CosineSimCompare:  cosineSim,
 	}
 }
 
@@ -96,7 +98,7 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
-	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl, ConfidenceCompare)
+	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl, s.ConfidenceCompare)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -113,7 +115,7 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
-	filterReq := NewFilterReq(ConfidenceCompare, CosineSimCompare, scanResult.Tools, referenceSet.Tools)
+	filterReq := NewFilterReq(s.ConfidenceCompare, s.CosineSimCompare, scanResult.Tools, referenceSet.Tools)
 	filterRes, err := filterRecognizedTools(filterReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -147,7 +149,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 		return nil, e.Wrap(op, err)
 	}
 
-	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl, ConfidenceCompare)
+	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl, s.ConfidenceCompare)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -158,7 +160,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 		return nil, e.Wrap(op, err)
 	}
 
-	filterReq := NewFilterReq(ConfidenceCompare, CosineSimCompare, scanResult.Tools, referenceSet.Tools)
+	filterReq := NewFilterReq(s.ConfidenceCompare, s.CosineSimCompare, scanResult.Tools, referenceSet.Tools)
 	filterRes, err := filterRecognizedTools(filterReq)
 	if err != nil {
 		return nil, e.Wrap(op, err)
