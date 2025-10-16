@@ -47,7 +47,7 @@ func (t *Transaction) EvaluateStatus(manualCheckCount, unknownCount, missingCoun
 
 	if sum == 0 {
 		status = CLOSED
-	} else if sum >= 4 {
+	} else if sum >= 4 || t.CountOfChecks >= 3 {
 		status = QA
 	} else {
 		status = OPEN
