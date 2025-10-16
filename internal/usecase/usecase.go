@@ -10,7 +10,7 @@ import (
 
 // TODO: заменить на реальные данные
 const (
-	ConfidenceCompare float32 = 0.85
+	ConfidenceCompare float32 = 0.70
 	CosineSimCompare  float64 = 0.70
 	SourceImages      string  = "source_images"
 	DefaultSetId      int64   = 1
