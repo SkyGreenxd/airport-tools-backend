@@ -65,7 +65,7 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	strCosineSim := os.Getenv("COSSINE_SIM")
+	strCosineSim := os.Getenv("COSINE_SIM")
 	cosineSim, err := strconv.ParseFloat(strCosineSim, 32)
 	if err != nil {
 		log.Fatal(err)
