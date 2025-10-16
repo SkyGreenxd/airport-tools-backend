@@ -11,11 +11,10 @@ const (
 )
 
 type User struct {
-	Id               int64
-	EmployeeId       string
-	FullName         string
-	Role             Role
-	DefaultToolSetId int64
+	Id         int64
+	EmployeeId string
+	FullName   string
+	Role       Role
 
 	Transactions []*Transaction
 }
