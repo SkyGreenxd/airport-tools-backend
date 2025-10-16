@@ -5,8 +5,8 @@ import "airport-tools-backend/pkg/e"
 type Role string
 
 const (
-	Engineer Role = "Engineer" // Авиатехник / Инженер
-	// QualityAuditor Role = "Quality Auditor" // Специалист службы качества / аудит
+	Engineer       Role = "Engineer"        // Авиатехник / Инженер
+	QualityAuditor Role = "Quality Auditor" // Специалист службы качества / аудит
 	// SupplyManager  Role = "Supply Manager"  // Руководитель материально-технического снабжения
 )
 
