@@ -61,7 +61,7 @@ func (t *TransactionRepository) GetByUserIdWhereStatusIsOpenOrManual(ctx context
 	const op = "TransactionRepository.GetByUserIdWhereStatusIsOpenOrManual"
 	var model TransactionModel
 	result := t.DB.WithContext(ctx).
-		Where("user_id = ? AND status IN ?", userId, []domain.Status{domain.OPEN, domain.MANUAL}).
+		Where("user_id = ? AND status IN ?", userId, []domain.Status{domain.OPEN, domain.QA}).
 		First(&model)
 
 	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
