@@ -15,6 +15,8 @@ type HTTPError struct {
 }
 
 // ErrorToHttpRes формирует HTTP-ответ на основе переданной ошибки
+
+// TODO: заменить ошибки на русские
 func ErrorToHttpRes(err error, c *gin.Context) {
 	log.Println(err)
 
@@ -39,6 +41,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionAllFinished):
 		res.Code = http.StatusBadRequest
 		res.Message = "no active tool set to return"
+	case errors.Is(err, e.ErrTransactionLimit):
+		res.Code = http.StatusConflict
+		res.Message = "3 неудачные попытки сканирования. Данные отправлены на проверку QA"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"

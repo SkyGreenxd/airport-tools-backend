@@ -78,6 +78,16 @@ func (s *Service) Check(ctx context.Context, req *CheckReq) (*CheckRes, error) {
 func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *CheckRes, err error) {
 	const op = "usecase.Checkout"
 
+	toolSetId := req.ToolSetId
+	if toolSetId == 0 {
+		toolSetId = DefaultSetId
+	}
+
+	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, toolSetId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
 	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
 	uploadImageRes, err := s.imageStorage.UploadImage(ctx, uplImageReq)
 	if err != nil {
@@ -86,16 +96,6 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 
 	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl, ConfidenceCompare)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	toolSetId := req.ToolSetId
-	if toolSetId == 0 {
-		toolSetId = DefaultSetId
-	}
-
-	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, toolSetId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -124,13 +124,18 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *CheckRes, err error) {
 	const op = "usecase.Checkin"
 
-	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, req.UserId)
+	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrQA(ctx, req.UserId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
 	// проверка на 3 и более попыток
 	if err := transaction.CheckCountOfChecks(); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, transaction.ToolSetId)
+	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
@@ -142,11 +147,6 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 
 	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl, ConfidenceCompare)
 	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, transaction.ToolSetId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}

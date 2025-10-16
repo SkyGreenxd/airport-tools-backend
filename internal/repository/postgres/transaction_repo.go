@@ -57,8 +57,8 @@ func (t *TransactionRepository) GetByUserId(ctx context.Context, userId int64) (
 	return toDomainTransaction(&model), nil
 }
 
-func (t *TransactionRepository) GetByUserIdWhereStatusIsOpenOrManual(ctx context.Context, userId int64) (*domain.Transaction, error) {
-	const op = "TransactionRepository.GetByUserIdWhereStatusIsOpenOrManual"
+func (t *TransactionRepository) GetByUserIdWhereStatusIsOpenOrQA(ctx context.Context, userId int64) (*domain.Transaction, error) {
+	const op = "TransactionRepository.GetByUserIdWhereStatusIsOpenOrQA"
 	var model TransactionModel
 	result := t.DB.WithContext(ctx).
 		Where("user_id = ? AND status IN ?", userId, []domain.Status{domain.OPEN, domain.QA}).
