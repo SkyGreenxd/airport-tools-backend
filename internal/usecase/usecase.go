@@ -13,6 +13,7 @@ const (
 	ConfidenceCompare float32 = 0.85
 	CosineSimCompare  float64 = 0.70
 	SourceImages      string  = "source_images"
+	DefaultSetId      int64   = 1
 )
 
 type Service struct {
@@ -43,22 +44,39 @@ func NewService(
 	}
 }
 
-func (s *Service) MlService() (string, error) {
-	return "", nil
-}
-
-// Checkout обрабатывает выдачу инструментов инженеру
-func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
-	const op = "usecase.Checkout"
-
+func (s *Service) Check(ctx context.Context, req *CheckReq) (*CheckRes, error) {
+	const op = "usecase.Check"
 	user, err := s.userRepo.GetByEmployeeIdWithTransactions(ctx, req.EmployeeId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
+	transactionProcess := NewTransactionProcess(user.Id, req.Data, req.ToolSetId)
+
 	if err := user.CanCheckout(); err != nil {
+		if err := user.CanCheckin(); err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		res, err := s.Checkin(ctx, transactionProcess)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		return res, nil
+	}
+
+	res, err := s.Checkout(ctx, transactionProcess)
+	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
+
+	return res, nil
+}
+
+// Checkout обрабатывает выдачу инструментов инженеру
+func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *CheckRes, err error) {
+	const op = "usecase.Checkout"
 
 	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
 	uploadImageRes, err := s.imageStorage.UploadImage(ctx, uplImageReq)
@@ -72,12 +90,17 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 		return nil, e.Wrap(op, err)
 	}
 
-	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, user.DefaultToolSetId)
+	toolSetId := req.ToolSetId
+	if toolSetId == 0 {
+		toolSetId = DefaultSetId
+	}
+
+	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, toolSetId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	newTransaction := domain.NewTransaction(user.Id, referenceSet.Id)
+	newTransaction := domain.NewTransaction(req.UserId, referenceSet.Id)
 	transaction, err := s.transactionRepo.Create(ctx, newTransaction)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -98,20 +121,16 @@ func (s *Service) Checkout(ctx context.Context, req *CheckReq) (res *CheckRes, e
 }
 
 // Checkin обрабатывает возврат инструментов инженером
-func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, err error) {
+func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *CheckRes, err error) {
 	const op = "usecase.Checkin"
 
-	user, err := s.userRepo.GetByEmployeeIdWithTransactions(ctx, req.EmployeeId)
+	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, req.UserId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	if err := user.CanCheckin(); err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	transaction, err := s.transactionRepo.GetByUserIdWhereStatusIsOpenOrManual(ctx, user.Id)
-	if err != nil {
+	// проверка на 3 и более попыток
+	if err := transaction.CheckCountOfChecks(); err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
@@ -127,7 +146,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 		return nil, e.Wrap(op, err)
 	}
 
-	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, user.DefaultToolSetId)
+	referenceSet, err := s.toolSetRepo.GetByIdWithTools(ctx, transaction.ToolSetId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -144,6 +163,7 @@ func (s *Service) Checkin(ctx context.Context, req *CheckReq) (res *CheckRes, er
 	}
 
 	transaction.EvaluateStatus(len(filterRes.ManualCheckTools), len(filterRes.UnknownTools), len(filterRes.MissingTools))
+	transaction.CountOfChecks++
 
 	if _, err := s.transactionRepo.Update(ctx, transaction); err != nil {
 		return nil, e.Wrap(op, err)
