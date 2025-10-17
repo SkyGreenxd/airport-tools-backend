@@ -232,7 +232,7 @@ paths:
       tags:
       - transactions
   /api/v1/transaction/{transaction_id}/verification:
-    post:
+    get:
       consumes:
       - application/json
       description: Получить информацию о проблемной транзакции.<br>Открывается экран
@@ -273,6 +273,49 @@ paths:
           schema:
             $ref: '#/definitions/v1.HTTPError'
       summary: Получение информации о проблемной транзакции
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      description: После авторизации сотрудника QA выбирает из списка транзакцию.<br>Открывается
+        экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br>
+        • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br>
+        &nbsp;&nbsp;1) ManualCheckTools — инструменты, требующие ручной проверки<br>
+        &nbsp;&nbsp;2) UnknownTools — инструменты, не входящие в ожидаемый набор<br>
+        &nbsp;&nbsp;3) MissingTools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
+      parameters:
+      - description: Идентификатор транзакции
+        in: path
+        name: transaction_id
+        required: true
+        type: string
+      - description: Данные завершения QA-проверки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.VerificationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.VerificationRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: QA-проверка и завершение транзакции
       tags:
       - transactions
   /api/v1/transaction/check:

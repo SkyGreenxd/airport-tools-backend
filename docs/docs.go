@@ -112,7 +112,7 @@ const docTemplate = `{
             }
         },
         "/api/v1/transaction/{transaction_id}/verification": {
-            "post": {
+            "get": {
                 "description": "Получить информацию о проблемной транзакции.\u003cbr\u003eОткрывается экран сверки:\u003cbr\u003e\u003cbr\u003e • Фотография инструментов (полноразмерное изображение)\u003cbr\u003e • Список проблемных инструментов с пояснениями, сгруппированных по категориям:\u003cbr\u003e \u0026nbsp;\u0026nbsp;1) ManualCheckTools — инструменты, требующие ручной проверки\u003cbr\u003e \u0026nbsp;\u0026nbsp;2) UnknownTools — инструменты, не входящие в ожидаемый набор\u003cbr\u003e \u0026nbsp;\u0026nbsp;3) MissingTools — инструменты, отсутствующие на фото, но ожидаемые\u003cbr\u003e\u003cbr\u003e",
                 "consumes": [
                     "application/json"
@@ -139,6 +139,63 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/v1.GetQAVerificationRes"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.VerificationRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "После авторизации сотрудника QA выбирает из списка транзакцию.\u003cbr\u003eОткрывается экран сверки:\u003cbr\u003e\u003cbr\u003e • Фотография инструментов (полноразмерное изображение)\u003cbr\u003e • Список проблемных инструментов с пояснениями, сгруппированных по категориям:\u003cbr\u003e \u0026nbsp;\u0026nbsp;1) ManualCheckTools — инструменты, требующие ручной проверки\u003cbr\u003e \u0026nbsp;\u0026nbsp;2) UnknownTools — инструменты, не входящие в ожидаемый набор\u003cbr\u003e \u0026nbsp;\u0026nbsp;3) MissingTools — инструменты, отсутствующие на фото, но ожидаемые\u003cbr\u003e\u003cbr\u003e",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "QA-проверка и завершение транзакции",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор транзакции",
+                        "name": "transaction_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные завершения QA-проверки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.VerificationReq"
                         }
                     }
                 ],

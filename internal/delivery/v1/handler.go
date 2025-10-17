@@ -127,7 +127,7 @@ func (h *Handler) postVerification(c *gin.Context) {
 //	@Failure		400				{object}	HTTPError
 //	@Failure		404				{object}	HTTPError
 //	@Failure		500				{object}	HTTPError
-//	@Router			/api/v1/transaction/{transaction_id}/verification [post]
+//	@Router			/api/v1/transaction/{transaction_id}/verification [get]
 func (h *Handler) getVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
 	transactionId, err := strconv.Atoi(strTransactionId)
