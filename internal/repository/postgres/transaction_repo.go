@@ -55,6 +55,18 @@ func (t *TransactionRepository) GetByUserId(ctx context.Context, userId int64) (
 	return toDomainTransaction(&model), nil
 }
 
+func (t *TransactionRepository) GetLastFailedByUserId(ctx context.Context, userId int64) (*domain.Transaction, error) {
+	const op = "TransactionRepository.GetLastByUserId"
+
+	var model TransactionModel
+	result := t.DB.WithContext(ctx).Where("user_id = ? AND status = ?", userId, domain.FAILED).First(&model)
+	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainTransaction(&model), nil
+}
+
 func (t *TransactionRepository) GetByUserIdWhereStatusIsOpenOrQA(ctx context.Context, userId int64) (*domain.Transaction, error) {
 	const op = "TransactionRepository.GetByUserIdWhereStatusIsOpenOrQA"
 	var model TransactionModel

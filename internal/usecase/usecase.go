@@ -6,6 +6,7 @@ import (
 	"airport-tools-backend/pkg/e"
 	"airport-tools-backend/pkg/logger"
 	"context"
+	"errors"
 	"log"
 )
 
@@ -134,16 +135,30 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 	}
 
 	var status domain.Status
-	if (len(filterRes.MissingTools) > 0 || len(filterRes.UnknownTools) > 0) || ((len(filterRes.AccessTools) + len(filterRes.ManualCheckTools)) != len(referenceSet.Tools)) {
+	if (len(filterRes.MissingTools) > 0 || len(filterRes.UnknownTools) > 0) || ((len(filterRes.AccessTools)) != len(referenceSet.Tools)) { //+ len(filterRes.ManualCheckTools)
 		status = domain.FAILED
 	} else {
 		status = domain.OPEN
 	}
 
-	newTransaction := domain.NewTransaction(req.UserId, referenceSet.Id, status)
-	transaction, err := s.transactionRepo.Create(ctx, newTransaction)
-	if err != nil {
+	var transaction *domain.Transaction
+	existing, err := s.transactionRepo.GetLastFailedByUserId(ctx, req.UserId)
+	if err != nil && !errors.Is(err, e.ErrTransactionNotFound) {
 		return nil, e.Wrap(op, err)
+	}
+
+	if existing != nil {
+		existing.Status = status
+		transaction, err = s.transactionRepo.Update(ctx, existing)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+	} else {
+		newTransaction := domain.NewTransaction(req.UserId, referenceSet.Id, status)
+		transaction, err = s.transactionRepo.Create(ctx, newTransaction)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
 	}
 
 	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkout, uploadImageRes.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
