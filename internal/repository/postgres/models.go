@@ -35,7 +35,8 @@ type UserModel struct {
 	FullName   string
 	Role       domain.Role
 
-	Transactions []*TransactionModel `gorm:"foreignkey:UserId"`
+	Transactions           []*TransactionModel           `gorm:"foreignkey:UserId"`
+	TransactionResolutions []*TransactionResolutionModel `gorm:"foreignkey:UserId"`
 }
 
 type TransactionModel struct {
@@ -71,6 +72,14 @@ type CvScanDetailModel struct {
 	Embedding          pgvector.Vector `gorm:"type:vector(1280)"`
 }
 
+type TransactionResolutionModel struct {
+	Id            int64
+	TransactionId int64
+	QAEmployeeId  int64 `gorm:"column:qa_employee_id"`
+	Notes         string
+	CreatedAt     time.Time
+}
+
 func (ToolTypeModel) TableName() string {
 	return "tool_types"
 }
@@ -98,3 +107,5 @@ func (CvScanModel) TableName() string {
 func (CvScanDetailModel) TableName() string {
 	return "cv_scan_details"
 }
+
+func (TransactionResolutionModel) TableName() string { return "transaction_resolutions" }
