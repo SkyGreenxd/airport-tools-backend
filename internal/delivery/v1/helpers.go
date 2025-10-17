@@ -57,6 +57,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrIncorrectImage):
 		res.Code = http.StatusBadRequest
 		res.Message = "Изображение повреждено или не поддерживается"
+	case errors.Is(err, e.ErrCvScanNotFound):
+		res.Code = http.StatusNotFound
+		res.Message = "Скан не найден"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"
