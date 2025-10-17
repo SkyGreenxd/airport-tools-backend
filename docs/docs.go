@@ -384,6 +384,19 @@ const docTemplate = `{
                 "QualityAuditor"
             ]
         },
+        "domain.Status": {
+            "type": "string",
+            "enum": [
+                "OPEN",
+                "CLOSED",
+                "QA VERIFICATION"
+            ],
+            "x-enum-varnames": [
+                "OPEN",
+                "CLOSED",
+                "QA"
+            ]
+        },
         "v1.CheckReq": {
             "type": "object",
             "required": [
@@ -598,6 +611,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/domain.Status"
                 },
                 "tool_set_id": {
                     "type": "integer"

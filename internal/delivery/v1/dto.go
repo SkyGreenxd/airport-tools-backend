@@ -78,10 +78,11 @@ type ListTransactionsRes struct {
 }
 
 type TransactionDTO struct {
-	Id        int64     `json:"id"`
-	ToolSetId int64     `json:"tool_set_id"`
-	CreatedAt time.Time `json:"created_at"`
-	User      UserDto   `json:"user"`
+	Id        int64         `json:"id"`
+	ToolSetId int64         `json:"tool_set_id"`
+	CreatedAt time.Time     `json:"created_at"`
+	User      UserDto       `json:"user"`
+	Status    domain.Status `json:"status"`
 }
 
 type UserDto struct {
@@ -155,6 +156,7 @@ func toDeliveryTransactionDTO(transaction *usecase.TransactionDTO) *TransactionD
 		ToolSetId: transaction.ToolSetId,
 		CreatedAt: transaction.CreatedAt,
 		User:      toDeliveryUserDto(transaction.User),
+		Status:    transaction.Status,
 	}
 }
 

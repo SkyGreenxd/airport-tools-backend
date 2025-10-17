@@ -83,6 +83,7 @@ type TransactionDTO struct {
 	ToolSetId int64
 	CreatedAt time.Time
 	User      UserDto
+	Status    domain.Status
 }
 
 type UserDto struct {
@@ -292,6 +293,7 @@ func toTransactionDTO(transaction *domain.Transaction) *TransactionDTO {
 		ToolSetId: transaction.ToolSetId,
 		CreatedAt: transaction.CreatedAt,
 		User:      userDto,
+		Status:    transaction.Status,
 	}
 }
 
