@@ -123,7 +123,7 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImageRes.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools, Checkout), nil
+	return NewCheckinRes(uploadImageRes.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools, Checkout, string(transaction.Status)), nil
 }
 
 // Checkin обрабатывает возврат инструментов инженером
@@ -175,7 +175,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewCheckinRes(uploadImage.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools, Checkin), nil
+	return NewCheckinRes(uploadImage.ImageUrl, scanResult.DebugImageUrl, filterRes.AccessTools, filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools, Checkin, string(transaction.Status)), nil
 }
 
 // CreateScan создает записи в таблицы cv_scans, cv_scan_details
@@ -331,7 +331,7 @@ func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*G
 
 	problematicTools := NewProblematicTools(filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools)
 	userDto := NewUserDto(scan.TransactionObj.User.FullName, scan.TransactionObj.User.EmployeeId)
-	res := NewGetQAVerificationRes(scan.TransactionId, toolSet.Id, scan.TransactionObj.CreatedAt, userDto, problematicTools, scan.ImageUrl)
+	res := NewGetQAVerificationRes(scan.TransactionId, toolSet.Id, scan.TransactionObj.CreatedAt, userDto, filterRes.AccessTools, problematicTools, scan.ImageUrl)
 
 	return res, nil
 }

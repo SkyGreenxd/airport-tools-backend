@@ -15,6 +15,7 @@ type GetQAVerificationRes struct {
 	ToolSetId        int64
 	CreatedAt        time.Time
 	User             UserDto
+	AccessTools      []*domain.RecognizedTool
 	ProblematicTools *ProblematicTools
 	ImageUrl         string
 }
@@ -25,12 +26,13 @@ type ProblematicTools struct {
 	MissingTools     []*ToolTypeDTO
 }
 
-func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, problematicTools *ProblematicTools, imageurl string) *GetQAVerificationRes {
+func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, accessTools []*domain.RecognizedTool, problematicTools *ProblematicTools, imageurl string) *GetQAVerificationRes {
 	return &GetQAVerificationRes{
 		TransactionId:    id,
 		ToolSetId:        toolSetId,
 		CreatedAt:        createdAt,
 		User:             user,
+		AccessTools:      accessTools,
 		ProblematicTools: problematicTools,
 		ImageUrl:         imageurl,
 	}
@@ -122,6 +124,7 @@ type CheckRes struct {
 	AccessTools      []*domain.RecognizedTool
 	ProblematicTools *ProblematicTools
 	TransactionType  string
+	Status           string
 }
 
 type UploadImageReq struct {
@@ -190,12 +193,13 @@ func NewUploadImageRes(key string, imageUrl string) *UploadImageRes {
 	}
 }
 
-func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO, transactionType string) *CheckRes {
+func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO, transactionType, status string) *CheckRes {
 	return &CheckRes{
 		ImageUrl:         imageUrl,
 		DebugImageUrl:    debugImageUrl,
 		ProblematicTools: NewProblematicTools(manualCheckTools, unknownTools, missingTools),
 		TransactionType:  transactionType,
+		Status:           status,
 	}
 }
 

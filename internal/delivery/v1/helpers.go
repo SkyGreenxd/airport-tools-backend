@@ -62,7 +62,7 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 		res.Message = "Скан не найден"
 	default:
 		res.Code = http.StatusInternalServerError
-		res.Message = "internal server error"
+		res.Message = "Внутренняя ошибка сервера"
 	}
 
 	c.JSON(res.Code, res)

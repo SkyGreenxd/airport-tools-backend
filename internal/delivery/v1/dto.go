@@ -38,12 +38,13 @@ func toDeliveryVerificationRes(res *usecase.VerificationRes) *VerificationRes {
 }
 
 type GetQAVerificationRes struct {
-	TransactionId    int64             `json:"transaction_id"`
-	ToolSetId        int64             `json:"tool_set_id"`
-	CreatedAt        time.Time         `json:"created_at"`
-	User             UserDto           `json:"user"`
-	ProblematicTools *ProblematicTools `json:"problematic_tools"`
-	ImageUrl         string            `json:"image_url"`
+	TransactionId    int64                `json:"transaction_id"`
+	ToolSetId        int64                `json:"tool_set_id"`
+	CreatedAt        time.Time            `json:"created_at"`
+	User             UserDto              `json:"user"`
+	AccessTools      []*RecognizedToolDTO `json:"access_tools"`
+	ProblematicTools *ProblematicTools    `json:"problematic_tools"`
+	ImageUrl         string               `json:"image_url"`
 }
 
 type ProblematicTools struct {
@@ -58,6 +59,7 @@ func toDeliveryGetQAVerificationRes(res *usecase.GetQAVerificationRes) *GetQAVer
 		ToolSetId:        res.ToolSetId,
 		CreatedAt:        res.CreatedAt,
 		User:             toDeliveryUserDto(res.User),
+		AccessTools:      toArrDeliveryRecognizedToolDTO(res.AccessTools),
 		ProblematicTools: toDeliveryProblematicTools(res.ProblematicTools),
 		ImageUrl:         res.ImageUrl,
 	}
@@ -117,6 +119,7 @@ type CheckRes struct {
 	AccessTools      []*RecognizedToolDTO `json:"access_tools"`
 	ProblematicTools *ProblematicTools    `json:"problematic_tools"`
 	TransactionType  string               `json:"transaction_type"`
+	Status           string               `json:"status"`
 }
 
 type RecognizedToolDTO struct {
@@ -203,6 +206,7 @@ func ToDeliveryCheckRes(res *usecase.CheckRes) *CheckRes {
 		AccessTools:      toArrDeliveryRecognizedToolDTO(res.AccessTools),
 		ProblematicTools: toDeliveryProblematicTools(res.ProblematicTools),
 		TransactionType:  res.TransactionType,
+		Status:           res.Status,
 	}
 }
 
