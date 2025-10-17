@@ -123,7 +123,7 @@ func (t *TransactionRepository) GetAllWhereStatusIsQAWithUser(ctx context.Contex
 	const op = "TransactionRepository.GetAllWhereStatusIsQA"
 
 	var models []*TransactionModel
-	result := t.DB.WithContext(ctx).Preload("User").Find(&models)
+	result := t.DB.WithContext(ctx).Preload("User").Where("status = ?", domain.QA).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
