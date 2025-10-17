@@ -117,7 +117,6 @@ type CheckReq struct {
 }
 
 // CheckRes содержит результат проверки инструментов после сканирования.
-// TODO: можно юзать ProblematicTools
 type CheckRes struct {
 	ImageUrl         string
 	DebugImageUrl    string

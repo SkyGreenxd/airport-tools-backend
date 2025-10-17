@@ -35,8 +35,6 @@ func NewTransaction(userId, toolSetId int64) *Transaction {
 	}
 }
 
-// TODO: подумать подходит ли ща под QA проверку
-// мб для QA сделать отдельную функцию
 func (t *Transaction) EvaluateStatus(manualCheckCount, unknownCount, missingCount int) {
 	var status Status
 

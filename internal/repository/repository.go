@@ -72,7 +72,6 @@ type ImageRepository interface {
 	Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error)
 }
 
-// TODO:
 type TransactionResolutionsRepository interface {
 	Create(ctx context.Context, transaction *domain.TransactionResolution) (*domain.TransactionResolution, error)
 	GetAll(ctx context.Context) ([]*domain.TransactionResolution, error)

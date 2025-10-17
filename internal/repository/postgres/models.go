@@ -8,8 +8,6 @@ import (
 	"github.com/pgvector/pgvector-go"
 )
 
-// TODO: добавить новую таблицу
-
 type ToolTypeModel struct {
 	Id                 int64
 	PartNumber         string
