@@ -70,7 +70,9 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim))
+
+	trRepo := postgres.NewTransactionResolutionsRepo(pg.Db)
+	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim), trRepo)
 
 	handler := v1.NewHandler(service)
 
