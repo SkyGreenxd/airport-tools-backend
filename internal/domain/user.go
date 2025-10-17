@@ -16,7 +16,8 @@ type User struct {
 	FullName   string
 	Role       Role
 
-	Transactions []*Transaction
+	Transactions           []*Transaction
+	TransactionResolutions []*TransactionResolution
 }
 
 func NewUser(fullName, employeeId string, role Role) *User {

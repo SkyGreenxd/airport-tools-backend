@@ -66,6 +66,18 @@ func (u *UserRepository) GetByEmployeeIdWithTransactions(ctx context.Context, em
 	return toDomainUser(&model), nil
 }
 
+func (u *UserRepository) GetByEmployeeIdWithTransactionResolutions(ctx context.Context, employeeId string) (*domain.User, error) {
+	const op = "UserRepository.GetByEmployeeIdWithTransactionResolutions"
+
+	var model UserModel
+	result := u.DB.WithContext(ctx).Preload("TransactionResolutions").First(&model, "employee_id = ?", employeeId)
+	if err := checkGetQueryResult(result, e.ErrUserNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainUser(&model), nil
+}
+
 func (u *UserRepository) GetAll(ctx context.Context) ([]*domain.User, error) {
 	const op = "UserRepository.GetAll"
 
