@@ -110,8 +110,7 @@ func (h *Handler) postVerification(c *gin.Context) {
 		return
 	}
 
-	// TODO: переделать res перевести в JSON
-	c.JSON(http.StatusOK, res)
+	c.JSON(http.StatusOK, toDeliveryVerificationRes(res))
 }
 
 // получение инфы по конкретной транзакции

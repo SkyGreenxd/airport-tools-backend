@@ -4,6 +4,7 @@ import (
 	"airport-tools-backend/internal/domain"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/pgvector/pgvector-go"
 )
 
@@ -70,7 +71,7 @@ type CvScanDetailModel struct {
 	DetectedToolTypeId int64
 	Confidence         float32
 	Embedding          pgvector.Vector `gorm:"type:vector(1280)"`
-	Bbox               []float32
+	Bbox               pq.Float32Array
 }
 
 type TransactionResolutionModel struct {

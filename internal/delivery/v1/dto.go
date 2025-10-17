@@ -22,10 +22,19 @@ type VerificationReq struct {
 }
 
 type VerificationRes struct {
-	TransactionID string    `json:"transaction_id"` // ID транзакции, которую QA завершил
+	TransactionID int64     `json:"transaction_id"` // ID транзакции, которую QA завершил
 	Status        string    `json:"status"`         // Новый статус
 	VerifiedBy    string    `json:"verified_by"`    // Табельный номер или имя QA
 	CreatedAt     time.Time `json:"created_at"`     // Время завершения проверки
+}
+
+func toDeliveryVerificationRes(res *usecase.VerificationRes) *VerificationRes {
+	return &VerificationRes{
+		TransactionID: res.TransactionID,
+		Status:        res.Status,
+		VerifiedBy:    res.VerifiedBy,
+		CreatedAt:     res.CreatedAt,
+	}
 }
 
 type GetQAVerificationRes struct {
