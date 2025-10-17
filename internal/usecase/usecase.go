@@ -127,7 +127,20 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
-	newTransaction := domain.NewTransaction(req.UserId, referenceSet.Id)
+	filterReq := NewFilterReq(s.ConfidenceCompare, s.CosineSimCompare, scanResult.Tools, referenceSet.Tools)
+	filterRes, err := filterRecognizedTools(filterReq)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	var status domain.Status
+	if (len(filterRes.MissingTools) > 0 || len(filterRes.UnknownTools) > 0) || ((len(filterRes.AccessTools) + len(filterRes.ManualCheckTools)) != len(referenceSet.Tools)) {
+		status = domain.FAILED
+	} else {
+		status = domain.OPEN
+	}
+
+	newTransaction := domain.NewTransaction(req.UserId, referenceSet.Id, status)
 	transaction, err := s.transactionRepo.Create(ctx, newTransaction)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -135,12 +148,6 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 
 	createScanReq := NewCreateScanReq(transaction.Id, domain.Checkout, uploadImageRes.ImageUrl, scanResult.DebugImageUrl, scanResult.Tools)
 	if err := s.CreateScan(ctx, createScanReq); err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	filterReq := NewFilterReq(s.ConfidenceCompare, s.CosineSimCompare, scanResult.Tools, referenceSet.Tools)
-	filterRes, err := filterRecognizedTools(filterReq)
-	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 

@@ -11,6 +11,7 @@ const (
 	OPEN   Status = "OPEN"
 	CLOSED Status = "CLOSED"
 	QA     Status = "QA VERIFICATION"
+	FAILED Status = "FAILED"
 )
 
 type Transaction struct {
@@ -26,10 +27,10 @@ type Transaction struct {
 	CvScans []*CvScan
 }
 
-func NewTransaction(userId, toolSetId int64) *Transaction {
+func NewTransaction(userId, toolSetId int64, status Status) *Transaction {
 	return &Transaction{
 		UserId:        userId,
-		Status:        OPEN,
+		Status:        status,
 		ToolSetId:     toolSetId,
 		CountOfChecks: 0,
 	}

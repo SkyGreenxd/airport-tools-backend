@@ -2,11 +2,16 @@ package usecase
 
 import (
 	"airport-tools-backend/internal/domain"
+	"log"
 	"math"
 )
 
 // cosineSimilarity вычисляет косинусное сходство между двумя векторами
 func cosineSimilarity(reference, recognized []float32) float32 {
+	if len(recognized) == 0 {
+		recognized = make([]float32, 1280)
+	}
+
 	var dot, normReference, normRecognized float64
 	for i := range reference {
 		dot += float64(reference[i] * recognized[i])
@@ -35,6 +40,8 @@ func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
 			unknownTools = append(unknownTools, recognized)
 			continue
 		}
+
+		log.Println("----DEBUG: ", len(recognized.Embedding), recognized.Confidence, recognized.ToolTypeId, "----")
 
 		cosSim := cosineSimilarity(ref.ReferenceEmbedding, recognized.Embedding)
 		if recognized.Confidence < req.ConfidenceCompare || cosSim < req.CosineSimCompare {
