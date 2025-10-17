@@ -27,12 +27,13 @@ type Service struct {
 	imageStorage      ImageStorage
 	ConfidenceCompare float32
 	CosineSimCompare  float32
+	trResolution      repository.TransactionResolutionsRepository
 }
 
 func NewService(
 	u repository.UserRepository, c repository.CvScanRepository, cd repository.CvScanDetailRepository,
 	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, s3 ImageStorage,
-	ts repository.ToolSetRepository, condfidence, cosineSim float32,
+	ts repository.ToolSetRepository, condfidence, cosineSim float32, tr repository.TransactionResolutionsRepository,
 ) *Service {
 	return &Service{
 		userRepo:          u,
@@ -45,6 +46,7 @@ func NewService(
 		toolSetRepo:       ts,
 		ConfidenceCompare: condfidence,
 		CosineSimCompare:  cosineSim,
+		trResolution:      tr,
 	}
 }
 
@@ -275,11 +277,32 @@ func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes,
 	return NewRegisterRes(user.Id), nil
 }
 
-// TODO: допилить
 func (s *Service) Verification(ctx context.Context, req *Verification) (*VerificationRes, error) {
 	const op = "usecase.postVerification"
 
-	return nil, nil
+	user, err := s.userRepo.GetByEmployeeId(ctx, req.QAEmployeeId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	new_resolution := domain.NewTransactionResolution(req.TransactionID, user.Id, req.Notes)
+	resolution, err := s.trResolution.Create(ctx, new_resolution)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	transaction, err := s.transactionRepo.GetById(ctx, resolution.TransactionId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	transaction.Status = domain.CLOSED
+	updTransaction, err := s.transactionRepo.Update(ctx, transaction)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return NewVerificationRes(updTransaction.Id, string(updTransaction.Status), user.EmployeeId, resolution.CreatedAt), nil
 }
 
 func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*GetQAVerificationRes, error) {

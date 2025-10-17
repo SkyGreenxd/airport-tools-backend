@@ -25,8 +25,7 @@ type VerificationRes struct {
 	TransactionID string    `json:"transaction_id"` // ID транзакции, которую QA завершил
 	Status        string    `json:"status"`         // Новый статус
 	VerifiedBy    string    `json:"verified_by"`    // Табельный номер или имя QA
-	VerifiedAt    time.Time `json:"verified_at"`    // Время завершения проверки
-	Message       string    `json:"message"`        // Краткое текстовое подтверждение
+	CreatedAt     time.Time `json:"created_at"`     // Время завершения проверки
 }
 
 type GetQAVerificationRes struct {

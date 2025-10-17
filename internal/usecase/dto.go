@@ -49,11 +49,19 @@ type Verification struct {
 }
 
 type VerificationRes struct {
-	TransactionID string
+	TransactionID int64
 	Status        string
 	VerifiedBy    string
-	VerifiedAt    time.Time
-	Message       string
+	CreatedAt     time.Time
+}
+
+func NewVerificationRes(id int64, status string, verifiedBy string, createdAt time.Time) *VerificationRes {
+	return &VerificationRes{
+		TransactionID: id,
+		Status:        status,
+		VerifiedBy:    verifiedBy,
+		CreatedAt:     createdAt,
+	}
 }
 
 type RegisterReq struct {
