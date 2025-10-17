@@ -33,6 +33,7 @@ type UserRepository interface {
 	GetAll(ctx context.Context) ([]*domain.User, error)
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, user *domain.User) (*domain.User, error)
+	GetByEmployeeIdWithTransactionResolutions(ctx context.Context, employeeId string) (*domain.User, error)
 }
 
 // TransactionRepository интерфейс для работы с транзакциями инструментов в базе данных
@@ -73,6 +74,8 @@ type ImageRepository interface {
 
 // TODO:
 type TransactionResolutionsRepository interface {
-	// Create
-	// GetAll
+	Create(ctx context.Context, transaction *domain.TransactionResolution) (*domain.TransactionResolution, error)
+	GetAll(ctx context.Context) ([]*domain.TransactionResolution, error)
+	GetById(ctx context.Context, id int64) (*domain.TransactionResolution, error)
+	GetByQAId(ctx context.Context, qaEmployeeId string) ([]*domain.TransactionResolution, error)
 }
