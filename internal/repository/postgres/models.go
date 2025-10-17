@@ -70,6 +70,7 @@ type CvScanDetailModel struct {
 	DetectedToolTypeId int64
 	Confidence         float32
 	Embedding          pgvector.Vector `gorm:"type:vector(1280)"`
+	Bbox               []float32
 }
 
 type TransactionResolutionModel struct {
