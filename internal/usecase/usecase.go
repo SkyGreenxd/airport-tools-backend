@@ -217,6 +217,8 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes, error) {
 	const op = "usecase.List"
 
+	log.Println(status)
+
 	if status == "" {
 		transactions, err := s.transactionRepo.GetAllWithUser(ctx)
 		if err != nil {
@@ -272,3 +274,8 @@ func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes,
 
 	return NewRegisterRes(user.Id), nil
 }
+
+//func (s *Service) Verification(ctx context.Context, req *Verification) (VerificationRes, error) {
+//	const op = "usecase.Verification"
+//
+//}
