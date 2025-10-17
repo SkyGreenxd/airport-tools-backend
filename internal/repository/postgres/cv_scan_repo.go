@@ -66,11 +66,11 @@ func (c *CvScanRepository) GetByIdWithTransaction(ctx context.Context, id int64)
 	return toDomainCvScan(&model), nil
 }
 
-func (c *CvScanRepository) GetByIdWithDetectedTools(ctx context.Context, id int64) (*domain.CvScan, error) {
+func (c *CvScanRepository) GetByTransactionIdWithDetectedToolsAndTransaction(ctx context.Context, transactionId int64) (*domain.CvScan, error) {
 	const op = "CvScanRepository.GetByIdWithDetectedTools"
 
 	var model CvScanModel
-	result := c.DB.WithContext(ctx).Preload("DetectedTools").First(&model, "id = ?", id)
+	result := c.DB.WithContext(ctx).Preload("DetectedTools").Preload("Transaction.User").First(&model, "transaction_id = ?", transactionId)
 	if err := checkGetQueryResult(result, e.ErrCvScanNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
