@@ -36,7 +36,7 @@ type UserModel struct {
 	Role       domain.Role
 
 	Transactions           []*TransactionModel           `gorm:"foreignkey:UserId"`
-	TransactionResolutions []*TransactionResolutionModel `gorm:"foreignkey:UserId"`
+	TransactionResolutions []*TransactionResolutionModel `gorm:"foreignkey:QAEmployeeId"`
 }
 
 type TransactionModel struct {
