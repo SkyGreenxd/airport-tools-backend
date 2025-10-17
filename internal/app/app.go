@@ -8,6 +8,7 @@ import (
 	"airport-tools-backend/internal/repository/yandex_s3"
 	"airport-tools-backend/internal/server"
 	"airport-tools-backend/internal/usecase"
+	"airport-tools-backend/pkg/logger"
 	"context"
 	"log"
 	"net/http"
@@ -72,7 +73,8 @@ func Run() {
 	}
 
 	trRepo := postgres.NewTransactionResolutionsRepo(pg.Db)
-	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim), trRepo)
+	loger := logger.NewSlogLogger()
+	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim), trRepo, loger)
 
 	handler := v1.NewHandler(service)
 
