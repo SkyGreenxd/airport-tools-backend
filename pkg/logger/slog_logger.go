@@ -48,7 +48,7 @@ func (l *SlogLogger) Track(operationName string, operation func() error) error {
 	log.Println("Зашла функ")
 
 	// Логируем результат в любом случае
-	l.Debug(
+	l.Info(
 		"Operation finished",
 		"operation", operationName,
 		"duration", time.Since(start).String(),
