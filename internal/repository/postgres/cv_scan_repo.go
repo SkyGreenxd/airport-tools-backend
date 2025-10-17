@@ -70,7 +70,7 @@ func (c *CvScanRepository) GetByTransactionIdWithDetectedToolsAndTransaction(ctx
 	const op = "CvScanRepository.GetByIdWithDetectedTools"
 
 	var model CvScanModel
-	result := c.DB.WithContext(ctx).Preload("DetectedTools").Preload("Transaction.User").First(&model, "transaction_id = ?", transactionId)
+	result := c.DB.WithContext(ctx).Preload("DetectedTools").Preload("Transaction.User").Order("created_at DESC").First(&model, "transaction_id = ?", transactionId)
 	if err := checkGetQueryResult(result, e.ErrCvScanNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
