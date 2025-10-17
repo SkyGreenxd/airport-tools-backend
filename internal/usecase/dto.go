@@ -196,6 +196,7 @@ func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools
 	return &CheckRes{
 		ImageUrl:         imageUrl,
 		DebugImageUrl:    debugImageUrl,
+		AccessTools:      accessTools,
 		ProblematicTools: NewProblematicTools(manualCheckTools, unknownTools, missingTools),
 		TransactionType:  transactionType,
 		Status:           status,
