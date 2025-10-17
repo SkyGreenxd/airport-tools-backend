@@ -107,14 +107,22 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
+	var uploadImageRes *UploadImageRes
 	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
-	uploadImageRes, err := s.imageStorage.UploadImage(ctx, uplImageReq)
+	err = s.logger.Track("usecase.Checkout.imageStorage.UploadImage", func() error {
+		uploadImageRes, err = s.imageStorage.UploadImage(ctx, uplImageReq)
+		return err
+	})
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
+	var scanResult *ScanResult
 	scanReq := NewScanReq(uploadImageRes.Key, uploadImageRes.ImageUrl, s.ConfidenceCompare)
-	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
+	err = s.logger.Track("usecase.Checkout.mlGateway.ScanTools", func() error {
+		scanResult, err = s.mlGateway.ScanTools(ctx, scanReq)
+		return err
+	})
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -159,13 +167,22 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 	}
 
 	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
-	uploadImage, err := s.imageStorage.UploadImage(ctx, uplImageReq)
+
+	var uploadImage *UploadImageRes
+	err = s.logger.Track("usecase.Checkin", func() error {
+		uploadImage, err = s.imageStorage.UploadImage(ctx, uplImageReq)
+		return err
+	})
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
+	var scanResult *ScanResult
 	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl, s.ConfidenceCompare)
-	scanResult, err := s.mlGateway.ScanTools(ctx, scanReq)
+	err = s.logger.Track("usecase.Checkin", func() error {
+		scanResult, err = s.mlGateway.ScanTools(ctx, scanReq)
+		return err
+	})
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
