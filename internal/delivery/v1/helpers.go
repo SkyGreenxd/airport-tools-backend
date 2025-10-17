@@ -15,8 +15,6 @@ type HTTPError struct {
 }
 
 // ErrorToHttpRes формирует HTTP-ответ на основе переданной ошибки
-
-// TODO: заменить ошибки на русские
 func ErrorToHttpRes(err error, c *gin.Context) {
 	log.Println(err)
 
