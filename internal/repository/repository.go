@@ -57,7 +57,7 @@ type CvScanRepository interface {
 	GetById(ctx context.Context, id int64) (*domain.CvScan, error)
 	GetByTransactionId(ctx context.Context, transactionId int64) (*domain.CvScan, error)
 	GetByIdWithTransaction(ctx context.Context, id int64) (*domain.CvScan, error)
-	GetByIdWithDetectedTools(ctx context.Context, id int64) (*domain.CvScan, error)
+	GetByTransactionIdWithDetectedToolsAndTransaction(ctx context.Context, transactionId int64) (*domain.CvScan, error)
 }
 
 // CvScanDetailRepository интерфейс для работы с детализацией сканов в базе данных
