@@ -12,7 +12,7 @@ type SlogLogger struct {
 }
 
 func NewSlogLogger() *SlogLogger {
-	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	})
 	return &SlogLogger{
