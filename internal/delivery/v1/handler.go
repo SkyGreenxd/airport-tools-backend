@@ -78,7 +78,7 @@ func (h *Handler) check(c *gin.Context) {
 // postVerification
 //
 //	@Summary		QA-проверка и завершение транзакции
-//	@Description	После авторизации сотрудника QA отображается список всех незавершённых транзакций.<br> При выборе конкретной транзакции открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;1) AccessTools — инструменты, прошедшие автоматическую проверку<br> &nbsp;&nbsp;2) ManualCheckTools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;3) UnknownTools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;4) MissingTools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
+//	@Description	После авторизации сотрудника QA выбирает из списка транзакцию.<br>Открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;1) ManualCheckTools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;2) UnknownTools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;3) MissingTools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
 //
 //	@Tags			transactions
 //	@Accept			json
@@ -113,7 +113,21 @@ func (h *Handler) postVerification(c *gin.Context) {
 	c.JSON(http.StatusOK, toDeliveryVerificationRes(res))
 }
 
-// получение инфы по конкретной транзакции
+// getVerification
+//
+//	@Summary		Получение информации о проблемной транзакции
+//	@Description	Получить информацию о проблемной транзакции.<br>Открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;1) ManualCheckTools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;2) UnknownTools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;3) MissingTools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
+//
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Param			transaction_id	path		string		true	"Идентификатор транзакции"
+//	@Param			request			body		GetQAVerificationRes	true	"Данные о транзакции"
+//	@Success		200				{object}	VerificationRes
+//	@Failure		400				{object}	HTTPError
+//	@Failure		404				{object}	HTTPError
+//	@Failure		500				{object}	HTTPError
+//	@Router			/api/v1/transaction/{transaction_id}/verification [post]
 func (h *Handler) getVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
 	transactionId, err := strconv.Atoi(strTransactionId)

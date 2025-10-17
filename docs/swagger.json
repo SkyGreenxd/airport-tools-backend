@@ -107,7 +107,7 @@
         },
         "/api/v1/transaction/{transaction_id}/verification": {
             "post": {
-                "description": "После авторизации сотрудника QA отображается список всех незавершённых транзакций.\u003cbr\u003e При выборе конкретной транзакции открывается экран сверки:\u003cbr\u003e\u003cbr\u003e • Фотография инструментов (полноразмерное изображение)\u003cbr\u003e • Список проблемных инструментов с пояснениями, сгруппированных по категориям:\u003cbr\u003e \u0026nbsp;\u0026nbsp;1) AccessTools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e \u0026nbsp;\u0026nbsp;2) ManualCheckTools — инструменты, требующие ручной проверки\u003cbr\u003e \u0026nbsp;\u0026nbsp;3) UnknownTools — инструменты, не входящие в ожидаемый набор\u003cbr\u003e \u0026nbsp;\u0026nbsp;4) MissingTools — инструменты, отсутствующие на фото, но ожидаемые\u003cbr\u003e\u003cbr\u003e",
+                "description": "Получить информацию о проблемной транзакции.\u003cbr\u003eОткрывается экран сверки:\u003cbr\u003e\u003cbr\u003e • Фотография инструментов (полноразмерное изображение)\u003cbr\u003e • Список проблемных инструментов с пояснениями, сгруппированных по категориям:\u003cbr\u003e \u0026nbsp;\u0026nbsp;1) ManualCheckTools — инструменты, требующие ручной проверки\u003cbr\u003e \u0026nbsp;\u0026nbsp;2) UnknownTools — инструменты, не входящие в ожидаемый набор\u003cbr\u003e \u0026nbsp;\u0026nbsp;3) MissingTools — инструменты, отсутствующие на фото, но ожидаемые\u003cbr\u003e\u003cbr\u003e",
                 "consumes": [
                     "application/json"
                 ],
@@ -117,7 +117,7 @@
                 "tags": [
                     "transactions"
                 ],
-                "summary": "QA-проверка и завершение транзакции",
+                "summary": "Получение информации о проблемной транзакции",
                 "parameters": [
                     {
                         "type": "string",
@@ -127,12 +127,12 @@
                         "required": true
                     },
                     {
-                        "description": "Данные завершения QA-проверки",
+                        "description": "Данные о транзакции",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.VerificationReq"
+                            "$ref": "#/definitions/v1.GetQAVerificationRes"
                         }
                     }
                 ],
@@ -377,6 +377,26 @@
                 }
             }
         },
+        "v1.GetQAVerificationRes": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "problematic_tools": {
+                    "$ref": "#/definitions/v1.ProblematicTools"
+                },
+                "tool_set_id": {
+                    "type": "integer"
+                },
+                "transaction_id": {
+                    "type": "integer"
+                },
+                "user": {
+                    "$ref": "#/definitions/v1.UserDto"
+                }
+            }
+        },
         "v1.GetRolesRes": {
             "type": "object",
             "properties": {
@@ -426,6 +446,29 @@
             "properties": {
                 "role": {
                     "$ref": "#/definitions/domain.Role"
+                }
+            }
+        },
+        "v1.ProblematicTools": {
+            "type": "object",
+            "properties": {
+                "manual_check_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.RecognizedToolDTO"
+                    }
+                },
+                "missing_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.ToolTypeDTO"
+                    }
+                },
+                "unknown_tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.RecognizedToolDTO"
+                    }
                 }
             }
         },
@@ -518,8 +561,7 @@
         "v1.VerificationReq": {
             "type": "object",
             "required": [
-                "qa_employee_id",
-                "transaction_id"
+                "qa_employee_id"
             ],
             "properties": {
                 "notes": {
@@ -527,17 +569,14 @@
                 },
                 "qa_employee_id": {
                     "type": "string"
-                },
-                "transaction_id": {
-                    "type": "integer"
                 }
             }
         },
         "v1.VerificationRes": {
             "type": "object",
             "properties": {
-                "message": {
-                    "description": "Краткое текстовое подтверждение",
+                "created_at": {
+                    "description": "Время завершения проверки",
                     "type": "string"
                 },
                 "status": {
@@ -546,11 +585,7 @@
                 },
                 "transaction_id": {
                     "description": "ID транзакции, которую QA завершил",
-                    "type": "string"
-                },
-                "verified_at": {
-                    "description": "Время завершения проверки",
-                    "type": "string"
+                    "type": "integer"
                 },
                 "verified_by": {
                     "description": "Табельный номер или имя QA",
