@@ -232,8 +232,6 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes, error) {
 	const op = "usecase.List"
 
-	log.Println(status)
-
 	if status == "" {
 		transactions, err := s.transactionRepo.GetAllWithUser(ctx)
 		if err != nil {

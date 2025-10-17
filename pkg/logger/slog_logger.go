@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"log"
 	"log/slog"
 	"os"
 	"time"
@@ -44,8 +43,6 @@ func (l *SlogLogger) Track(operationName string, operation func() error) error {
 
 	// Выполняем переданную операцию и получаем ошибку, если она есть
 	err := operation()
-
-	log.Println("Зашла функ")
 
 	// Логируем результат в любом случае
 	l.Info(

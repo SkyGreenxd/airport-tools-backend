@@ -17,7 +17,6 @@ type HTTPError struct {
 // ErrorToHttpRes формирует HTTP-ответ на основе переданной ошибки
 func ErrorToHttpRes(err error, c *gin.Context) {
 	log.Println(err)
-
 	var res HTTPError
 
 	switch {

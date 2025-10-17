@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -70,7 +69,6 @@ func (ml *MlGateway) ScanTools(ctx context.Context, req *usecase.ScanRequest) (*
 	}
 
 	var apiResp mlAPIResponse
-	log.Println(apiResp.Instruments)
 	decoder := json.NewDecoder(res.Body)
 	if err := decoder.Decode(&apiResp); err != nil {
 		return nil, e.Wrap(op, fmt.Errorf("%s: %w", e.ErrMLServiceDecode, err))

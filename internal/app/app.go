@@ -21,10 +21,6 @@ import (
 )
 
 func Run() {
-	//if err := config.LoadEnv(); err != nil {
-	//	log.Fatal(err)
-	//}
-
 	pg, err := postgres.Connect()
 	if err != nil {
 		log.Fatal(err)
