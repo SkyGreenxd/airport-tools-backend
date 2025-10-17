@@ -104,13 +104,14 @@ func (h *Handler) postVerification(c *gin.Context) {
 		return
 	}
 
-	//res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.QAEmployeeId))
-	//if err != nil {
-	//	ErrorToHttpRes(err, c)
-	//	return
-	//}
-	//
-	//c.JSON(http.StatusOK, ...)
+	res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.QAEmployeeId))
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
+
+	// TODO: переделать res перевести в JSON
+	c.JSON(http.StatusOK, res)
 }
 
 // получение инфы по конкретной транзакции
