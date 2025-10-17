@@ -30,10 +30,10 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 		transaction := v1.Group("/transaction")
 		{
-			transaction.POST("/check", h.check)                                 // выдача/сдача инструментов
-			transaction.POST(":trasaction_id/verification", h.postVerification) // отправка qa результата
-			transaction.GET(":trasaction_id/verification", h.getVerification)   // получение данных для qa
-			transaction.GET("/", h.list)                                        // list проблемных проверок
+			transaction.POST("/check", h.check)                                  // выдача/сдача инструментов
+			transaction.POST("/:trasaction_id/verification", h.postVerification) // отправка qa результата
+			transaction.GET("/:trasaction_id/verification", h.getVerification)   // получение данных для qa
+			transaction.GET("/", h.list)                                         // list проблемных проверок
 		}
 
 		user := v1.Group("/user")
