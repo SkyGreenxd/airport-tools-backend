@@ -169,7 +169,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 	uplImageReq := NewUploadImageReq(req.Data, SourceImages)
 
 	var uploadImage *UploadImageRes
-	err = s.logger.Track("usecase.Checkin", func() error {
+	err = s.logger.Track("usecase.Checkin.imageStorage.UploadImage", func() error {
 		uploadImage, err = s.imageStorage.UploadImage(ctx, uplImageReq)
 		return err
 	})
@@ -179,7 +179,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 
 	var scanResult *ScanResult
 	scanReq := NewScanReq(uploadImage.Key, uploadImage.ImageUrl, s.ConfidenceCompare)
-	err = s.logger.Track("usecase.Checkin", func() error {
+	err = s.logger.Track("usecase.Checkin.mlGateway.ScanTools", func() error {
 		scanResult, err = s.mlGateway.ScanTools(ctx, scanReq)
 		return err
 	})
