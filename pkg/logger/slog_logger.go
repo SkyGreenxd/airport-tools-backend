@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"log"
 	"log/slog"
 	"os"
 	"time"
@@ -11,8 +12,11 @@ type SlogLogger struct {
 }
 
 func NewSlogLogger() *SlogLogger {
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	})
 	return &SlogLogger{
-		logger: slog.New(slog.NewJSONHandler(os.Stdout, nil)),
+		logger: slog.New(handler),
 	}
 }
 
@@ -40,6 +44,8 @@ func (l *SlogLogger) Track(operationName string, operation func() error) error {
 
 	// Выполняем переданную операцию и получаем ошибку, если она есть
 	err := operation()
+
+	log.Println("Зашла функ")
 
 	// Логируем результат в любом случае
 	l.Debug(
