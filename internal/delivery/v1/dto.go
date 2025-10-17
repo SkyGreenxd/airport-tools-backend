@@ -17,9 +17,8 @@ func toDeliveryGetRolesRes(roles *usecase.GetRolesRes) GetRolesRes {
 }
 
 type VerificationReq struct {
-	TransactionID int64  `json:"transaction_id" binding:"required"`
-	QAEmployeeId  string `json:"qa_employee_id" binding:"required"`
-	Notes         string `json:"notes"`
+	QAEmployeeId string `json:"qa_employee_id" binding:"required"`
+	Notes        string `json:"notes"`
 }
 
 type VerificationRes struct {
@@ -28,6 +27,38 @@ type VerificationRes struct {
 	VerifiedBy    string    `json:"verified_by"`    // Табельный номер или имя QA
 	VerifiedAt    time.Time `json:"verified_at"`    // Время завершения проверки
 	Message       string    `json:"message"`        // Краткое текстовое подтверждение
+}
+
+type GetQAVerificationRes struct {
+	TransactionId    int64             `json:"transaction_id"`
+	ToolSetId        int64             `json:"tool_set_id"`
+	CreatedAt        time.Time         `json:"created_at"`
+	User             UserDto           `json:"user"`
+	ProblematicTools *ProblematicTools `json:"problematic_tools"`
+}
+
+type ProblematicTools struct {
+	ManualCheckTools []*RecognizedToolDTO `json:"manual_check_tools"`
+	UnknownTools     []*RecognizedToolDTO `json:"unknown_tools"`
+	MissingTools     []*ToolTypeDTO       `json:"missing_tools"`
+}
+
+func toDeliveryGetQAVerificationRes(res *usecase.GetQAVerificationRes) *GetQAVerificationRes {
+	return &GetQAVerificationRes{
+		TransactionId:    res.TransactionId,
+		ToolSetId:        res.ToolSetId,
+		CreatedAt:        res.CreatedAt,
+		User:             toDeliveryUserDto(res.User),
+		ProblematicTools: toDeliveryProblematicTools(res.ProblematicTools),
+	}
+}
+
+func toDeliveryProblematicTools(tools *usecase.ProblematicTools) *ProblematicTools {
+	return &ProblematicTools{
+		ManualCheckTools: toArrDeliveryRecognizedToolDTO(tools.ManualCheckTools),
+		UnknownTools:     toArrDeliveryRecognizedToolDTO(tools.UnknownTools),
+		MissingTools:     toArrDeliveryToolTypeDTO(tools.MissingTools),
+	}
 }
 
 type ListTransactionsRes struct {

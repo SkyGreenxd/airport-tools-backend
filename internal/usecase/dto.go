@@ -10,6 +10,52 @@ type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
 }
 
+type GetQAVerificationRes struct {
+	TransactionId    int64
+	ToolSetId        int64
+	CreatedAt        time.Time
+	User             UserDto
+	ProblematicTools *ProblematicTools
+}
+
+type ProblematicTools struct {
+	ManualCheckTools []*domain.RecognizedTool
+	UnknownTools     []*domain.RecognizedTool
+	MissingTools     []*ToolTypeDTO
+}
+
+func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, problematicTools *ProblematicTools) *GetQAVerificationRes {
+	return &GetQAVerificationRes{
+		TransactionId:    id,
+		ToolSetId:        toolSetId,
+		CreatedAt:        createdAt,
+		User:             user,
+		ProblematicTools: problematicTools,
+	}
+}
+
+func NewProblematicTools(manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *ProblematicTools {
+	return &ProblematicTools{
+		ManualCheckTools: manualCheckTools,
+		UnknownTools:     unknownTools,
+		MissingTools:     missingTools,
+	}
+}
+
+type Verification struct {
+	TransactionID int64
+	QAEmployeeId  string
+	Notes         string
+}
+
+type VerificationRes struct {
+	TransactionID string
+	Status        string
+	VerifiedBy    string
+	VerifiedAt    time.Time
+	Message       string
+}
+
 type RegisterReq struct {
 	EmployeeId string
 	FullName   string
@@ -59,6 +105,7 @@ type CheckReq struct {
 }
 
 // CheckRes содержит результат проверки инструментов после сканирования.
+// TODO: можно юзать ProblematicTools
 type CheckRes struct {
 	ImageUrl         string
 	DebugImageUrl    string
@@ -249,5 +296,20 @@ func toUserDTO(user domain.User) UserDto {
 func NewRegisterRes(id int64) *RegisterRes {
 	return &RegisterRes{
 		Id: id,
+	}
+}
+
+func NewVerification(transactionID int64, qaEmployeeId string, notes string) *Verification {
+	return &Verification{
+		TransactionID: transactionID,
+		QAEmployeeId:  qaEmployeeId,
+		Notes:         notes,
+	}
+}
+
+func NewUserDto(fullname, employeeId string) UserDto {
+	return UserDto{
+		FullName:   fullname,
+		EmployeeId: employeeId,
 	}
 }
