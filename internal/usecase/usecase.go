@@ -4,6 +4,7 @@ import (
 	"airport-tools-backend/internal/domain"
 	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/pkg/e"
+	"airport-tools-backend/pkg/logger"
 	"context"
 	"log"
 )
@@ -28,12 +29,14 @@ type Service struct {
 	ConfidenceCompare float32
 	CosineSimCompare  float32
 	trResolution      repository.TransactionResolutionsRepository
+	logger            logger.Logger
 }
 
 func NewService(
 	u repository.UserRepository, c repository.CvScanRepository, cd repository.CvScanDetailRepository,
 	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, s3 ImageStorage,
 	ts repository.ToolSetRepository, condfidence, cosineSim float32, tr repository.TransactionResolutionsRepository,
+	logger logger.Logger,
 ) *Service {
 	return &Service{
 		userRepo:          u,
@@ -47,11 +50,14 @@ func NewService(
 		ConfidenceCompare: condfidence,
 		CosineSimCompare:  cosineSim,
 		trResolution:      tr,
+		logger:            logger,
 	}
 }
 
 func (s *Service) Check(ctx context.Context, req *CheckReq) (*CheckRes, error) {
 	const op = "usecase.Check"
+	var res *CheckRes
+
 	user, err := s.userRepo.GetByEmployeeIdWithTransactions(ctx, req.EmployeeId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -64,7 +70,11 @@ func (s *Service) Check(ctx context.Context, req *CheckReq) (*CheckRes, error) {
 			return nil, e.Wrap(op, err)
 		}
 
-		res, err := s.Checkin(ctx, transactionProcess)
+		err := s.logger.Track("usecase.Checkin", func() error {
+			res, err = s.Checkin(ctx, transactionProcess)
+			return err
+		})
+
 		if err != nil {
 			return nil, e.Wrap(op, err)
 		}
@@ -72,7 +82,10 @@ func (s *Service) Check(ctx context.Context, req *CheckReq) (*CheckRes, error) {
 		return res, nil
 	}
 
-	res, err := s.Checkout(ctx, transactionProcess)
+	err = s.logger.Track("usecase.Checkout", func() error {
+		res, err = s.Checkout(ctx, transactionProcess)
+		return err
+	})
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
