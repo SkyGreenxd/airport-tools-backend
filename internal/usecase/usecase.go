@@ -201,7 +201,7 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 			if len(recognized.Embedding) == 0 {
 				recognized.Embedding = make([]float32, 1280)
 			}
-			scanDetail := domain.NewCvScanDetail(scan.Id, recognized.ToolTypeId, recognized.Confidence, recognized.Embedding)
+			scanDetail := domain.NewCvScanDetail(scan.Id, recognized.ToolTypeId, recognized.Confidence, recognized.Embedding, recognized.Bbox)
 			_, err := s.cvScanDetailRepo.Create(ctx, scanDetail)
 			if err != nil {
 				return e.Wrap(op, err)
@@ -275,7 +275,38 @@ func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes,
 	return NewRegisterRes(user.Id), nil
 }
 
-//func (s *Service) Verification(ctx context.Context, req *Verification) (VerificationRes, error) {
-//	const op = "usecase.Verification"
-//
-//}
+func (s *Service) Verification(ctx context.Context, req *Verification) (*VerificationRes, error) {
+	const op = "usecase.postVerification"
+
+}
+
+func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*GetQAVerificationRes, error) {
+	const op = "usecase.GetQATransaction"
+
+	scan, err := s.cvScanRepo.GetByTransactionIdWithDetectedToolsAndTransaction(ctx, transactionId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	toolSet, err := s.toolSetRepo.GetByIdWithTools(ctx, scan.TransactionObj.ToolSetId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	detectedTools := make([]*domain.RecognizedTool, len(scan.DetectedTools))
+	for i, tool := range scan.DetectedTools {
+		detectedTools[i] = domain.NewRecognizedTool(tool.DetectedToolTypeId, tool.Confidence, tool.Embedding, tool.Bbox)
+	}
+
+	filterReq := NewFilterReq(s.ConfidenceCompare, s.CosineSimCompare, detectedTools, toolSet.Tools)
+	filterRes, err := filterRecognizedTools(filterReq)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	problematicTools := NewProblematicTools(filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools)
+	userDto := NewUserDto(scan.TransactionObj.User.FullName, scan.TransactionObj.User.EmployeeId)
+	res := NewGetQAVerificationRes(scan.TransactionId, toolSet.Id, scan.TransactionObj.CreatedAt, userDto, problematicTools)
+
+	return res, nil
+}

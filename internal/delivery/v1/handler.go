@@ -4,6 +4,7 @@ import (
 	"airport-tools-backend/internal/usecase"
 	"airport-tools-backend/pkg/e"
 	"net/http"
+	"strconv"
 
 	_ "airport-tools-backend/docs"
 
@@ -29,9 +30,10 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 		transaction := v1.Group("/transaction")
 		{
-			transaction.POST("/check", h.check)                             // выдача/сдача инструментов
-			transaction.POST(":trasaction_id/verification", h.verification) // проверка qa
-			transaction.GET("/", h.list)                                    // list проблемных проверок
+			transaction.POST("/check", h.check)                                 // выдача/сдача инструментов
+			transaction.POST(":trasaction_id/verification", h.postVerification) // отправка qa результата
+			transaction.GET(":trasaction_id/verification", h.getVerification)   // получение данных для qa
+			transaction.GET("/", h.list)                                        // list проблемных проверок
 		}
 
 		user := v1.Group("/user")
@@ -73,7 +75,7 @@ func (h *Handler) check(c *gin.Context) {
 	c.JSON(http.StatusOK, ToDeliveryCheckRes(res))
 }
 
-// verification
+// postVerification
 //
 //	@Summary		QA-проверка и завершение транзакции
 //	@Description	После авторизации сотрудника QA отображается список всех незавершённых транзакций.<br> При выборе конкретной транзакции открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;1) AccessTools — инструменты, прошедшие автоматическую проверку<br> &nbsp;&nbsp;2) ManualCheckTools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;3) UnknownTools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;4) MissingTools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
@@ -88,8 +90,45 @@ func (h *Handler) check(c *gin.Context) {
 //	@Failure		404				{object}	HTTPError
 //	@Failure		500				{object}	HTTPError
 //	@Router			/api/v1/transaction/{transaction_id}/verification [post]
-func (h *Handler) verification(c *gin.Context) {
+func (h *Handler) postVerification(c *gin.Context) {
+	strTransactionId := c.Param("transaction_id")
+	transactionId, err := strconv.Atoi(strTransactionId)
+	if err != nil {
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		return
+	}
 
+	var req VerificationReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		return
+	}
+
+	//res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.QAEmployeeId))
+	//if err != nil {
+	//	ErrorToHttpRes(err, c)
+	//	return
+	//}
+	//
+	//c.JSON(http.StatusOK, ...)
+}
+
+// получение инфы по конкретной транзакции
+func (h *Handler) getVerification(c *gin.Context) {
+	strTransactionId := c.Param("transaction_id")
+	transactionId, err := strconv.Atoi(strTransactionId)
+	if err != nil {
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		return
+	}
+
+	res, err := h.service.GetQATransaction(c.Request.Context(), int64(transactionId))
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, toDeliveryGetQAVerificationRes(res))
 }
 
 // list
@@ -157,7 +196,7 @@ func (h *Handler) login(c *gin.Context) {
 //	@Param			request	body		RegisterReq	true	"Данные для регистрации"
 //	@Success		201		{object}	RegisterRes
 //	@Failure		400		{object}	HTTPError
-//	@Failure		409		{object}	HTTPError // если пользователь уже существует
+//	@Failure		409		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
 //	@Router			/api/v1/user/register [post]
 func (h *Handler) register(c *gin.Context) {
@@ -173,7 +212,7 @@ func (h *Handler) register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, toDeliveryRegisterRes(res))
+	c.JSON(http.StatusCreated, toDeliveryRegisterRes(res))
 }
 
 // getRoles
@@ -195,19 +234,3 @@ func (h *Handler) getRoles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
 }
-
-//func (h *Handler) checkout(c *gin.Context) {
-//	var req CheckReq
-//	if err := c.ShouldBindJSON(&req); err != nil {
-//		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-//		return
-//	}
-//
-//	res, err := h.service.Checkout(c.Request.Context(), ToUseCaseCheckReq(&req))
-//	if err != nil {
-//		ErrorToHttpRes(err, c)
-//		return
-//	}
-//
-//	c.JSON(http.StatusOK, ToDeliveryCheckRes(res))
-//}
