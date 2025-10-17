@@ -71,7 +71,7 @@ type CvScanDetailModel struct {
 	DetectedToolTypeId int64
 	Confidence         float32
 	Embedding          pgvector.Vector `gorm:"type:vector(1280)"`
-	Bbox               pq.Float32Array
+	Bbox               pq.Float64Array `gorm:"type:double precision[]"`
 }
 
 type TransactionResolutionModel struct {
