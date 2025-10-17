@@ -28,5 +28,6 @@ INSERT INTO tool_set_items (tool_set_id, tool_type_id) VALUES
 
 INSERT INTO users (employee_id, full_name, role) VALUES
     ('AT-12321', 'Денис Владимирович Петрушин', 'Engineer'),
-    ('AT-12345', 'Владимир Сергеевич Пупкин', 'Engineer');
+    ('AT-12345', 'Владимир Сергеевич Пупкин', 'Engineer'),
+    ('AT-999999', 'Никита Артемович Хахашкин', 'Quality Auditor');
 
