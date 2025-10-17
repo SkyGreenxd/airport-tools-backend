@@ -31,6 +31,7 @@ var (
 
 	ErrMLServiceNonOK  = errors.New("ML service returned non-OK HTTP status")
 	ErrMLServiceDecode = errors.New("failed to decode ML service response")
+	ErrIncorrectImage  = errors.New("incorrect image sent")
 
 	ErrInvalidRequestBody = errors.New("invalid request body")
 

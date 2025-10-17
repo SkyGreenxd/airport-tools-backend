@@ -25,25 +25,25 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	switch {
 	case errors.Is(err, e.ErrUserNotFound):
 		res.Code = http.StatusNotFound
-		res.Message = "user not found"
+		res.Message = "Пользователь не найден"
 	case errors.Is(err, e.ErrToolSetNotFound):
 		res.Code = http.StatusNotFound
-		res.Message = "assigned tool set not found"
+		res.Message = "Назначенный набор инструментов не найден"
 	case errors.Is(err, e.ErrTransactionNotFound):
 		res.Code = http.StatusNotFound
-		res.Message = "transaction not found"
+		res.Message = "Транзакция не найдена"
 	case errors.Is(err, e.ErrTransactionUnfinished):
 		res.Code = http.StatusBadRequest
-		res.Message = "return previous tool set before taking a new one"
+		res.Message = "Верните предыдущий набор инструментов, прежде чем брать новый"
 	case errors.Is(err, e.ErrInvalidRequestBody):
 		res.Code = http.StatusBadRequest
-		res.Message = "invalid request body"
+		res.Message = "Неверное тело запроса"
 	case errors.Is(err, e.ErrTransactionAllFinished):
 		res.Code = http.StatusBadRequest
-		res.Message = "no active tool set to return"
+		res.Message = "Вы не получали инструменты, чтобы их возвращать"
 	case errors.Is(err, e.ErrTransactionLimit):
 		res.Code = http.StatusConflict
-		res.Message = "3 неудачные попытки сканирования. Данные отправлены на проверку QA"
+		res.Message = "Превышено 3 попытки сканирования. Данные переданы на проверку QA"
 	case errors.Is(err, e.ErrTransactionCheckQA):
 		res.Code = http.StatusConflict
 		res.Message = "Вы не можете получить новые инструменты, пока вас проверяет QA"
@@ -56,6 +56,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrUserRoleNotFound):
 		res.Code = http.StatusNotFound
 		res.Message = "Такой роли не существует"
+	case errors.Is(err, e.ErrIncorrectImage):
+		res.Code = http.StatusBadRequest
+		res.Message = "Изображение повреждено или не поддерживается"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "internal server error"

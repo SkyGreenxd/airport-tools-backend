@@ -29,7 +29,7 @@ func (i *ImageStorage) UploadImage(ctx context.Context, req *usecase.UploadImage
 
 	imgBytes, err := base64.StdEncoding.DecodeString(req.Data)
 	if err != nil {
-		return nil, e.Wrap(op, err)
+		return nil, e.Wrap(op, e.ErrIncorrectImage)
 	}
 
 	sizeImage := int64(len(imgBytes))

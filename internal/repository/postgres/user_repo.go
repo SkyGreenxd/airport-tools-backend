@@ -94,7 +94,6 @@ func (u *UserRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-// TODO: проверить
 func (u *UserRepository) Update(ctx context.Context, user *domain.User) (*domain.User, error) {
 	const op = "UserRepository.Update"
 
