@@ -36,24 +36,16 @@ definitions:
         type: string
       image_url:
         type: string
-      manual_check_tools:
-        items:
-          $ref: '#/definitions/v1.RecognizedToolDTO'
-        type: array
-      missing_tools:
-        items:
-          $ref: '#/definitions/v1.ToolTypeDTO'
-        type: array
+      problematic_tools:
+        $ref: '#/definitions/v1.ProblematicTools'
       transaction_type:
         type: string
-      unknown_tools:
-        items:
-          $ref: '#/definitions/v1.RecognizedToolDTO'
-        type: array
     type: object
   v1.GetQAVerificationRes:
     properties:
       created_at:
+        type: string
+      image_url:
         type: string
       problematic_tools:
         $ref: '#/definitions/v1.ProblematicTools'

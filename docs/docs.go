@@ -417,26 +417,11 @@ const docTemplate = `{
                 "image_url": {
                     "type": "string"
                 },
-                "manual_check_tools": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.RecognizedToolDTO"
-                    }
-                },
-                "missing_tools": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.ToolTypeDTO"
-                    }
+                "problematic_tools": {
+                    "$ref": "#/definitions/v1.ProblematicTools"
                 },
                 "transaction_type": {
                     "type": "string"
-                },
-                "unknown_tools": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.RecognizedToolDTO"
-                    }
                 }
             }
         },
@@ -444,6 +429,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
+                    "type": "string"
+                },
+                "image_url": {
                     "type": "string"
                 },
                 "problematic_tools": {
