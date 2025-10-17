@@ -134,8 +134,16 @@ func (s *Service) Checkout(ctx context.Context, req *TransactionProcess) (res *C
 		return nil, e.Wrap(op, err)
 	}
 
+	hasLowConfidence := false
+	for _, tool := range filterRes.ManualCheckTools {
+		if tool.Confidence <= 50 {
+			hasLowConfidence = true
+			break
+		}
+	}
+
 	var status domain.Status
-	if (len(filterRes.MissingTools) > 0 || len(filterRes.UnknownTools) > 0) || ((len(filterRes.AccessTools)) != len(referenceSet.Tools)) { //+ len(filterRes.ManualCheckTools)
+	if len(filterRes.MissingTools) > 0 || len(filterRes.UnknownTools) > 0 || ((len(filterRes.AccessTools) + len(filterRes.ManualCheckTools)) != len(referenceSet.Tools)) || hasLowConfidence {
 		status = domain.FAILED
 	} else {
 		status = domain.OPEN
