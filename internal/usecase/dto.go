@@ -16,6 +16,7 @@ type GetQAVerificationRes struct {
 	CreatedAt        time.Time
 	User             UserDto
 	ProblematicTools *ProblematicTools
+	ImageUrl         string
 }
 
 type ProblematicTools struct {
@@ -24,13 +25,14 @@ type ProblematicTools struct {
 	MissingTools     []*ToolTypeDTO
 }
 
-func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, problematicTools *ProblematicTools) *GetQAVerificationRes {
+func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, problematicTools *ProblematicTools, imageurl string) *GetQAVerificationRes {
 	return &GetQAVerificationRes{
 		TransactionId:    id,
 		ToolSetId:        toolSetId,
 		CreatedAt:        createdAt,
 		User:             user,
 		ProblematicTools: problematicTools,
+		ImageUrl:         imageurl,
 	}
 }
 
@@ -118,9 +120,7 @@ type CheckRes struct {
 	ImageUrl         string
 	DebugImageUrl    string
 	AccessTools      []*domain.RecognizedTool
-	ManualCheckTools []*domain.RecognizedTool
-	UnknownTools     []*domain.RecognizedTool
-	MissingTools     []*ToolTypeDTO
+	ProblematicTools *ProblematicTools
 	TransactionType  string
 }
 
@@ -194,10 +194,7 @@ func NewCheckinRes(imageUrl, debugImageUrl string, accessTools, manualCheckTools
 	return &CheckRes{
 		ImageUrl:         imageUrl,
 		DebugImageUrl:    debugImageUrl,
-		AccessTools:      accessTools,
-		ManualCheckTools: manualCheckTools,
-		UnknownTools:     unknownTools,
-		MissingTools:     missingTools,
+		ProblematicTools: NewProblematicTools(manualCheckTools, unknownTools, missingTools),
 		TransactionType:  transactionType,
 	}
 }
