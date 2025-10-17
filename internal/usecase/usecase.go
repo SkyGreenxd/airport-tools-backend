@@ -275,9 +275,11 @@ func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes,
 	return NewRegisterRes(user.Id), nil
 }
 
+// TODO: допилить
 func (s *Service) Verification(ctx context.Context, req *Verification) (*VerificationRes, error) {
 	const op = "usecase.postVerification"
 
+	return nil, nil
 }
 
 func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*GetQAVerificationRes, error) {
