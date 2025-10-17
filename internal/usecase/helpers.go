@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"airport-tools-backend/internal/domain"
-	"log"
 	"math"
 )
 
@@ -40,8 +39,6 @@ func filterRecognizedTools(req *FilterReq) (*FilterRes, error) {
 			unknownTools = append(unknownTools, recognized)
 			continue
 		}
-
-		log.Println("----DEBUG: ", len(recognized.Embedding), recognized.Confidence, recognized.ToolTypeId, "----")
 
 		cosSim := cosineSimilarity(ref.ReferenceEmbedding, recognized.Embedding)
 		if recognized.Confidence < req.ConfidenceCompare || cosSim < req.CosineSimCompare {
