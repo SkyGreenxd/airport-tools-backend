@@ -94,6 +94,22 @@ func (u *UserRepository) GetAll(ctx context.Context) ([]*domain.User, error) {
 	return toArrDomainUser(models), nil
 }
 
+func (u *UserRepository) GetAllQa(ctx context.Context) ([]*domain.User, error) {
+	const op = "UserRepository.GetAllQa"
+
+	var models []*UserModel
+	result := u.DB.WithContext(ctx).Where("role = ?", domain.QualityAuditor).Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, e.ErrUserNotFound
+	}
+
+	return toArrDomainUser(models), nil
+}
+
 func (u *UserRepository) Delete(ctx context.Context, id int64) error {
 	const op = "UserRepository.Delete"
 
