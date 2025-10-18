@@ -47,7 +47,7 @@ type TransactionModel struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 
-	User    *UserModel     `gorm:"foreignkey:UserId"`
+	User    *UserModel     `gorm:"foreignKey:UserId;references:Id"`
 	CvScans []*CvScanModel `gorm:"foreignkey:TransactionId"`
 }
 
