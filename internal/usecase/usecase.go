@@ -416,5 +416,71 @@ func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq
 	return result, nil
 }
 
-// Инженеры, чьи транзакции чаще всего попадали на QA, с разбивкой по причинам (ошибка ML / человеческая ошибка)
-//func userStatistics()
+// Инженеры, чьи транзакции чаще всего попадали на QA по причине HUMAN_ERR
+func (s *Service) GetUsersQAStats(ctx context.Context) ([]HumanErrorStats, error) {
+	const op = "usecase.GetUsersQAStats"
+
+	users, err := s.trResolution.GetTopHumanErrorUsers(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	var result []HumanErrorStats
+	for _, user := range users {
+		result = append(result, NewHumanErrorStats(user.FullName, user.EmployeeId, user.QAHitsCount))
+	}
+
+	return result, nil
+}
+
+// Какие проверки делал сотрудник QA
+func (s *Service) GetQAChecks(ctx context.Context, qaId string) (*QaTransactionsRes, error) {
+	const op = "usecase.GetQAChecks"
+
+	qa, err := s.userRepo.GetByEmployeeId(ctx, qaId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	result, err := s.trResolution.GetByQAId(ctx, qa.Id)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	res := NewQaTransactionsRes(NewUserDto(qa.FullName, qa.EmployeeId), ToListTransactionResolutionDTO(result))
+	return res, nil
+}
+
+// Model vs Human errors
+func (s *Service) GetMlVsHuman(ctx context.Context) (*ModelOrHumanStatsRes, error) {
+	const op = "usecase.GetMlVsHuman"
+
+	humansErrors, err := s.trResolution.GetAllHumanError(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	modelErrors, err := s.trResolution.GetAllModelError(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return NewModelOrHumanStatsRes(len(modelErrors), len(humansErrors)), nil
+}
+
+// Все QA проверяющие
+func (s *Service) GetAllQaEmployers(ctx context.Context) ([]UserDto, error) {
+	const op = "usecase.GetAllQaEmployers"
+
+	qaEmployers, err := s.userRepo.GetAllQa(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	var result []UserDto
+	for _, qa := range qaEmployers {
+		result = append(result, NewUserDto(qa.FullName, qa.EmployeeId))
+	}
+
+	return result, nil
+}
