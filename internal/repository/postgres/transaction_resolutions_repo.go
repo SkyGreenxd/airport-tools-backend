@@ -60,7 +60,7 @@ func (t *TransactionResolutionsRepo) GetByQAId(ctx context.Context, qaId int64) 
 	const op = "TransactionResolutionsRepo.GetByQAId"
 
 	var models []*TransactionResolutionModel
-	result := t.DB.WithContext(ctx).Preload("Transaction").Find(&models, "qa_employee_id = ?", qaId)
+	result := t.DB.WithContext(ctx).Preload("Transaction.User").Find(&models, "qa_employee_id = ?", qaId)
 	if err := checkGetQueryResult(result, e.ErrTransactionResolutionsNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
