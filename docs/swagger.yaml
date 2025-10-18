@@ -302,29 +302,36 @@ paths:
     get:
       consumes:
       - application/json
-      description: Возвращает статистику по инженерам, транзакциям и ошибкам. В зависимости
-        от параметра type меняется формат ответа.
+      description: |-
+        Взвращает гибкую статистику по качеству проверок и ошибкам QA-системы.
+        Поддерживает несколько режимов работы, задаваемых параметром `type`:
+        **Типы статистики (`type`):**
+        - `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.
+        - `users&employee_id=...` - Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.
+        - `qa` — список всех QA-сотрудников, выполняющих проверки.
+        - `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.
+        - `errors` — сводная статистика ошибок **Model vs Human**.
+        - `transactions` - Выводит статистику по транзакциям(Кол-во всех транзакций, а так же кол-во открытых, закрытых, QA и неудачных.
       parameters:
-      - description: 'Тип статистики: users — топ-инженеров по HUMAN_ERR, qa — проверки
-          конкретного QA, errors — ошибки Model vs Human'
+      - description: Тип статистики
         in: query
         name: type
         required: true
         type: string
-      - description: Табельный номер пользователя (для type=users или type=qa)
+      - description: Табельный номер пользователя (для type=qa и для type=users)
         in: query
         name: employee_id
         type: string
-      - description: Дата начала периода в формате DD-MM-YYYY (для type=users)
+      - description: Начало периода (формат DD-MM-YYYY, используется с type=users)
         in: query
         name: start_date
         type: string
-      - description: Дата конца периода в формате DD-MM-YYYY (для type=users)
+      - description: Конец периода (формат DD-MM-YYYY, используется с type=users)
         in: query
         name: end_date
         type: string
-      - description: Количество результатов (топ-N), если не указано — берутся все
-          (для type=users)
+      - description: Максимальное количество записей в ответе (топ-N). По умолчанию
+          — без ограничений (для type=users)
         in: query
         name: limit
         type: integer
@@ -332,22 +339,18 @@ paths:
       - application/json
       responses:
         "200":
-          description: Статистика, формат зависит от type
+          description: 'Успешный ответ: структура зависит от значения параметра type'
           schema:
             $ref: '#/definitions/v1.StatisticsRes'
         "400":
-          description: Некорректный запрос
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-        "404":
-          description: Данные не найдены
+          description: Неверное тело запроса
           schema:
             $ref: '#/definitions/v1.HTTPError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/v1.HTTPError'
-      summary: Получить статистику QA
+      summary: Получить детализированную статистику QA
       tags:
       - statistics
   /api/v1/qa/transactions/:

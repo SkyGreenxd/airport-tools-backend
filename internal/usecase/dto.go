@@ -10,6 +10,24 @@ type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
 }
 
+type GetTransactionStatisticsRes struct {
+	Transactions       int
+	OpenedTransactions int
+	ClosedTransactions int
+	QATransactions     int
+	FailedTransactions int
+}
+
+func NewGetTransactionStatisticsRes(transactions, opened, closed, qa, failed int) *GetTransactionStatisticsRes {
+	return &GetTransactionStatisticsRes{
+		Transactions:       transactions,
+		OpenedTransactions: opened,
+		ClosedTransactions: closed,
+		QATransactions:     qa,
+		FailedTransactions: failed,
+	}
+}
+
 type HumanErrorStats struct {
 	FullName    string
 	EmployeeId  string

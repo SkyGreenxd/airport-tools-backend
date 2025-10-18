@@ -122,7 +122,7 @@ const docTemplate = `{
         },
         "/api/v1/qa/statistics": {
             "get": {
-                "description": "Возвращает статистику по инженерам, транзакциям и ошибкам. В зависимости от параметра type меняется формат ответа.",
+                "description": "Взвращает гибкую статистику по качеству проверок и ошибкам QA-системы.\nПоддерживает несколько режимов работы, задаваемых параметром ` + "`" + `type` + "`" + `:\n**Типы статистики (` + "`" + `type` + "`" + `):**\n- ` + "`" + `users` + "`" + ` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине ` + "`" + `HUMAN_ERR` + "`" + `.\n- ` + "`" + `users\u0026employee_id=...` + "`" + ` - Список транзакций конкретного пользователя. Используйте ` + "`" + `start_date` + "`" + `, ` + "`" + `end_date` + "`" + ` и ` + "`" + `limit` + "`" + `, чтобы уточнить выборку.\n- ` + "`" + `qa` + "`" + ` — список всех QA-сотрудников, выполняющих проверки.\n- ` + "`" + `qa\u0026employee_id=...` + "`" + ` — статистика проверок, проведённых конкретным QA-инженером.\n- ` + "`" + `errors` + "`" + ` — сводная статистика ошибок **Model vs Human**.\n- ` + "`" + `transactions` + "`" + ` - Выводит статистику по транзакциям(Кол-во всех транзакций, а так же кол-во открытых, закрытых, QA и неудачных.",
                 "consumes": [
                     "application/json"
                 ],
@@ -132,55 +132,49 @@ const docTemplate = `{
                 "tags": [
                     "statistics"
                 ],
-                "summary": "Получить статистику QA",
+                "summary": "Получить детализированную статистику QA",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Тип статистики: users — топ-инженеров по HUMAN_ERR, qa — проверки конкретного QA, errors — ошибки Model vs Human",
+                        "description": "Тип статистики",
                         "name": "type",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Табельный номер пользователя (для type=users или type=qa)",
+                        "description": "Табельный номер пользователя (для type=qa и для type=users)",
                         "name": "employee_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Дата начала периода в формате DD-MM-YYYY (для type=users)",
+                        "description": "Начало периода (формат DD-MM-YYYY, используется с type=users)",
                         "name": "start_date",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Дата конца периода в формате DD-MM-YYYY (для type=users)",
+                        "description": "Конец периода (формат DD-MM-YYYY, используется с type=users)",
                         "name": "end_date",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Количество результатов (топ-N), если не указано — берутся все (для type=users)",
+                        "description": "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users)",
                         "name": "limit",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Статистика, формат зависит от type",
+                        "description": "Успешный ответ: структура зависит от значения параметра type",
                         "schema": {
                             "$ref": "#/definitions/v1.StatisticsRes"
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Данные не найдены",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }

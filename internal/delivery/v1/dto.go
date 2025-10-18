@@ -7,9 +7,27 @@ import (
 )
 
 type HumanErrorStats struct {
-	FullName    string
-	EmployeeId  string
-	QAHitsCount int64
+	FullName    string `json:"full_name"`
+	EmployeeId  string `json:"employee_id"`
+	QAHitsCount int64  `json:"qa_hits_count"`
+}
+
+type GetTransactionStatisticsRes struct {
+	Transactions       int `json:"transactions"`
+	OpenedTransactions int `json:"opened_transactions"`
+	ClosedTransactions int `json:"closed_transactions"`
+	QATransactions     int `json:"qa_transactions"`
+	FailedTransactions int `json:"failed_transactions"`
+}
+
+func toDeliveryGetTransactionStatisticsRes(res usecase.GetTransactionStatisticsRes) GetTransactionStatisticsRes {
+	return GetTransactionStatisticsRes{
+		Transactions:       res.Transactions,
+		OpenedTransactions: res.OpenedTransactions,
+		ClosedTransactions: res.ClosedTransactions,
+		QATransactions:     res.QATransactions,
+		FailedTransactions: res.FailedTransactions,
+	}
 }
 
 func toDeliveryHumanErrorStats(res usecase.HumanErrorStats) HumanErrorStats {

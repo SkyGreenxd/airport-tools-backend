@@ -141,6 +141,18 @@ func (t *TransactionRepository) GetAllWhereStatusIsQAWithUser(ctx context.Contex
 	return toDomainArrTransactions(models), nil
 }
 
+func (t *TransactionRepository) GetAllWithStatus(ctx context.Context, status domain.Status) ([]*domain.Transaction, error) {
+	const op = "TransactionRepository.getAllWithStatus"
+
+	var models []*TransactionModel
+	result := t.DB.WithContext(ctx).Where("status = ?", status).Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainArrTransactions(models), nil
+}
+
 func (t *TransactionRepository) GetAllByUserId(ctx context.Context, userId int64, startDate, endDate *time.Time, limit *int) ([]*domain.Transaction, error) {
 	const op = "TransactionRepository.GetAllByUserId"
 

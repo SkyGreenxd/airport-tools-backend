@@ -484,3 +484,34 @@ func (s *Service) GetAllQaEmployers(ctx context.Context) ([]UserDto, error) {
 
 	return result, nil
 }
+
+func (s *Service) GetTransactionStatistics(ctx context.Context) (*GetTransactionStatisticsRes, error) {
+	const op = "usecase.GetTransactionStatistics"
+
+	transactions, err := s.transactionRepo.GetAll(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	opened, err := s.transactionRepo.GetAllWithStatus(ctx, domain.OPEN)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	closed, err := s.transactionRepo.GetAllWithStatus(ctx, domain.CLOSED)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	qa, err := s.transactionRepo.GetAllWithStatus(ctx, domain.QA)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	failed, err := s.transactionRepo.GetAllWithStatus(ctx, domain.FAILED)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return NewGetTransactionStatisticsRes(len(transactions), len(opened), len(closed), len(qa), len(failed)), nil
+}

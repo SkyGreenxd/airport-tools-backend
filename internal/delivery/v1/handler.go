@@ -264,20 +264,32 @@ func (h *Handler) getRoles(c *gin.Context) {
 
 // getStatistics
 //
-// @Summary      Получить статистику QA
-// @Description  Возвращает статистику по инженерам, транзакциям и ошибкам. В зависимости от параметра type меняется формат ответа.
+// @Summary      Получить детализированную статистику QA
+// @Description  Взвращает гибкую статистику по качеству проверок и ошибкам QA-системы.
+// @Description  Поддерживает несколько режимов работы, задаваемых параметром `type`:
+//
+// @Description  **Типы статистики (`type`):**
+// @Description  - `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.
+// @Description  - `users&employee_id=...` - Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.
+// @Description  - `qa` — список всех QA-сотрудников, выполняющих проверки.
+// @Description  - `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.
+// @Description  - `errors` — сводная статистика ошибок **Model vs Human**.
+// @Description  - `transactions` - Выводит статистику по транзакциям(Кол-во всех транзакций, а так же кол-во открытых, закрытых, QA и неудачных.
+//
 // @Tags         statistics
 // @Accept       json
 // @Produce      json
-// @Param        type         query     string  true   "Тип статистики: users — топ-инженеров по HUMAN_ERR, qa — проверки конкретного QA, errors — ошибки Model vs Human"
-// @Param        employee_id  query     string  false  "Табельный номер пользователя (для type=users или type=qa)"
-// @Param        start_date   query     string  false  "Дата начала периода в формате DD-MM-YYYY (для type=users)"
-// @Param        end_date     query     string  false  "Дата конца периода в формате DD-MM-YYYY (для type=users)"
-// @Param        limit        query     int     false  "Количество результатов (топ-N), если не указано — берутся все (для type=users)"
-// @Success      200 {object} StatisticsRes "Статистика, формат зависит от type"
-// @Failure      400 {object} HTTPError "Некорректный запрос"
-// @Failure      404 {object} HTTPError "Данные не найдены"
+//
+// @Param        type         query     string  true   "Тип статистики"
+// @Param        employee_id  query     string  false  "Табельный номер пользователя (для type=qa и для type=users)"
+// @Param        start_date   query     string  false  "Начало периода (формат DD-MM-YYYY, используется с type=users)"
+// @Param        end_date     query     string  false  "Конец периода (формат DD-MM-YYYY, используется с type=users)"
+// @Param        limit        query     int     false  "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users)"
+//
+// @Success      200 {object} StatisticsRes "Успешный ответ: структура зависит от значения параметра type"
+// @Failure      400 {object} HTTPError "Неверное тело запроса"
 // @Failure      500 {object} HTTPError "Внутренняя ошибка сервера"
+//
 // @Router       /api/v1/qa/statistics [get]
 func (h *Handler) getStatistics(c *gin.Context) {
 	statisticsType := c.Query("type")
@@ -368,6 +380,14 @@ func (h *Handler) getStatistics(c *gin.Context) {
 
 			res = toArrDeliveryUserDto(result)
 		}
+	case "transactions":
+		result, err := h.service.GetTransactionStatistics(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toDeliveryGetTransactionStatisticsRes(*result)
 	default:
 		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
 		return
