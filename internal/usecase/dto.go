@@ -34,6 +34,7 @@ type GetQAVerificationRes struct {
 	AccessTools      []*domain.RecognizedTool
 	ProblematicTools *ProblematicTools
 	ImageUrl         string
+	Status           string
 }
 
 type ProblematicTools struct {
@@ -42,7 +43,7 @@ type ProblematicTools struct {
 	MissingTools     []*ToolTypeDTO
 }
 
-func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, accessTools []*domain.RecognizedTool, problematicTools *ProblematicTools, imageurl string) *GetQAVerificationRes {
+func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, accessTools []*domain.RecognizedTool, problematicTools *ProblematicTools, imageurl, status string) *GetQAVerificationRes {
 	return &GetQAVerificationRes{
 		TransactionId:    id,
 		ToolSetId:        toolSetId,
@@ -51,6 +52,7 @@ func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user User
 		AccessTools:      accessTools,
 		ProblematicTools: problematicTools,
 		ImageUrl:         imageurl,
+		Status:           status,
 	}
 }
 

@@ -393,7 +393,7 @@ func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*G
 
 	problematicTools := NewProblematicTools(filterRes.ManualCheckTools, filterRes.UnknownTools, filterRes.MissingTools)
 	userDto := NewUserDto(scan.TransactionObj.User.FullName, scan.TransactionObj.User.EmployeeId)
-	res := NewGetQAVerificationRes(scan.TransactionId, toolSet.Id, scan.TransactionObj.CreatedAt, userDto, filterRes.AccessTools, problematicTools, scan.ImageUrl)
+	res := NewGetQAVerificationRes(scan.TransactionId, toolSet.Id, scan.TransactionObj.CreatedAt, userDto, filterRes.AccessTools, problematicTools, scan.ImageUrl, string(scan.TransactionObj.Status))
 
 	return res, nil
 }

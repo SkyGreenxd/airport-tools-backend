@@ -58,6 +58,7 @@ type GetQAVerificationRes struct {
 	AccessTools      []*RecognizedToolDTO `json:"access_tools"`
 	ProblematicTools *ProblematicTools    `json:"problematic_tools"`
 	ImageUrl         string               `json:"image_url"`
+	Status           string               `json:"status"`
 }
 
 type ProblematicTools struct {
@@ -75,6 +76,7 @@ func toDeliveryGetQAVerificationRes(res *usecase.GetQAVerificationRes) *GetQAVer
 		AccessTools:      toArrDeliveryRecognizedToolDTO(res.AccessTools),
 		ProblematicTools: toDeliveryProblematicTools(res.ProblematicTools),
 		ImageUrl:         res.ImageUrl,
+		Status:           res.Status,
 	}
 }
 
