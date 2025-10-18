@@ -130,7 +130,7 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Тип статистики",
+                        "description": "Тип статистики. Варианты: users, qs, errors, transactions",
                         "name": "type",
                         "in": "query",
                         "required": true
@@ -143,19 +143,19 @@
                     },
                     {
                         "type": "string",
-                        "description": "Начало периода (формат DD-MM-YYYY, используется с type=users)",
+                        "description": "Начало периода (формат DD-MM-YYYY, используется с type=users\u0026employee_id=...)",
                         "name": "start_date",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Конец периода (формат DD-MM-YYYY, используется с type=users)",
+                        "description": "Конец периода (формат DD-MM-YYYY, используется с type=users\u0026employee_id=...)",
                         "name": "end_date",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users)",
+                        "description": "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users\u0026employee_id=...)",
                         "name": "limit",
                         "in": "query"
                     }

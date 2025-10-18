@@ -313,7 +313,7 @@ paths:
         vs Human**.<br/>- `transactions` — Выводит статистику по транзакциям (кол-во
         всех транзакций, а также кол-во открытых, закрытых, QA и неудачных).
       parameters:
-      - description: Тип статистики
+      - description: 'Тип статистики. Варианты: users, qs, errors, transactions'
         in: query
         name: type
         required: true
@@ -322,16 +322,16 @@ paths:
         in: query
         name: employee_id
         type: string
-      - description: Начало периода (формат DD-MM-YYYY, используется с type=users)
+      - description: Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)
         in: query
         name: start_date
         type: string
-      - description: Конец периода (формат DD-MM-YYYY, используется с type=users)
+      - description: Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)
         in: query
         name: end_date
         type: string
       - description: Максимальное количество записей в ответе (топ-N). По умолчанию
-          — без ограничений (для type=users)
+          — без ограничений (для type=users&employee_id=...)
         in: query
         name: limit
         type: integer

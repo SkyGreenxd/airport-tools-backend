@@ -271,11 +271,11 @@ func (h *Handler) getRoles(c *gin.Context) {
 // @Accept       json
 // @Produce      json
 //
-// @Param        type         query     string  true   "Тип статистики"
+// @Param        type         query     string  true   "Тип статистики. Варианты: users, qs, errors, transactions"
 // @Param        employee_id  query     string  false  "Табельный номер пользователя (для type=qa и для type=users)"
-// @Param        start_date   query     string  false  "Начало периода (формат DD-MM-YYYY, используется с type=users)"
-// @Param        end_date     query     string  false  "Конец периода (формат DD-MM-YYYY, используется с type=users)"
-// @Param        limit        query     int     false  "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users)"
+// @Param        start_date   query     string  false  "Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
+// @Param        end_date     query     string  false  "Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
+// @Param        limit        query     int     false  "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
 //
 // @Success      200 {object} StatisticsRes "Успешный ответ: структура зависит от значения параметра type"
 // @Failure      400 {object} HTTPError "Неверное тело запроса"
