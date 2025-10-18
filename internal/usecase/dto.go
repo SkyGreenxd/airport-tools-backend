@@ -51,7 +51,7 @@ type TransactionResolutionDTO struct {
 func ToListTransactionResolutionDTO(transactions []*domain.TransactionResolution) []*TransactionResolutionDTO {
 	result := make([]*TransactionResolutionDTO, len(transactions))
 	for i, tr := range transactions {
-		result[i] = ToTransactionResolutionDTO(&tr.Transaction, tr.Reason, tr.Notes, tr.CreatedAt)
+		result[i] = ToTransactionResolutionDTO(tr.Transaction, tr.Reason, tr.Notes, tr.CreatedAt)
 	}
 
 	return result
