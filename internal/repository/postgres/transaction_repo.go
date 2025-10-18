@@ -141,6 +141,32 @@ func (t *TransactionRepository) GetAllWhereStatusIsQAWithUser(ctx context.Contex
 	return toDomainArrTransactions(models), nil
 }
 
+func (t *TransactionRepository) GetAllByUserId(ctx context.Context, userId int64, startDate, endDate *time.Time, limit *int) ([]*domain.Transaction, error) {
+	const op = "TransactionRepository.GetAllByUserId"
+
+	var models []*TransactionModel
+	db := t.DB.WithContext(ctx).Preload("User").Where("user_id = ?", userId)
+
+	if startDate != nil {
+		db = db.Where("created_at >= ?", *startDate)
+	}
+
+	if endDate != nil {
+		db = db.Where("created_at <= ?", *endDate)
+	}
+
+	if limit != nil {
+		db = db.Limit(*limit)
+	}
+
+	result := db.Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainArrTransactions(models), nil
+}
+
 func (t *TransactionRepository) Delete(ctx context.Context, id int64) error {
 	const op = "TransactionRepository.Delete"
 

@@ -5,6 +5,7 @@ import (
 	"airport-tools-backend/pkg/e"
 	"net/http"
 	"strconv"
+	"time"
 
 	_ "airport-tools-backend/docs"
 
@@ -28,19 +29,32 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 	{
 		v1.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-		transaction := v1.Group("/transaction")
+		// AUTH
+		auth := v1.Group("/auth")
 		{
-			transaction.POST("/check", h.check)                                   // выдача/сдача инструментов
-			transaction.POST("/:transaction_id/verification", h.postVerification) // отправка qa результата
-			transaction.GET("/:transaction_id/verification", h.getVerification)   // получение данных для qa
-			transaction.GET("/", h.list)                                          // list проблемных проверок
+			auth.POST("/login", h.login)
+			auth.POST("/register", h.register)
 		}
 
+		//  USER
 		user := v1.Group("/user")
 		{
-			user.POST("/login", h.login)       // вход в систему по табельному номеру
-			user.GET("/roles", h.getRoles)     // получить список ролей
-			user.POST("/register", h.register) // регистрация в системе
+			user.GET("/roles", h.getRoles)
+			user.POST("/check", h.check) // выдача/сдача инструментов пользователем
+		}
+
+		// QA
+		qa := v1.Group("/qa")
+		{
+			transactions := qa.Group("/transactions")
+			{
+				transactions.GET("/", h.list)                                          // список всех проблемных транзакций
+				transactions.GET("/:transaction_id", h.getVerification)                // получение данных для QA
+				transactions.POST("/:transaction_id/verification", h.postVerification) // отправка QA результата
+			}
+
+			// Аналитика QA
+			qa.GET("/statistics", h.getStatistics)
 		}
 	}
 }
@@ -58,7 +72,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 //	@Failure		400		{object}	HTTPError
 //	@Failure		404		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
-//	@Router			/api/v1/transaction/check [post]
+//	@Router			/api/v1/user/check [post]
 func (h *Handler) check(c *gin.Context) {
 	var req CheckReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -83,13 +97,13 @@ func (h *Handler) check(c *gin.Context) {
 //	@Tags			transactions
 //	@Accept			json
 //	@Produce		json
-//	@Param			transaction_id	path		string		true	"Идентификатор транзакции"
+//	@Param			transaction_id	path		string			true	"Идентификатор транзакции"
 //	@Param			request			body		VerificationReq	true	"Данные завершения QA-проверки"
 //	@Success		200				{object}	VerificationRes
 //	@Failure		400				{object}	HTTPError
 //	@Failure		404				{object}	HTTPError
 //	@Failure		500				{object}	HTTPError
-//	@Router			/api/v1/transaction/{transaction_id}/verification [post]
+//	@Router			/api/v1/qa/transactions/:transaction_id/verification [post]
 func (h *Handler) postVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
 	transactionId, err := strconv.Atoi(strTransactionId)
@@ -121,13 +135,13 @@ func (h *Handler) postVerification(c *gin.Context) {
 //	@Tags			transactions
 //	@Accept			json
 //	@Produce		json
-//	@Param			transaction_id	path		string		true	"Идентификатор транзакции"
+//	@Param			transaction_id	path		string					true	"Идентификатор транзакции"
 //	@Param			request			body		GetQAVerificationRes	true	"Данные о транзакции"
 //	@Success		200				{object}	VerificationRes
 //	@Failure		400				{object}	HTTPError
 //	@Failure		404				{object}	HTTPError
 //	@Failure		500				{object}	HTTPError
-//	@Router			/api/v1/transaction/{transaction_id}/verification [get]
+//	@Router			/api/v1/qa/transactions/:transaction_id [get]
 func (h *Handler) getVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
 	transactionId, err := strconv.Atoi(strTransactionId)
@@ -157,7 +171,7 @@ func (h *Handler) getVerification(c *gin.Context) {
 //	@Success		200		{object}	ListTransactionsRes
 //	@Failure		400		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
-//	@Router			/api/v1/transaction [get]
+//	@Router			/api/v1/qa/transactions/ [get]
 func (h *Handler) list(c *gin.Context) {
 	status := c.Query("status")
 	res, err := h.service.List(c.Request.Context(), status)
@@ -182,7 +196,7 @@ func (h *Handler) list(c *gin.Context) {
 //	@Failure		400		{object}	HTTPError
 //	@Failure		401		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
-//	@Router			/api/v1/user/login [post]
+//	@Router			/api/v1/auth/login [post]
 func (h *Handler) login(c *gin.Context) {
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -212,7 +226,7 @@ func (h *Handler) login(c *gin.Context) {
 //	@Failure		400		{object}	HTTPError
 //	@Failure		409		{object}	HTTPError
 //	@Failure		500		{object}	HTTPError
-//	@Router			/api/v1/user/register [post]
+//	@Router			/api/v1/auth/register [post]
 func (h *Handler) register(c *gin.Context) {
 	var req RegisterReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -247,4 +261,76 @@ func (h *Handler) getRoles(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
+}
+
+// TODO: SWAGGER
+// getStatistics
+
+// @Summary		Получить статистику
+// @Description	С помощью типа статистики возвращает различные данные по инженерам, инструментам, проверкам.
+// @Tags			statistics
+// @Accept			json
+// @Produce		json
+// @Param			type	query		string			true	"Тип статистики: engineers, tools, errors"
+// @Failure     400 {object} HTTPError "Некорректный запрос"
+// @Success		200		{array}		StatisticsRes	"Статистика"
+// @Failure		500		{object}	HTTPError		"Внутренняя ошибка сервера"
+// @Router			/api/v1/qa/statistics [get]
+func (h *Handler) getStatistics(c *gin.Context) {
+	statisticsType := c.Query("type")
+	if statisticsType == "" {
+		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
+		return
+	}
+
+	employeeId := c.Query("employee_id") // табельный номер
+	startDateStr := c.Query("start_date")
+	endDateStr := c.Query("end_date")
+	limitStr := c.Query("limit")
+
+	// --- Парсим даты, если есть ---
+	var startDate, endDate *time.Time
+	if startDateStr != "" {
+		t, err := time.Parse("2006-01-02", startDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid start_date format, expected YYYY-MM-DD"})
+			return
+		}
+		startDate = &t
+	}
+	if endDateStr != "" {
+		t, err := time.Parse("2006-01-02", endDateStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid end_date format, expected YYYY-MM-DD"})
+			return
+		}
+		endDate = &t
+	}
+
+	var limit *int
+	if limitStr != "" {
+		n, err := strconv.Atoi(limitStr)
+		if err != nil || n <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit"})
+			return
+		}
+		limit = &n
+	}
+
+	var res interface{}
+	var err error
+	switch statisticsType {
+	case "users":
+		userReq := usecase.NewUserTransactionsReq(employeeId, startDate, endDate, limit)
+		res, err = h.service.UserTransactions(c.Request.Context(), userReq)
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+	default:
+		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, NewStatisticsRes(statisticsType, res))
 }

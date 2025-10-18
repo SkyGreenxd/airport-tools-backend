@@ -10,6 +10,22 @@ type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
 }
 
+type UserTransactionsReq struct {
+	EmployeeId string
+	StartDate  *time.Time
+	EndDate    *time.Time
+	Limit      *int
+}
+
+func NewUserTransactionsReq(employeeId string, startDate, endDate *time.Time, limit *int) *UserTransactionsReq {
+	return &UserTransactionsReq{
+		EmployeeId: employeeId,
+		StartDate:  startDate,
+		EndDate:    endDate,
+		Limit:      limit,
+	}
+}
+
 type GetQAVerificationRes struct {
 	TransactionId    int64
 	ToolSetId        int64

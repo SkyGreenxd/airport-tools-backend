@@ -34,9 +34,9 @@ var (
 	ErrMLServiceDecode = errors.New("failed to decode ML service response")
 	ErrIncorrectImage  = errors.New("incorrect image sent")
 
-	ErrInvalidRequestBody = errors.New("invalid request body")
-
-	ErrRequestNotSupported = errors.New("request not supported")
+	ErrInvalidRequestBody      = errors.New("invalid request body")
+	ErrRequestNotSupported     = errors.New("request not supported")
+	ErrRequestNoStatisticsType = errors.New("request has no statistics type")
 )
 
 func Wrap(msg string, err error) error {

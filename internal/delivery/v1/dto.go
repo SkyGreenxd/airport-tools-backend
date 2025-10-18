@@ -6,6 +6,18 @@ import (
 	"time"
 )
 
+type StatisticsRes struct {
+	Type string      `json:"type"`
+	Data interface{} `json:"data"`
+}
+
+func NewStatisticsRes(statisticsType string, data interface{}) *StatisticsRes {
+	return &StatisticsRes{
+		Type: statisticsType,
+		Data: data,
+	}
+}
+
 type GetRolesRes struct {
 	Roles []domain.Role `json:"roles"`
 }

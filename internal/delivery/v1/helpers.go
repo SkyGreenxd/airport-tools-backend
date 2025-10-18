@@ -62,6 +62,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionReasonInvalid):
 		res.Code = http.StatusBadRequest
 		res.Message = "Указана недопустимая причина"
+	case errors.Is(err, e.ErrRequestNoStatisticsType):
+		res.Code = http.StatusBadRequest
+		res.Message = "Укажите тип статистики, которую хотите получить"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "Внутренняя ошибка сервера"

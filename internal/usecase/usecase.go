@@ -397,3 +397,24 @@ func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*G
 
 	return res, nil
 }
+
+// Список транзакций конкретного пользователя
+func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq) (*ListTransactionsRes, error) {
+	const op = "usecase.UserTransactions"
+
+	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	transactions, err := s.transactionRepo.GetAllByUserId(ctx, user.Id, req.StartDate, req.EndDate, req.Limit)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	result := NewListTransactionsRes(toListTransactionsRes(transactions))
+	return result, nil
+}
+
+// Инженеры, чьи транзакции чаще всего попадали на QA, с разбивкой по причинам (ошибка ML / человеческая ошибка)
+//func userStatistics()

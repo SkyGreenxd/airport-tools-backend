@@ -3,6 +3,7 @@ package repository
 import (
 	"airport-tools-backend/internal/domain"
 	"context"
+	"time"
 )
 
 // ToolTypeRepository интерфейс для работы с типами инструментов в базе данных
@@ -50,6 +51,7 @@ type TransactionRepository interface {
 	GetAllWithUser(ctx context.Context) ([]*domain.Transaction, error)
 	GetAllWhereStatusIsQAWithUser(ctx context.Context) ([]*domain.Transaction, error)
 	GetLastFailedByUserId(ctx context.Context, userId int64) (*domain.Transaction, error)
+	GetAllByUserId(ctx context.Context, userId int64, startDate, endDate *time.Time, limit *int) ([]*domain.Transaction, error)
 }
 
 // CvScanRepository интерфейс для работы со сканами инструментов в базе данных
