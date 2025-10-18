@@ -80,7 +80,6 @@ func (t *TransactionResolutionsRepo) GetTopHumanErrorUsers(ctx context.Context) 
 	const op = "TransactionRepository.GetTopHumanErrorUsers"
 
 	var stats []repository.HumanErrorStats
-
 	result := t.DB.WithContext(ctx).
 		Table("transaction_resolutions AS tr").
 		Select(`
@@ -93,7 +92,7 @@ func (t *TransactionResolutionsRepo) GetTopHumanErrorUsers(ctx context.Context) 
 		Where("tr.reason = ?", "HUMAN_ERR").
 		Group("u.full_name, u.employee_id").
 		Order("qa_hits_count DESC").
-		Scan(&stats)
+		Find(&stats)
 
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
