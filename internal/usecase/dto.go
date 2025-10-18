@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"airport-tools-backend/internal/domain"
+	"log"
 	"time"
 )
 
@@ -58,8 +59,15 @@ func ToListTransactionResolutionDTO(transactions []*domain.TransactionResolution
 }
 
 func ToTransactionResolutionDTO(transaction *domain.Transaction, reason domain.Reason, notes string, createdAt time.Time) *TransactionResolutionDTO {
+	var transactionDTO *TransactionDTO
+	if transaction != nil {
+		transactionDTO = toTransactionDTO(transaction)
+	} else {
+		log.Println("------DEBUG----- NUUUUULLL")
+	}
+
 	return &TransactionResolutionDTO{
-		Transaction: toTransactionDTO(transaction),
+		Transaction: transactionDTO,
 		Reason:      reason,
 		Notes:       notes,
 		CreatedAt:   createdAt,

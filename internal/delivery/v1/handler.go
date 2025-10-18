@@ -356,6 +356,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			result, err := h.service.GetQAChecks(c.Request.Context(), employeeId)
 			if err != nil {
 				ErrorToHttpRes(err, c)
+				return
 			}
 
 			res = toDeliveryQaTransactionsRes(result)
@@ -363,6 +364,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			result, err := h.service.GetAllQaEmployers(c.Request.Context())
 			if err != nil {
 				ErrorToHttpRes(err, c)
+				return
 			}
 
 			res = toArrDeliveryUserDto(result)
