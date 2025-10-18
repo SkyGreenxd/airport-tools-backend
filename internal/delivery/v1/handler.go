@@ -104,7 +104,7 @@ func (h *Handler) postVerification(c *gin.Context) {
 		return
 	}
 
-	res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.Notes))
+	res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.Reason, req.Notes))
 	if err != nil {
 		ErrorToHttpRes(err, c)
 		return

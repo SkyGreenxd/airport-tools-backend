@@ -343,7 +343,7 @@ func (s *Service) Verification(ctx context.Context, req *Verification) (*Verific
 		return nil, e.Wrap(op, err)
 	}
 
-	new_resolution := domain.NewTransactionResolution(req.TransactionID, user.Id, req.Notes)
+	new_resolution := domain.NewTransactionResolution(req.TransactionID, user.Id, req.Reason, req.Notes)
 	resolution, err := s.trResolution.Create(ctx, new_resolution)
 	if err != nil {
 		return nil, e.Wrap(op, err)

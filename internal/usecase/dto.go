@@ -49,6 +49,7 @@ func NewProblematicTools(manualCheckTools, unknownTools []*domain.RecognizedTool
 type Verification struct {
 	TransactionID int64
 	QAEmployeeId  string
+	Reason        domain.Reason
 	Notes         string
 }
 
@@ -310,10 +311,11 @@ func NewRegisterRes(id int64) *RegisterRes {
 	}
 }
 
-func NewVerification(transactionID int64, qaEmployeeId string, notes string) *Verification {
+func NewVerification(transactionID int64, qaEmployeeId string, reason domain.Reason, notes string) *Verification {
 	return &Verification{
 		TransactionID: transactionID,
 		QAEmployeeId:  qaEmployeeId,
+		Reason:        reason,
 		Notes:         notes,
 	}
 }
