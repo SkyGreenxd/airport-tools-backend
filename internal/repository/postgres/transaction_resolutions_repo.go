@@ -5,6 +5,7 @@ import (
 	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/pkg/e"
 	"context"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -140,9 +141,14 @@ func toDomainTransactionResolution(model *TransactionResolutionModel) *domain.Tr
 }
 
 func toDomainArrTransactionResolution(models []*TransactionResolutionModel) []*domain.TransactionResolution {
-	res := make([]*domain.TransactionResolution, len(models))
-	for i, model := range models {
-		res[i] = toDomainTransactionResolution(model)
+	if len(models) == 0 {
+		log.Println("DEBUG toDomainArrTransactionResolution NUUUULLLL")
+		return nil
+	}
+
+	res := make([]*domain.TransactionResolution, 0, len(models))
+	for _, model := range models {
+		res = append(res, toDomainTransactionResolution(model))
 	}
 
 	return res
