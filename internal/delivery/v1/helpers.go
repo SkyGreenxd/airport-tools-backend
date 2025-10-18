@@ -59,6 +59,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrCvScanNotFound):
 		res.Code = http.StatusNotFound
 		res.Message = "Скан не найден"
+	case errors.Is(err, e.ErrTransactionReasonInvalid):
+		res.Code = http.StatusBadRequest
+		res.Message = "Указана недопустимая причина"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "Внутренняя ошибка сервера"

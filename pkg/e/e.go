@@ -13,11 +13,12 @@ var (
 	ErrToolSetNotFound = fmt.Errorf("tool set not found")
 	ErrToolSetExists   = fmt.Errorf("tool set exists")
 
-	ErrTransactionNotFound    = fmt.Errorf("transaction not found")
-	ErrTransactionUnfinished  = fmt.Errorf("you have an unfinished issue")
-	ErrTransactionAllFinished = fmt.Errorf("you have no open or pending transactions")
-	ErrTransactionLimit       = fmt.Errorf("3 unsuccessful scan attempts. Data sent for QA review")
-	ErrTransactionCheckQA     = fmt.Errorf("You cannot get new tools while you are being verified QA")
+	ErrTransactionNotFound      = fmt.Errorf("transaction not found")
+	ErrTransactionUnfinished    = fmt.Errorf("you have an unfinished issue")
+	ErrTransactionAllFinished   = fmt.Errorf("you have no open or pending transactions")
+	ErrTransactionLimit         = fmt.Errorf("3 unsuccessful scan attempts. Data sent for QA review")
+	ErrTransactionCheckQA       = fmt.Errorf("You cannot get new tools while you are being verified QA")
+	ErrTransactionReasonInvalid = fmt.Errorf("invalid reason")
 
 	ErrUserNotFound     = fmt.Errorf("user not found")
 	ErrUserExists       = fmt.Errorf("user is exists")

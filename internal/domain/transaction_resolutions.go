@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"airport-tools-backend/pkg/e"
+	"time"
+)
 
 type Reason string
 
@@ -25,4 +28,13 @@ func NewTransactionResolution(transactionId int64, qaEmployeeId int64, reason Re
 		Notes:         notes,
 		Reason:        reason,
 	}
+}
+
+func ValidateReason(reason Reason) error {
+	switch reason {
+	case ModelError, HumanError:
+		return nil
+	}
+
+	return e.ErrTransactionReasonInvalid
 }

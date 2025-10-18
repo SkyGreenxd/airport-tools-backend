@@ -338,6 +338,10 @@ func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes,
 func (s *Service) Verification(ctx context.Context, req *Verification) (*VerificationRes, error) {
 	const op = "usecase.postVerification"
 
+	if err := domain.ValidateReason(req.Reason); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
 	user, err := s.userRepo.GetByEmployeeId(ctx, req.QAEmployeeId)
 	if err != nil {
 		return nil, e.Wrap(op, err)
