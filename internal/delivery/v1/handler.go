@@ -271,7 +271,11 @@ func (h *Handler) getRoles(c *gin.Context) {
 // @Tags			statistics
 // @Accept			json
 // @Produce		json
-// @Param			type	query		string			true	"Тип статистики: engineers, tools, errors"
+// @Param        type         query     string  true   "Тип статистики: users, engineers, tools, errors"
+// @Param        employee_id  query     string  false  "Табельный номер пользователя, нужен для type=users"
+// @Param        start_date   query     string  false  "Дата начала периода в формате DD-MM-YYYY"
+// @Param        end_date     query     string  false  "Дата конца периода в формате DD-MM-YYYY"
+// @Param        limit        query     int     false  "Количество результатов (топ-N), если не указано — берутся все"
 // @Failure     400 {object} HTTPError "Некорректный запрос"
 // @Success		200		{array}		StatisticsRes	"Статистика"
 // @Failure		500		{object}	HTTPError		"Внутренняя ошибка сервера"
@@ -318,14 +322,50 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	}
 
 	var res interface{}
-	var err error
 	switch statisticsType {
 	case "users":
-		userReq := usecase.NewUserTransactionsReq(employeeId, startDate, endDate, limit)
-		res, err = h.service.UserTransactions(c.Request.Context(), userReq)
+		if employeeId != "" {
+			userReq := usecase.NewUserTransactionsReq(employeeId, startDate, endDate, limit)
+			result, err := h.service.UserTransactions(c.Request.Context(), userReq)
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			res = toDeliveryListTransactionsRes(result.Transactions)
+		} else {
+			result, err := h.service.GetUsersQAStats(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			res = toArrDeliveryHumanErrorStats(result)
+		}
+	case "errors":
+		result, err := h.service.GetMlVsHuman(c.Request.Context())
 		if err != nil {
 			ErrorToHttpRes(err, c)
 			return
+		}
+
+		res = toDeliveryModelOrHumanStatsRes(result)
+
+	case "qa":
+		if employeeId != "" {
+			result, err := h.service.GetAllQaEmployers(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+			}
+
+			res = toArrDeliveryUserDto(result)
+		} else {
+			result, err := h.service.GetQAChecks(c.Request.Context(), employeeId)
+			if err != nil {
+				ErrorToHttpRes(err, c)
+			}
+
+			res = toDeliveryQaTransactionsRes(result)
 		}
 	default:
 		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
