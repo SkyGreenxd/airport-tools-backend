@@ -76,7 +76,7 @@ func (t *TransactionResolutionsRepo) GetAllHumanError(ctx context.Context) ([]*d
 	return t.getTransactionsWithErrorType(ctx, domain.HumanError)
 }
 
-func (t *TransactionRepository) GetTopHumanErrorUsers(ctx context.Context) ([]repository.HumanErrorStats, error) {
+func (t *TransactionResolutionsRepo) GetTopHumanErrorUsers(ctx context.Context) ([]repository.HumanErrorStats, error) {
 	const op = "TransactionRepository.GetTopHumanErrorUsers"
 
 	var stats []repository.HumanErrorStats
