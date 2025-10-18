@@ -75,6 +75,8 @@ definitions:
         type: string
       problematic_tools:
         $ref: '#/definitions/v1.ProblematicTools'
+      status:
+        type: string
       tool_set_id:
         type: integer
       transaction_id:
@@ -159,6 +161,12 @@ definitions:
       id:
         type: integer
     type: object
+  v1.StatisticsRes:
+    properties:
+      data: {}
+      type:
+        type: string
+    type: object
   v1.ToolTypeDTO:
     properties:
       id:
@@ -219,7 +227,126 @@ info:
   title: Airport Tools Vision API
   version: "1.0"
 paths:
-  /api/v1/transaction:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Вход в систему по табельному номеру сотрудника.<br> После успешного
+        входа пользователь перенаправляется:<br> • инженеру — на экран загрузки фотографии
+        инструментов;<br> • QA — на экран проверки незавершённых транзакций.
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.LoginRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Вход в систему
+      tags:
+      - user
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: 'Регистрация сотрудника в системе.<br> Необходимые данные: табельный
+        номер, ФИО и роль (например, "Инженер" или "QA").<br>'
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.RegisterRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Регистрация сотрудника в системе
+      tags:
+      - user
+  /api/v1/qa/statistics:
+    get:
+      consumes:
+      - application/json
+      description: С помощью типа статистики возвращает различные данные по инженерам,
+        инструментам, проверкам.
+      parameters:
+      - description: 'Тип статистики: users, engineers, tools, errors'
+        in: query
+        name: type
+        required: true
+        type: string
+      - description: Табельный номер пользователя, нужен для type=users
+        in: query
+        name: employee_id
+        type: string
+      - description: Дата начала периода в формате DD-MM-YYYY
+        in: query
+        name: start_date
+        type: string
+      - description: Дата конца периода в формате DD-MM-YYYY
+        in: query
+        name: end_date
+        type: string
+      - description: Количество результатов (топ-N), если не указано — берутся все
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статистика
+          schema:
+            items:
+              $ref: '#/definitions/v1.StatisticsRes'
+            type: array
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Получить статистику
+      tags:
+      - statistics
+  /api/v1/qa/transactions/:
     get:
       consumes:
       - application/json
@@ -251,7 +378,7 @@ paths:
       summary: Список транзакций
       tags:
       - transactions
-  /api/v1/transaction/{transaction_id}/verification:
+  /api/v1/qa/transactions/:transaction_id:
     get:
       consumes:
       - application/json
@@ -296,6 +423,7 @@ paths:
       summary: Получение информации о проблемной транзакции
       tags:
       - transactions
+  /api/v1/qa/transactions/:transaction_id/verification:
     post:
       consumes:
       - application/json
@@ -340,7 +468,7 @@ paths:
       summary: QA-проверка и завершение транзакции
       tags:
       - transactions
-  /api/v1/transaction/check:
+  /api/v1/user/check:
     post:
       consumes:
       - application/json
@@ -386,77 +514,6 @@ paths:
       summary: Операция выдачи/сдачи инструментов
       tags:
       - transactions
-  /api/v1/user/login:
-    post:
-      consumes:
-      - application/json
-      description: Вход в систему по табельному номеру сотрудника.<br> После успешного
-        входа пользователь перенаправляется:<br> • инженеру — на экран загрузки фотографии
-        инструментов;<br> • QA — на экран проверки незавершённых транзакций.
-      parameters:
-      - description: Данные для входа
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/v1.LoginReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.LoginRes'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-      summary: Вход в систему
-      tags:
-      - user
-  /api/v1/user/register:
-    post:
-      consumes:
-      - application/json
-      description: 'Регистрация сотрудника в системе.<br> Необходимые данные: табельный
-        номер, ФИО и роль (например, "Инженер" или "QA").<br>'
-      parameters:
-      - description: Данные для регистрации
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/v1.RegisterReq'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/v1.RegisterRes'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/v1.HTTPError'
-      summary: Регистрация сотрудника в системе
-      tags:
-      - user
   /api/v1/user/roles:
     get:
       consumes:

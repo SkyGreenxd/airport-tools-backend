@@ -16,7 +16,182 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/transaction": {
+        "/api/v1/auth/login": {
+            "post": {
+                "description": "Вход в систему по табельному номеру сотрудника.\u003cbr\u003e После успешного входа пользователь перенаправляется:\u003cbr\u003e • инженеру — на экран загрузки фотографии инструментов;\u003cbr\u003e • QA — на экран проверки незавершённых транзакций.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Вход в систему",
+                "parameters": [
+                    {
+                        "description": "Данные для входа",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.LoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.LoginRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "description": "Регистрация сотрудника в системе.\u003cbr\u003e Необходимые данные: табельный номер, ФИО и роль (например, \"Инженер\" или \"QA\").\u003cbr\u003e",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Регистрация сотрудника в системе",
+                "parameters": [
+                    {
+                        "description": "Данные для регистрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.RegisterReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/v1.RegisterRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/qa/statistics": {
+            "get": {
+                "description": "С помощью типа статистики возвращает различные данные по инженерам, инструментам, проверкам.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Получить статистику",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Тип статистики: users, engineers, tools, errors",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Табельный номер пользователя, нужен для type=users",
+                        "name": "employee_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Дата начала периода в формате DD-MM-YYYY",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Дата конца периода в формате DD-MM-YYYY",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Количество результатов (топ-N), если не указано — берутся все",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Статистика",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v1.StatisticsRes"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/qa/transactions/": {
             "get": {
                 "description": "Возвращает список транзакций QA.\u003cbr\u003e Можно фильтровать по статусу с помощью query-параметра ` + "`" + `status` + "`" + `.\u003cbr\u003e Допустимое значение: 'qa' вернёт только транзакции, требующие проверки QA.\u003cbr\u003e Каждая транзакция содержит минимальные данные: ID, инженера, номер набора инструментов, дату создания транзакции, текущий статус.",
                 "consumes": [
@@ -59,59 +234,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/transaction/check": {
-            "post": {
-                "description": "Принимает табельный номер инженера и фотографию инструментов в формате base64.\u003cbr\u003e Сервис анализирует изображение, сопоставляет инструменты с ожидаемым набором и возвращает: \u003cbr\u003e\u003cbr\u003e• URL обработанного изображения \u003cbr\u003e• четыре массива: \u003cbr\u003e1) access_tools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e1) manual_check_tools — инструменты, требующие ручной проверки \u003cbr\u003e2) unknown_tools — инструменты, отсутствующие в ожидаемом наборе \u003cbr\u003e3) missing_tools — инструменты, отсутствующие на фотографии, но ожидаемые\u003cbr\u003e• transaction_type - тип транзакции(Checkin - Сдача/Checkout - Выдача)\u003cbr\u003e• status - статус транзакции(OPEN - открыта, CLOSED - закрыта, QA VERIFICATION - QA проверка)\u003cbr\u003e\u003cbr\u003e Если 4 или более инструментов не попали в access_tools или за 3 попытки сканирования транзакция не закрылась, устанавливается флаг \"QA ПРОВЕРКА\" (QA VERIFICATION). \u003cbr\u003e\u003cbr\u003eЭндпоинт используется как для выдачи инструментов инженеру, так и для их последующей сдачи.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "transactions"
-                ],
-                "summary": "Операция выдачи/сдачи инструментов",
-                "parameters": [
-                    {
-                        "description": "Запрос на выдачу или сдачу инструментов",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.CheckReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/v1.CheckRes"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/transaction/{transaction_id}/verification": {
+        "/api/v1/qa/transactions/:transaction_id": {
             "get": {
                 "description": "Получить информацию о проблемной транзакции.\u003cbr\u003eОткрывается экран сверки:\u003cbr\u003e\u003cbr\u003e • Фотография инструментов (полноразмерное изображение)\u003cbr\u003e • access_tools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e • Список проблемных инструментов с пояснениями, сгруппированных по категориям:\u003cbr\u003e \u0026nbsp;\u0026nbsp;2) manual_check_tools — инструменты, требующие ручной проверки\u003cbr\u003e \u0026nbsp;\u0026nbsp;3) unknown_tools — инструменты, не входящие в ожидаемый набор\u003cbr\u003e \u0026nbsp;\u0026nbsp;4) missing_tools — инструменты, отсутствующие на фото, но ожидаемые\u003cbr\u003e\u003cbr\u003e",
                 "consumes": [
@@ -168,7 +291,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/v1/qa/transactions/:transaction_id/verification": {
             "post": {
                 "description": "После авторизации сотрудника QA выбирает из списка транзакцию.\u003cbr\u003eОткрывается экран сверки:\u003cbr\u003e\u003cbr\u003e • Фотография инструментов (полноразмерное изображение)\u003cbr\u003e • access_tools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e • Список проблемных инструментов с пояснениями, сгруппированных по категориям:\u003cbr\u003e \u0026nbsp;\u0026nbsp;1) manual_check_tools — инструменты, требующие ручной проверки\u003cbr\u003e \u0026nbsp;\u0026nbsp;2) unknown_tools — инструменты, не входящие в ожидаемый набор\u003cbr\u003e \u0026nbsp;\u0026nbsp;3) missing_tools — инструменты, отсутствующие на фото, но ожидаемые\u003cbr\u003e\u003cbr\u003e",
                 "consumes": [
@@ -227,9 +352,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/user/login": {
+        "/api/v1/user/check": {
             "post": {
-                "description": "Вход в систему по табельному номеру сотрудника.\u003cbr\u003e После успешного входа пользователь перенаправляется:\u003cbr\u003e • инженеру — на экран загрузки фотографии инструментов;\u003cbr\u003e • QA — на экран проверки незавершённых транзакций.",
+                "description": "Принимает табельный номер инженера и фотографию инструментов в формате base64.\u003cbr\u003e Сервис анализирует изображение, сопоставляет инструменты с ожидаемым набором и возвращает: \u003cbr\u003e\u003cbr\u003e• URL обработанного изображения \u003cbr\u003e• четыре массива: \u003cbr\u003e1) access_tools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e1) manual_check_tools — инструменты, требующие ручной проверки \u003cbr\u003e2) unknown_tools — инструменты, отсутствующие в ожидаемом наборе \u003cbr\u003e3) missing_tools — инструменты, отсутствующие на фотографии, но ожидаемые\u003cbr\u003e• transaction_type - тип транзакции(Checkin - Сдача/Checkout - Выдача)\u003cbr\u003e• status - статус транзакции(OPEN - открыта, CLOSED - закрыта, QA VERIFICATION - QA проверка)\u003cbr\u003e\u003cbr\u003e Если 4 или более инструментов не попали в access_tools или за 3 попытки сканирования транзакция не закрылась, устанавливается флаг \"QA ПРОВЕРКА\" (QA VERIFICATION). \u003cbr\u003e\u003cbr\u003eЭндпоинт используется как для выдачи инструментов инженеру, так и для их последующей сдачи.",
                 "consumes": [
                     "application/json"
                 ],
@@ -237,17 +362,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "transactions"
                 ],
-                "summary": "Вход в систему",
+                "summary": "Операция выдачи/сдачи инструментов",
                 "parameters": [
                     {
-                        "description": "Данные для входа",
+                        "description": "Запрос на выдачу или сдачу инструментов",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.LoginReq"
+                            "$ref": "#/definitions/v1.CheckReq"
                         }
                     }
                 ],
@@ -255,7 +380,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.LoginRes"
+                            "$ref": "#/definitions/v1.CheckRes"
                         }
                     },
                     "400": {
@@ -264,60 +389,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/user/register": {
-            "post": {
-                "description": "Регистрация сотрудника в системе.\u003cbr\u003e Необходимые данные: табельный номер, ФИО и роль (например, \"Инженер\" или \"QA\").\u003cbr\u003e",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Регистрация сотрудника в системе",
-                "parameters": [
-                    {
-                        "description": "Данные для регистрации",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.RegisterReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/v1.RegisterRes"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
@@ -472,6 +545,9 @@ const docTemplate = `{
                 "problematic_tools": {
                     "$ref": "#/definitions/v1.ProblematicTools"
                 },
+                "status": {
+                    "type": "string"
+                },
                 "tool_set_id": {
                     "type": "integer"
                 },
@@ -599,6 +675,15 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "v1.StatisticsRes": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "type": {
+                    "type": "string"
                 }
             }
         },
