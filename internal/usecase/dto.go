@@ -10,6 +10,69 @@ type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
 }
 
+type HumanErrorStats struct {
+	FullName    string
+	EmployeeId  string
+	QAHitsCount int64
+}
+
+func NewHumanErrorStats(fullName, employeeId string, QAHitsCount int64) HumanErrorStats {
+	return HumanErrorStats{
+		FullName:    fullName,
+		EmployeeId:  employeeId,
+		QAHitsCount: QAHitsCount,
+	}
+}
+
+type ModelOrHumanStatsRes struct {
+	MlErrors    int
+	HumanErrors int
+}
+
+func NewModelOrHumanStatsRes(ml int, humans int) *ModelOrHumanStatsRes {
+	return &ModelOrHumanStatsRes{
+		MlErrors:    ml,
+		HumanErrors: humans,
+	}
+}
+
+type QaTransactionsRes struct {
+	Qa           UserDto
+	Transactions []*TransactionResolutionDTO
+}
+
+type TransactionResolutionDTO struct {
+	Transaction *TransactionDTO
+	Reason      domain.Reason
+	Notes       string
+	CreatedAt   time.Time
+}
+
+func ToListTransactionResolutionDTO(transactions []*domain.TransactionResolution) []*TransactionResolutionDTO {
+	result := make([]*TransactionResolutionDTO, len(transactions))
+	for i, tr := range transactions {
+		result[i] = ToTransactionResolutionDTO(&tr.Transaction, tr.Reason, tr.Notes, tr.CreatedAt)
+	}
+
+	return result
+}
+
+func ToTransactionResolutionDTO(transaction *domain.Transaction, reason domain.Reason, notes string, createdAt time.Time) *TransactionResolutionDTO {
+	return &TransactionResolutionDTO{
+		Transaction: toTransactionDTO(transaction),
+		Reason:      reason,
+		Notes:       notes,
+		CreatedAt:   createdAt,
+	}
+}
+
+func NewQaTransactionsRes(qa UserDto, transactions []*TransactionResolutionDTO) *QaTransactionsRes {
+	return &QaTransactionsRes{
+		Qa:           qa,
+		Transactions: transactions,
+	}
+}
+
 type UserTransactionsReq struct {
 	EmployeeId string
 	StartDate  *time.Time

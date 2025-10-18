@@ -6,6 +6,78 @@ import (
 	"time"
 )
 
+type HumanErrorStats struct {
+	FullName    string
+	EmployeeId  string
+	QAHitsCount int64
+}
+
+func toDeliveryHumanErrorStats(res usecase.HumanErrorStats) HumanErrorStats {
+	return HumanErrorStats{
+		FullName:    res.FullName,
+		EmployeeId:  res.EmployeeId,
+		QAHitsCount: res.QAHitsCount,
+	}
+}
+
+func toArrDeliveryHumanErrorStats(res []usecase.HumanErrorStats) []HumanErrorStats {
+	result := make([]HumanErrorStats, len(res))
+	for i, item := range res {
+		result[i] = toDeliveryHumanErrorStats(item)
+	}
+
+	return result
+}
+
+type ModelOrHumanStatsRes struct {
+	MlErrors    int `json:"ml_errors"`
+	HumanErrors int `json:"human_errors"`
+}
+
+func toDeliveryModelOrHumanStatsRes(res *usecase.ModelOrHumanStatsRes) *ModelOrHumanStatsRes {
+	return &ModelOrHumanStatsRes{
+		MlErrors:    res.MlErrors,
+		HumanErrors: res.HumanErrors,
+	}
+}
+
+type QaTransactionsRes struct {
+	Qa           UserDto                     `json:"qa"`
+	Transactions []*TransactionResolutionDTO `json:"transactions"`
+}
+
+type TransactionResolutionDTO struct {
+	Transaction *TransactionDTO `json:"transaction"`
+	Reason      domain.Reason   `json:"reason"`
+	Notes       string          `json:"notes"`
+	CreatedAt   time.Time       `json:"created_at"`
+}
+
+func toDeliveryQaTransactionsRes(res *usecase.QaTransactionsRes) *QaTransactionsRes {
+	return &QaTransactionsRes{
+		Qa:           toDeliveryUserDto(res.Qa),
+		Transactions: toDeliveryArrTransactionResolutionDTO(res.Transactions),
+	}
+}
+
+func toDeliveryArrTransactionResolutionDTO(dto []*usecase.TransactionResolutionDTO) []*TransactionResolutionDTO {
+	res := make([]*TransactionResolutionDTO, len(dto))
+	for i, d := range dto {
+		res[i] = toDeliveryTransactionResolutionDTO(d)
+	}
+
+	return res
+}
+
+func toDeliveryTransactionResolutionDTO(d *usecase.TransactionResolutionDTO) *TransactionResolutionDTO {
+	return &TransactionResolutionDTO{
+		Transaction: toDeliveryTransactionDTO(d.Transaction),
+		Reason:      d.Reason,
+		Notes:       d.Notes,
+		CreatedAt:   d.CreatedAt,
+	}
+}
+
 type StatisticsRes struct {
 	Type string      `json:"type"`
 	Data interface{} `json:"data"`
@@ -173,6 +245,15 @@ func toDeliveryTransactionDTO(transaction *usecase.TransactionDTO) *TransactionD
 		User:      toDeliveryUserDto(transaction.User),
 		Status:    transaction.Status,
 	}
+}
+
+func toArrDeliveryUserDto(users []usecase.UserDto) []UserDto {
+	res := make([]UserDto, len(users))
+	for i, user := range users {
+		res[i] = toDeliveryUserDto(user)
+	}
+
+	return res
 }
 
 func toDeliveryUserDto(user usecase.UserDto) UserDto {
