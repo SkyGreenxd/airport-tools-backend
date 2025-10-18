@@ -64,7 +64,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 //	@Summary		Операция выдачи/сдачи инструментов
 //	@Description	Принимает табельный номер инженера и фотографию инструментов в формате base64.<br> Сервис анализирует изображение, сопоставляет инструменты с ожидаемым набором и возвращает: <br><br>• URL обработанного изображения <br>• четыре массива: <br>1) access_tools — инструменты, прошедшие автоматическую проверку<br>1) manual_check_tools — инструменты, требующие ручной проверки <br>2) unknown_tools — инструменты, отсутствующие в ожидаемом наборе <br>3) missing_tools — инструменты, отсутствующие на фотографии, но ожидаемые<br>• transaction_type - тип транзакции(Checkin - Сдача/Checkout - Выдача)<br>• status - статус транзакции(OPEN - открыта, CLOSED - закрыта, QA VERIFICATION - QA проверка)<br><br> Если 4 или более инструментов не попали в access_tools или за 3 попытки сканирования транзакция не закрылась, устанавливается флаг "QA ПРОВЕРКА" (QA VERIFICATION). <br><br>Эндпоинт используется как для выдачи инструментов инженеру, так и для их последующей сдачи.
 //
-//	@Tags			transactions
+//	@Tags			users
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		CheckReq	true	"Запрос на выдачу или сдачу инструментов"
@@ -94,7 +94,7 @@ func (h *Handler) check(c *gin.Context) {
 //	@Summary		QA-проверка и завершение транзакции
 //	@Description	После авторизации сотрудника QA выбирает из списка транзакцию.<br>Открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • access_tools — инструменты, прошедшие автоматическую проверку<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;1) manual_check_tools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;2) unknown_tools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;3) missing_tools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
 //
-//	@Tags			transactions
+//	@Tags			QA
 //	@Accept			json
 //	@Produce		json
 //	@Param			transaction_id	path		string			true	"Идентификатор транзакции"
@@ -132,7 +132,7 @@ func (h *Handler) postVerification(c *gin.Context) {
 //	@Summary		Получение информации о проблемной транзакции
 //	@Description	Получить информацию о проблемной транзакции.<br>Открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • access_tools — инструменты, прошедшие автоматическую проверку<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;2) manual_check_tools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;3) unknown_tools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;4) missing_tools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
 //
-//	@Tags			transactions
+//	@Tags			QA
 //	@Accept			json
 //	@Produce		json
 //	@Param			transaction_id	path		string					true	"Идентификатор транзакции"
@@ -164,7 +164,7 @@ func (h *Handler) getVerification(c *gin.Context) {
 //	@Summary		Список транзакций
 //	@Description	Возвращает список транзакций QA.<br> Можно фильтровать по статусу с помощью query-параметра `status`.<br> Допустимое значение: 'qa' вернёт только транзакции, требующие проверки QA.<br> Каждая транзакция содержит минимальные данные: ID, инженера, номер набора инструментов, дату создания транзакции, текущий статус.
 //
-//	@Tags			transactions
+//	@Tags			QA
 //	@Accept			json
 //	@Produce		json
 //	@Param			status	query		string	false	"Фильтр по статусу транзакции"
@@ -188,7 +188,7 @@ func (h *Handler) list(c *gin.Context) {
 //	@Summary		Вход в систему
 //	@Description	Вход в систему по табельному номеру сотрудника.<br> После успешного входа пользователь перенаправляется:<br> • инженеру — на экран загрузки фотографии инструментов;<br> • QA — на экран проверки незавершённых транзакций.
 //
-//	@Tags			user
+//	@Tags			auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		LoginReq	true	"Данные для входа"
@@ -218,7 +218,7 @@ func (h *Handler) login(c *gin.Context) {
 //	@Summary		Регистрация сотрудника в системе
 //	@Description	Регистрация сотрудника в системе.<br> Необходимые данные: табельный номер, ФИО и роль (например, "Инженер" или "QA").<br>
 //
-//	@Tags			user
+//	@Tags			auth
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		RegisterReq	true	"Данные для регистрации"
@@ -247,7 +247,7 @@ func (h *Handler) register(c *gin.Context) {
 //
 //	@Summary		Получить список ролей
 //	@Description	Возвращает список всех возможных ролей пользователей в системе.
-//	@Tags			user
+//	@Tags			users
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{array}		GetRolesRes	"Список ролей"
@@ -292,7 +292,6 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	endDateStr := c.Query("end_date")
 	limitStr := c.Query("limit")
 
-	// --- Парсим даты, если есть ---
 	var startDate, endDate *time.Time
 	if startDateStr != "" {
 		t, err := time.Parse("02-01-2006", startDateStr)
@@ -302,6 +301,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 		}
 		startDate = &t
 	}
+
 	if endDateStr != "" {
 		t, err := time.Parse("02-01-2006", endDateStr)
 		if err != nil {

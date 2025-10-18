@@ -26,7 +26,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "auth"
                 ],
                 "summary": "Вход в систему",
                 "parameters": [
@@ -78,7 +78,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "auth"
                 ],
                 "summary": "Регистрация сотрудника в системе",
                 "parameters": [
@@ -204,7 +204,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "QA"
                 ],
                 "summary": "Список транзакций",
                 "parameters": [
@@ -247,7 +247,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "QA"
                 ],
                 "summary": "Получение информации о проблемной транзакции",
                 "parameters": [
@@ -306,7 +306,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "QA"
                 ],
                 "summary": "QA-проверка и завершение транзакции",
                 "parameters": [
@@ -365,7 +365,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "users"
                 ],
                 "summary": "Операция выдачи/сдачи инструментов",
                 "parameters": [
@@ -417,7 +417,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Получить список ролей",
                 "responses": {

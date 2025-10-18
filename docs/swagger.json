@@ -20,7 +20,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "auth"
                 ],
                 "summary": "Вход в систему",
                 "parameters": [
@@ -72,7 +72,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "auth"
                 ],
                 "summary": "Регистрация сотрудника в системе",
                 "parameters": [
@@ -198,7 +198,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "QA"
                 ],
                 "summary": "Список транзакций",
                 "parameters": [
@@ -241,7 +241,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "QA"
                 ],
                 "summary": "Получение информации о проблемной транзакции",
                 "parameters": [
@@ -300,7 +300,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "QA"
                 ],
                 "summary": "QA-проверка и завершение транзакции",
                 "parameters": [
@@ -359,7 +359,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "transactions"
+                    "users"
                 ],
                 "summary": "Операция выдачи/сдачи инструментов",
                 "parameters": [
@@ -411,7 +411,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Получить список ролей",
                 "responses": {

@@ -262,7 +262,7 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: Вход в систему
       tags:
-      - user
+      - auth
   /api/v1/auth/register:
     post:
       consumes:
@@ -297,7 +297,7 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: Регистрация сотрудника в системе
       tags:
-      - user
+      - auth
   /api/v1/qa/statistics:
     get:
       consumes:
@@ -381,7 +381,7 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: Список транзакций
       tags:
-      - transactions
+      - QA
   /api/v1/qa/transactions/:transaction_id:
     get:
       consumes:
@@ -426,7 +426,7 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: Получение информации о проблемной транзакции
       tags:
-      - transactions
+      - QA
   /api/v1/qa/transactions/:transaction_id/verification:
     post:
       consumes:
@@ -471,7 +471,7 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: QA-проверка и завершение транзакции
       tags:
-      - transactions
+      - QA
   /api/v1/user/check:
     post:
       consumes:
@@ -517,7 +517,7 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: Операция выдачи/сдачи инструментов
       tags:
-      - transactions
+      - users
   /api/v1/user/roles:
     get:
       consumes:
@@ -538,5 +538,5 @@ paths:
             $ref: '#/definitions/v1.HTTPError'
       summary: Получить список ролей
       tags:
-      - user
+      - users
 swagger: "2.0"
