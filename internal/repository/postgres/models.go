@@ -80,7 +80,7 @@ type TransactionResolutionModel struct {
 	Notes         string
 	CreatedAt     time.Time
 
-	Transaction *TransactionModel `gorm:"foreignKey:TransactionId"`
+	Transaction *TransactionModel `gorm:"foreignKey:TransactionId;references:Id"`
 }
 
 func (ToolTypeModel) TableName() string {
