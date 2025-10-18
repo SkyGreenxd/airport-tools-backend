@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"airport-tools-backend/internal/domain"
+	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/pkg/e"
 	"context"
 
@@ -55,13 +56,62 @@ func (t *TransactionResolutionsRepo) GetById(ctx context.Context, id int64) (*do
 	return toDomainTransactionResolution(&model), nil
 }
 
-func (t *TransactionResolutionsRepo) GetByQAId(ctx context.Context, qaEmployeeId string) ([]*domain.TransactionResolution, error) {
+func (t *TransactionResolutionsRepo) GetByQAId(ctx context.Context, qaId int64) ([]*domain.TransactionResolution, error) {
 	const op = "TransactionResolutionsRepo.GetByQAId"
 
 	var models []*TransactionResolutionModel
-	result := t.DB.WithContext(ctx).Find(&models, "qa_employee_id = ?", qaEmployeeId)
+	result := t.DB.WithContext(ctx).Preload("Transaction").Find(&models, "qa_employee_id = ?", qaId)
+	if err := checkGetQueryResult(result, e.ErrTransactionResolutionsNotFound); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainArrTransactionResolution(models), nil
+}
+
+func (t *TransactionResolutionsRepo) GetAllModelError(ctx context.Context) ([]*domain.TransactionResolution, error) {
+	return t.getTransactionsWithErrorType(ctx, domain.ModelError)
+}
+
+func (t *TransactionResolutionsRepo) GetAllHumanError(ctx context.Context) ([]*domain.TransactionResolution, error) {
+	return t.getTransactionsWithErrorType(ctx, domain.HumanError)
+}
+
+func (t *TransactionRepository) GetTopHumanErrorUsers(ctx context.Context) ([]repository.HumanErrorStats, error) {
+	const op = "TransactionRepository.GetTopHumanErrorUsers"
+
+	var stats []repository.HumanErrorStats
+
+	err := t.DB.WithContext(ctx).
+		Table("transaction_resolutions AS tr").
+		Select(`
+			u.full_name AS full_name,
+			u.employee_id AS employee_id,
+			COUNT(tr.id) AS qa_hits_count
+		`).
+		Joins("JOIN transactions t ON tr.transaction_id = t.id").
+		Joins("JOIN users u ON t.user_id = u.id").
+		Where("tr.reason = ?", "HUMAN_ERR").
+		Group("u.full_name, u.employee_id").
+		Order("qa_hits_count DESC").
+		Scan(&stats).Error
+
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return stats, nil
+}
+
+func (t *TransactionResolutionsRepo) getTransactionsWithErrorType(ctx context.Context, typeOfError domain.Reason) ([]*domain.TransactionResolution, error) {
+	const op = "TransactionResolutionsRepo.getTransactionsWithErrorType"
+	var models []*TransactionResolutionModel
+	result := t.DB.WithContext(ctx).Where("reason = ?", typeOfError).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, e.Wrap(op, e.ErrTransactionResolutionsNotFound)
 	}
 
 	return toDomainArrTransactionResolution(models), nil

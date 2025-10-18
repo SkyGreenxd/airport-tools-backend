@@ -19,6 +19,8 @@ type TransactionResolution struct {
 	Reason        Reason
 	Notes         string
 	CreatedAt     time.Time
+
+	Transaction Transaction
 }
 
 func NewTransactionResolution(transactionId int64, qaEmployeeId int64, reason Reason, notes string) *TransactionResolution {
