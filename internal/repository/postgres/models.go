@@ -79,6 +79,8 @@ type TransactionResolutionModel struct {
 	Reason        domain.Reason
 	Notes         string
 	CreatedAt     time.Time
+
+	Transaction *TransactionModel `gorm:"foreignKey:TransactionId"`
 }
 
 func (ToolTypeModel) TableName() string {
