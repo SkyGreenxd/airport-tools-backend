@@ -475,7 +475,7 @@ paths:
       summary: QA-проверка и завершение транзакции
       tags:
       - QA
-  /api/v1/user/check:
+  /api/v1/users/check:
     post:
       consumes:
       - application/json

@@ -71,7 +71,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 //	@Success		200		{object}	CheckRes "Успешная проверка"
 //	@Failure		400		{object}	HTTPError "Неверное тело запроса"
 //	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
-//	@Router			/api/v1/user/check [post]
+//	@Router			/api/v1/users/check [post]
 func (h *Handler) check(c *gin.Context) {
 	var req CheckReq
 	if err := c.ShouldBindJSON(&req); err != nil {
