@@ -37,7 +37,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 		}
 
 		//  USER
-		user := v1.Group("/user")
+		user := v1.Group("/users")
 		{
 			user.GET("/roles", h.getRoles)
 			user.POST("/check", h.check) // выдача/сдача инструментов пользователем
