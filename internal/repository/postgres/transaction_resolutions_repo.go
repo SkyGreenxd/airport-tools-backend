@@ -98,10 +98,6 @@ func (t *TransactionResolutionsRepo) GetTopHumanErrorUsers(ctx context.Context) 
 		return nil, e.Wrap(op, err)
 	}
 
-	if result.RowsAffected == 0 {
-		return make([]repository.HumanErrorStats, 0), nil
-	}
-
 	return stats, nil
 }
 

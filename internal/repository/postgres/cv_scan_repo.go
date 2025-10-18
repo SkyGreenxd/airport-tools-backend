@@ -110,11 +110,11 @@ func toDomainCvScan(c *CvScanModel) *domain.CvScan {
 	}
 
 	if c.DetectedTools != nil {
-		scan.TransactionObj = toDomainTransaction(c.Transaction)
+		scan.DetectedTools = toArrDomainCvScanDetail(c.DetectedTools)
 	}
 
 	if c.Transaction != nil {
-		scan.DetectedTools = toArrDomainCvScanDetail(c.DetectedTools)
+		scan.TransactionObj = toDomainTransaction(c.Transaction)
 	}
 
 	return scan

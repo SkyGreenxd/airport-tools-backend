@@ -224,6 +224,10 @@ func toTransactionModel(t *domain.Transaction) *TransactionModel {
 }
 
 func toDomainTransaction(t *TransactionModel) *domain.Transaction {
+	if t == nil {
+		return nil // Возвращаем nil, если исходная модель пуста
+	}
+
 	transaction := &domain.Transaction{
 		Id:            t.Id,
 		UserId:        t.UserId,
