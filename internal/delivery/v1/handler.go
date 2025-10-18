@@ -263,23 +263,23 @@ func (h *Handler) getRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
 }
 
-// TODO: SWAGGER
 // getStatistics
-
-// @Summary		Получить статистику
-// @Description	С помощью типа статистики возвращает различные данные по инженерам, инструментам, проверкам.
-// @Tags			statistics
-// @Accept			json
-// @Produce		json
-// @Param        type         query     string  true   "Тип статистики: users, engineers, tools, errors"
-// @Param        employee_id  query     string  false  "Табельный номер пользователя, нужен для type=users"
-// @Param        start_date   query     string  false  "Дата начала периода в формате DD-MM-YYYY"
-// @Param        end_date     query     string  false  "Дата конца периода в формате DD-MM-YYYY"
-// @Param        limit        query     int     false  "Количество результатов (топ-N), если не указано — берутся все"
-// @Failure     400 {object} HTTPError "Некорректный запрос"
-// @Success		200		{array}		StatisticsRes	"Статистика"
-// @Failure		500		{object}	HTTPError		"Внутренняя ошибка сервера"
-// @Router			/api/v1/qa/statistics [get]
+//
+// @Summary      Получить статистику QA
+// @Description  Возвращает статистику по инженерам, транзакциям и ошибкам. В зависимости от параметра type меняется формат ответа.
+// @Tags         statistics
+// @Accept       json
+// @Produce      json
+// @Param        type         query     string  true   "Тип статистики: users — топ-инженеров по HUMAN_ERR, qa — проверки конкретного QA, errors — ошибки Model vs Human"
+// @Param        employee_id  query     string  false  "Табельный номер пользователя (для type=users или type=qa)"
+// @Param        start_date   query     string  false  "Дата начала периода в формате DD-MM-YYYY (для type=users)"
+// @Param        end_date     query     string  false  "Дата конца периода в формате DD-MM-YYYY (для type=users)"
+// @Param        limit        query     int     false  "Количество результатов (топ-N), если не указано — берутся все (для type=users)"
+// @Success      200 {object} StatisticsRes "Статистика, формат зависит от type"
+// @Failure      400 {object} HTTPError "Некорректный запрос"
+// @Failure      404 {object} HTTPError "Данные не найдены"
+// @Failure      500 {object} HTTPError "Внутренняя ошибка сервера"
+// @Router       /api/v1/qa/statistics [get]
 func (h *Handler) getStatistics(c *gin.Context) {
 	statisticsType := c.Query("type")
 	if statisticsType == "" {

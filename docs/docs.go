@@ -122,7 +122,7 @@ const docTemplate = `{
         },
         "/api/v1/qa/statistics": {
             "get": {
-                "description": "С помощью типа статистики возвращает различные данные по инженерам, инструментам, проверкам.",
+                "description": "Возвращает статистику по инженерам, транзакциям и ошибкам. В зависимости от параметра type меняется формат ответа.",
                 "consumes": [
                     "application/json"
                 ],
@@ -132,52 +132,55 @@ const docTemplate = `{
                 "tags": [
                     "statistics"
                 ],
-                "summary": "Получить статистику",
+                "summary": "Получить статистику QA",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Тип статистики: users, engineers, tools, errors",
+                        "description": "Тип статистики: users — топ-инженеров по HUMAN_ERR, qa — проверки конкретного QA, errors — ошибки Model vs Human",
                         "name": "type",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Табельный номер пользователя, нужен для type=users",
+                        "description": "Табельный номер пользователя (для type=users или type=qa)",
                         "name": "employee_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Дата начала периода в формате DD-MM-YYYY",
+                        "description": "Дата начала периода в формате DD-MM-YYYY (для type=users)",
                         "name": "start_date",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Дата конца периода в формате DD-MM-YYYY",
+                        "description": "Дата конца периода в формате DD-MM-YYYY (для type=users)",
                         "name": "end_date",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Количество результатов (топ-N), если не указано — берутся все",
+                        "description": "Количество результатов (топ-N), если не указано — берутся все (для type=users)",
                         "name": "limit",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Статистика",
+                        "description": "Статистика, формат зависит от type",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/v1.StatisticsRes"
-                            }
+                            "$ref": "#/definitions/v1.StatisticsRes"
                         }
                     },
                     "400": {
                         "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Данные не найдены",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }

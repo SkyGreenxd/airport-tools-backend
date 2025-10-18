@@ -302,27 +302,29 @@ paths:
     get:
       consumes:
       - application/json
-      description: С помощью типа статистики возвращает различные данные по инженерам,
-        инструментам, проверкам.
+      description: Возвращает статистику по инженерам, транзакциям и ошибкам. В зависимости
+        от параметра type меняется формат ответа.
       parameters:
-      - description: 'Тип статистики: users, engineers, tools, errors'
+      - description: 'Тип статистики: users — топ-инженеров по HUMAN_ERR, qa — проверки
+          конкретного QA, errors — ошибки Model vs Human'
         in: query
         name: type
         required: true
         type: string
-      - description: Табельный номер пользователя, нужен для type=users
+      - description: Табельный номер пользователя (для type=users или type=qa)
         in: query
         name: employee_id
         type: string
-      - description: Дата начала периода в формате DD-MM-YYYY
+      - description: Дата начала периода в формате DD-MM-YYYY (для type=users)
         in: query
         name: start_date
         type: string
-      - description: Дата конца периода в формате DD-MM-YYYY
+      - description: Дата конца периода в формате DD-MM-YYYY (для type=users)
         in: query
         name: end_date
         type: string
       - description: Количество результатов (топ-N), если не указано — берутся все
+          (для type=users)
         in: query
         name: limit
         type: integer
@@ -330,20 +332,22 @@ paths:
       - application/json
       responses:
         "200":
-          description: Статистика
+          description: Статистика, формат зависит от type
           schema:
-            items:
-              $ref: '#/definitions/v1.StatisticsRes'
-            type: array
+            $ref: '#/definitions/v1.StatisticsRes'
         "400":
           description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "404":
+          description: Данные не найдены
           schema:
             $ref: '#/definitions/v1.HTTPError'
         "500":
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/v1.HTTPError'
-      summary: Получить статистику
+      summary: Получить статистику QA
       tags:
       - statistics
   /api/v1/qa/transactions/:
