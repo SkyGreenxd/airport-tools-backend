@@ -251,7 +251,7 @@ func (h *Handler) register(c *gin.Context) {
 //	@Produce		json
 //	@Success		200	{array}		GetRolesRes	"Список ролей"
 //	@Failure		500	{object}	HTTPError	"Внутренняя ошибка сервера"
-//	@Router			/api/v1/user/roles [get]
+//	@Router			/api/v1/users/roles [get]
 func (h *Handler) getRoles(c *gin.Context) {
 	res, err := h.service.GetRoles(c.Request.Context())
 	if err != nil {
@@ -265,16 +265,7 @@ func (h *Handler) getRoles(c *gin.Context) {
 // getStatistics
 //
 // @Summary      Получить детализированную статистику QA
-// @Description  Взвращает гибкую статистику по качеству проверок и ошибкам QA-системы.
-// @Description  Поддерживает несколько режимов работы, задаваемых параметром `type`:
-//
-// @Description  **Типы статистики (`type`):**
-// @Description  - `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.
-// @Description  - `users&employee_id=...` - Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.
-// @Description  - `qa` — список всех QA-сотрудников, выполняющих проверки.
-// @Description  - `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.
-// @Description  - `errors` — сводная статистика ошибок **Model vs Human**.
-// @Description  - `transactions` - Выводит статистику по транзакциям(Кол-во всех транзакций, а так же кол-во открытых, закрытых, QA и неудачных.
+// @Description Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`:<br/>**Типы статистики (`type`):**<br/>- `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` — сводная статистика ошибок **Model vs Human**.<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных).
 //
 // @Tags         statistics
 // @Accept       json
