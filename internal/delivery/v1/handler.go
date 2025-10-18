@@ -353,19 +353,19 @@ func (h *Handler) getStatistics(c *gin.Context) {
 
 	case "qa":
 		if employeeId != "" {
-			result, err := h.service.GetAllQaEmployers(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-			}
-
-			res = toArrDeliveryUserDto(result)
-		} else {
 			result, err := h.service.GetQAChecks(c.Request.Context(), employeeId)
 			if err != nil {
 				ErrorToHttpRes(err, c)
 			}
 
 			res = toDeliveryQaTransactionsRes(result)
+		} else {
+			result, err := h.service.GetAllQaEmployers(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+			}
+
+			res = toArrDeliveryUserDto(result)
 		}
 	default:
 		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
