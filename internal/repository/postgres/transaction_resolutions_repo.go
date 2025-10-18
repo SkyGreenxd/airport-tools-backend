@@ -137,6 +137,7 @@ func toDomainTransactionResolution(model *TransactionResolutionModel) *domain.Tr
 		Reason:        model.Reason,
 		Notes:         model.Notes,
 		CreatedAt:     model.CreatedAt,
+		Transaction:   toDomainTransaction(model.Transaction),
 	}
 }
 
