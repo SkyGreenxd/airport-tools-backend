@@ -1,5 +1,13 @@
 basePath: /api/v1
 definitions:
+  domain.Reason:
+    enum:
+    - MODEL_ERR
+    - HUMAN_ERR
+    type: string
+    x-enum-varnames:
+    - ModelError
+    - HumanError
   domain.Role:
     enum:
     - Engineer
@@ -19,11 +27,13 @@ definitions:
     - OPEN
     - CLOSED
     - QA VERIFICATION
+    - FAILED
     type: string
     x-enum-varnames:
     - OPEN
     - CLOSED
     - QA
+    - FAILED
   v1.CheckReq:
     properties:
       data:
@@ -184,22 +194,21 @@ definitions:
         type: string
       qa_employee_id:
         type: string
+      reason:
+        $ref: '#/definitions/domain.Reason'
     required:
     - qa_employee_id
+    - reason
     type: object
   v1.VerificationRes:
     properties:
       created_at:
-        description: Время завершения проверки
         type: string
       status:
-        description: Новый статус
         type: string
       transaction_id:
-        description: ID транзакции, которую QA завершил
         type: integer
       verified_by:
-        description: Табельный номер или имя QA
         type: string
     type: object
 host: localhost:8080

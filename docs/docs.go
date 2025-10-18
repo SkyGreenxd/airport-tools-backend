@@ -365,6 +365,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "domain.Reason": {
+            "type": "string",
+            "enum": [
+                "MODEL_ERR",
+                "HUMAN_ERR"
+            ],
+            "x-enum-varnames": [
+                "ModelError",
+                "HumanError"
+            ]
+        },
         "domain.Role": {
             "type": "string",
             "enum": [
@@ -389,12 +400,14 @@ const docTemplate = `{
             "enum": [
                 "OPEN",
                 "CLOSED",
-                "QA VERIFICATION"
+                "QA VERIFICATION",
+                "FAILED"
             ],
             "x-enum-varnames": [
                 "OPEN",
                 "CLOSED",
-                "QA"
+                "QA",
+                "FAILED"
             ]
         },
         "v1.CheckReq": {
@@ -637,7 +650,8 @@ const docTemplate = `{
         "v1.VerificationReq": {
             "type": "object",
             "required": [
-                "qa_employee_id"
+                "qa_employee_id",
+                "reason"
             ],
             "properties": {
                 "notes": {
@@ -645,6 +659,9 @@ const docTemplate = `{
                 },
                 "qa_employee_id": {
                     "type": "string"
+                },
+                "reason": {
+                    "$ref": "#/definitions/domain.Reason"
                 }
             }
         },
@@ -652,19 +669,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "description": "Время завершения проверки",
                     "type": "string"
                 },
                 "status": {
-                    "description": "Новый статус",
                     "type": "string"
                 },
                 "transaction_id": {
-                    "description": "ID транзакции, которую QA завершил",
                     "type": "integer"
                 },
                 "verified_by": {
-                    "description": "Табельный номер или имя QA",
                     "type": "string"
                 }
             }

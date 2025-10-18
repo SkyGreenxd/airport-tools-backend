@@ -17,15 +17,16 @@ func toDeliveryGetRolesRes(roles *usecase.GetRolesRes) GetRolesRes {
 }
 
 type VerificationReq struct {
-	QAEmployeeId string `json:"qa_employee_id" binding:"required"`
-	Notes        string `json:"notes"`
+	QAEmployeeId string        `json:"qa_employee_id" binding:"required"`
+	Reason       domain.Reason `json:"reason" binding:"required"`
+	Notes        string        `json:"notes"`
 }
 
 type VerificationRes struct {
-	TransactionID int64     `json:"transaction_id"` // ID транзакции, которую QA завершил
-	Status        string    `json:"status"`         // Новый статус
-	VerifiedBy    string    `json:"verified_by"`    // Табельный номер или имя QA
-	CreatedAt     time.Time `json:"created_at"`     // Время завершения проверки
+	TransactionID int64     `json:"transaction_id"`
+	Status        string    `json:"status"`
+	VerifiedBy    string    `json:"verified_by"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 func toDeliveryVerificationRes(res *usecase.VerificationRes) *VerificationRes {

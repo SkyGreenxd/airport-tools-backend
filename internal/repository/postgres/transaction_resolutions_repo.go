@@ -72,6 +72,7 @@ func toTransactionResolutionModel(transaction *domain.TransactionResolution) *Tr
 		Id:            transaction.Id,
 		TransactionId: transaction.TransactionId,
 		QAEmployeeId:  transaction.QAEmployeeId,
+		Reason:        transaction.Reason,
 		Notes:         transaction.Notes,
 		CreatedAt:     transaction.CreatedAt,
 	}
@@ -82,6 +83,7 @@ func toDomainTransactionResolution(model *TransactionResolutionModel) *domain.Tr
 		Id:            model.Id,
 		TransactionId: model.TransactionId,
 		QAEmployeeId:  model.QAEmployeeId,
+		Reason:        model.Reason,
 		Notes:         model.Notes,
 		CreatedAt:     model.CreatedAt,
 	}

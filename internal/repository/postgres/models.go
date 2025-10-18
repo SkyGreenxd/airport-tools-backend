@@ -76,6 +76,7 @@ type TransactionResolutionModel struct {
 	Id            int64
 	TransactionId int64
 	QAEmployeeId  int64 `gorm:"column:qa_employee_id"`
+	Reason        domain.Reason
 	Notes         string
 	CreatedAt     time.Time
 }
