@@ -68,10 +68,9 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		CheckReq	true	"Запрос на выдачу или сдачу инструментов"
-//	@Success		200		{object}	CheckRes
-//	@Failure		400		{object}	HTTPError
-//	@Failure		404		{object}	HTTPError
-//	@Failure		500		{object}	HTTPError
+//	@Success		200		{object}	CheckRes "Успешная проверка"
+//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
+//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
 //	@Router			/api/v1/user/check [post]
 func (h *Handler) check(c *gin.Context) {
 	var req CheckReq
@@ -99,10 +98,10 @@ func (h *Handler) check(c *gin.Context) {
 //	@Produce		json
 //	@Param			transaction_id	path		string			true	"Идентификатор транзакции"
 //	@Param			request			body		VerificationReq	true	"Данные завершения QA-проверки"
-//	@Success		200				{object}	VerificationRes
-//	@Failure		400				{object}	HTTPError
-//	@Failure		404				{object}	HTTPError
-//	@Failure		500				{object}	HTTPError
+//	@Success		200				{object}	VerificationRes "Успешное закрытие транзакции"
+//	@Failure		400				{object}	HTTPError "Неверное тело запроса"
+//	@Failure		404				{object}	HTTPError "Транзакция не найдена"
+//	@Failure		500				{object}	HTTPError "Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/transactions/:transaction_id/verification [post]
 func (h *Handler) postVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
@@ -129,7 +128,7 @@ func (h *Handler) postVerification(c *gin.Context) {
 
 // getVerification
 //
-//	@Summary		Получение информации о проблемной транзакции
+//	@Summary		Получение информации о транзакции
 //	@Description	Получить информацию о проблемной транзакции.<br>Открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • access_tools — инструменты, прошедшие автоматическую проверку<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;2) manual_check_tools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;3) unknown_tools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;4) missing_tools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
 //
 //	@Tags			QA
@@ -137,10 +136,10 @@ func (h *Handler) postVerification(c *gin.Context) {
 //	@Produce		json
 //	@Param			transaction_id	path		string					true	"Идентификатор транзакции"
 //	@Param			request			body		GetQAVerificationRes	true	"Данные о транзакции"
-//	@Success		200				{object}	VerificationRes
-//	@Failure		400				{object}	HTTPError
-//	@Failure		404				{object}	HTTPError
-//	@Failure		500				{object}	HTTPError
+//	@Success		200				{object}	VerificationRes "Информация о транзакции"
+//	@Failure		400				{object}	HTTPError "Неверное тело запроса"
+//	@Failure		404				{object}	HTTPError "Транзакция не найдена"
+//	@Failure		500				{object}	HTTPError "Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/transactions/:transaction_id [get]
 func (h *Handler) getVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
@@ -168,9 +167,9 @@ func (h *Handler) getVerification(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			status	query		string	false	"Фильтр по статусу транзакции"
-//	@Success		200		{object}	ListTransactionsRes
-//	@Failure		400		{object}	HTTPError
-//	@Failure		500		{object}	HTTPError
+//	@Success		200		{object}	ListTransactionsRes "Список транзакций"
+//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
+//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/transactions/ [get]
 func (h *Handler) list(c *gin.Context) {
 	status := c.Query("status")
@@ -192,10 +191,10 @@ func (h *Handler) list(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		LoginReq	true	"Данные для входа"
-//	@Success		200		{object}	LoginRes
-//	@Failure		400		{object}	HTTPError
-//	@Failure		401		{object}	HTTPError
-//	@Failure		500		{object}	HTTPError
+//	@Success		200		{object}	LoginRes "Успешная авторизация"
+//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
+//	@Failure		404		{object}	HTTPError "Пользователь не найден"
+//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
 //	@Router			/api/v1/auth/login [post]
 func (h *Handler) login(c *gin.Context) {
 	var req LoginReq
@@ -222,10 +221,10 @@ func (h *Handler) login(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		RegisterReq	true	"Данные для регистрации"
-//	@Success		201		{object}	RegisterRes
-//	@Failure		400		{object}	HTTPError
-//	@Failure		409		{object}	HTTPError
-//	@Failure		500		{object}	HTTPError
+//	@Success		201		{object}	RegisterRes "Регистрация успешна"
+//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
+//	@Failure		409		{object}	HTTPError "Пользователь с таким табельным номером уже существует"
+//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
 //	@Router			/api/v1/auth/register [post]
 func (h *Handler) register(c *gin.Context) {
 	var req RegisterReq

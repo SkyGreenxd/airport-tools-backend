@@ -42,25 +42,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешная авторизация",
                         "schema": {
                             "$ref": "#/definitions/v1.LoginRes"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "404": {
+                        "description": "Пользователь не найден",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
@@ -94,25 +94,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Регистрация успешна",
                         "schema": {
                             "$ref": "#/definitions/v1.RegisterRes"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "409": {
-                        "description": "Conflict",
+                        "description": "Пользователь с таким табельным номером уже существует",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
@@ -217,19 +217,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Список транзакций",
                         "schema": {
                             "$ref": "#/definitions/v1.ListTransactionsRes"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
@@ -249,7 +249,7 @@ const docTemplate = `{
                 "tags": [
                     "QA"
                 ],
-                "summary": "Получение информации о проблемной транзакции",
+                "summary": "Получение информации о транзакции",
                 "parameters": [
                     {
                         "type": "string",
@@ -270,25 +270,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Информация о транзакции",
                         "schema": {
                             "$ref": "#/definitions/v1.VerificationRes"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Транзакция не найдена",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
@@ -329,25 +329,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешное закрытие транзакции",
                         "schema": {
                             "$ref": "#/definitions/v1.VerificationRes"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Транзакция не найдена",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
@@ -381,25 +381,19 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Успешная проверка",
                         "schema": {
                             "$ref": "#/definitions/v1.CheckRes"
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/v1.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
