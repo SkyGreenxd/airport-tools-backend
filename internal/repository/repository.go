@@ -35,6 +35,7 @@ type UserRepository interface {
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, user *domain.User) (*domain.User, error)
 	GetByEmployeeIdWithTransactionResolutions(ctx context.Context, employeeId string) (*domain.User, error)
+	GetAllQa(ctx context.Context) ([]*domain.User, error)
 }
 
 // TransactionRepository интерфейс для работы с транзакциями инструментов в базе данных
@@ -79,5 +80,8 @@ type TransactionResolutionsRepository interface {
 	Create(ctx context.Context, transaction *domain.TransactionResolution) (*domain.TransactionResolution, error)
 	GetAll(ctx context.Context) ([]*domain.TransactionResolution, error)
 	GetById(ctx context.Context, id int64) (*domain.TransactionResolution, error)
-	GetByQAId(ctx context.Context, qaEmployeeId string) ([]*domain.TransactionResolution, error)
+	GetByQAId(ctx context.Context, qaId int64) ([]*domain.TransactionResolution, error)
+	GetAllModelError(ctx context.Context) ([]*domain.TransactionResolution, error)
+	GetAllHumanError(ctx context.Context) ([]*domain.TransactionResolution, error)
+	GetTopHumanErrorUsers(ctx context.Context) ([]HumanErrorStats, error)
 }
