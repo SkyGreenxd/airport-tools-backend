@@ -456,12 +456,12 @@ func (s *Service) GetMlVsHuman(ctx context.Context) (*ModelOrHumanStatsRes, erro
 	const op = "usecase.GetMlVsHuman"
 
 	humansErrors, err := s.trResolution.GetAllHumanError(ctx)
-	if err != nil {
+	if err != nil && !errors.Is(err, e.ErrTransactionResolutionsNotFound) {
 		return nil, e.Wrap(op, err)
 	}
 
 	modelErrors, err := s.trResolution.GetAllModelError(ctx)
-	if err != nil {
+	if err != nil && !errors.Is(err, e.ErrTransactionResolutionsNotFound) {
 		return nil, e.Wrap(op, err)
 	}
 
