@@ -291,17 +291,17 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	// --- Парсим даты, если есть ---
 	var startDate, endDate *time.Time
 	if startDateStr != "" {
-		t, err := time.Parse("2006-01-02", startDateStr)
+		t, err := time.Parse("02-01-2006", startDateStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid start_date format, expected YYYY-MM-DD"})
+			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 			return
 		}
 		startDate = &t
 	}
 	if endDateStr != "" {
-		t, err := time.Parse("2006-01-02", endDateStr)
+		t, err := time.Parse("02-01-2006", endDateStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid end_date format, expected YYYY-MM-DD"})
+			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 			return
 		}
 		endDate = &t
@@ -311,7 +311,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	if limitStr != "" {
 		n, err := strconv.Atoi(limitStr)
 		if err != nil || n <= 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit"})
+			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 			return
 		}
 		limit = &n
