@@ -37,6 +37,8 @@ var (
 	ErrInvalidRequestBody      = errors.New("invalid request body")
 	ErrRequestNotSupported     = errors.New("request not supported")
 	ErrRequestNoStatisticsType = errors.New("request has no statistics type")
+
+	ErrTransactionResolutionsNotFound = errors.New("transaction resolutions not found")
 )
 
 func Wrap(msg string, err error) error {
