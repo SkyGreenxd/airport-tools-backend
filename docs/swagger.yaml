@@ -37,11 +37,16 @@ definitions:
   v1.AddToolSetReq:
     properties:
       tool_set_name:
+        minLength: 3
         type: string
       tools_ids:
         items:
           type: integer
+        minItems: 1
         type: array
+    required:
+    - tool_set_name
+    - tools_ids
     type: object
   v1.AddToolSetRes:
     properties:
@@ -480,10 +485,12 @@ paths:
       consumes:
       - application/json
       description: 'Возвращает список транзакций QA.<br> Можно фильтровать по статусу
-        с помощью query-параметра `status`.<br> Допустимое значение: ''qa'' вернёт
-        только транзакции, требующие проверки QA.<br> Каждая транзакция содержит минимальные
-        данные: ID, инженера, номер набора инструментов, дату создания транзакции,
-        текущий статус.'
+        с помощью query-параметра `status`.<br> Допустимые значения: <br> - ''qa''
+        вернёт только транзакции, требующие проверки QA;<br> - `closed` вернет закрытые
+        транзакции;<br> - `open` вернет открытые транзакции;<br> - `failed` вернет
+        транзакции с неудачной выдачей инструментов.<br> Каждая транзакция содержит
+        минимальные данные: ID, инженера, номер набора инструментов, дату создания
+        транзакции, текущий статус.'
       parameters:
       - description: Фильтр по статусу транзакции
         in: query
