@@ -125,7 +125,7 @@ func (t *TransactionRepository) GetAllWithUser(ctx context.Context) ([]*domain.T
 	const op = "TransactionRepository.GetAllWithUser"
 
 	var models []*TransactionModel
-	result := t.DB.WithContext(ctx).Preload("User").Find(&models)
+	result := t.DB.WithContext(ctx).Preload("User").Order("id DESC").Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
