@@ -68,9 +68,9 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		CheckReq	true	"Запрос на выдачу или сдачу инструментов"
-//	@Success		200		{object}	CheckRes "Успешная проверка"
-//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
-//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Success		200		{object}	CheckRes	"Успешная проверка"
+//	@Failure		400		{object}	HTTPError	"Неверное тело запроса"
+//	@Failure		500		{object}	HTTPError	"Внутренняя ошибка сервера"
 //	@Router			/api/v1/users/check [post]
 func (h *Handler) check(c *gin.Context) {
 	var req CheckReq
@@ -98,10 +98,10 @@ func (h *Handler) check(c *gin.Context) {
 //	@Produce		json
 //	@Param			transaction_id	path		string			true	"Идентификатор транзакции"
 //	@Param			request			body		VerificationReq	true	"Данные завершения QA-проверки"
-//	@Success		200				{object}	VerificationRes "Успешное закрытие транзакции"
-//	@Failure		400				{object}	HTTPError "Неверное тело запроса"
-//	@Failure		404				{object}	HTTPError "Транзакция не найдена"
-//	@Failure		500				{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Success		200				{object}	VerificationRes	"Успешное закрытие транзакции"
+//	@Failure		400				{object}	HTTPError		"Неверное тело запроса"
+//	@Failure		404				{object}	HTTPError		"Транзакция не найдена"
+//	@Failure		500				{object}	HTTPError		"Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/transactions/:transaction_id/verification [post]
 func (h *Handler) postVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
@@ -136,10 +136,10 @@ func (h *Handler) postVerification(c *gin.Context) {
 //	@Produce		json
 //	@Param			transaction_id	path		string					true	"Идентификатор транзакции"
 //	@Param			request			body		GetQAVerificationRes	true	"Данные о транзакции"
-//	@Success		200				{object}	VerificationRes "Информация о транзакции"
-//	@Failure		400				{object}	HTTPError "Неверное тело запроса"
-//	@Failure		404				{object}	HTTPError "Транзакция не найдена"
-//	@Failure		500				{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Success		200				{object}	VerificationRes			"Информация о транзакции"
+//	@Failure		400				{object}	HTTPError				"Неверное тело запроса"
+//	@Failure		404				{object}	HTTPError				"Транзакция не найдена"
+//	@Failure		500				{object}	HTTPError				"Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/transactions/:transaction_id [get]
 func (h *Handler) getVerification(c *gin.Context) {
 	strTransactionId := c.Param("transaction_id")
@@ -166,10 +166,10 @@ func (h *Handler) getVerification(c *gin.Context) {
 //	@Tags			QA
 //	@Accept			json
 //	@Produce		json
-//	@Param			status	query		string	false	"Фильтр по статусу транзакции"
-//	@Success		200		{object}	ListTransactionsRes "Список транзакций"
-//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
-//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Param			status	query		string				false	"Фильтр по статусу транзакции"
+//	@Success		200		{object}	ListTransactionsRes	"Список транзакций"
+//	@Failure		400		{object}	HTTPError			"Неверное тело запроса"
+//	@Failure		500		{object}	HTTPError			"Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/transactions/ [get]
 func (h *Handler) list(c *gin.Context) {
 	status := c.Query("status")
@@ -191,10 +191,10 @@ func (h *Handler) list(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		LoginReq	true	"Данные для входа"
-//	@Success		200		{object}	LoginRes "Успешная авторизация"
-//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
-//	@Failure		404		{object}	HTTPError "Пользователь не найден"
-//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Success		200		{object}	LoginRes	"Успешная авторизация"
+//	@Failure		400		{object}	HTTPError	"Неверное тело запроса"
+//	@Failure		404		{object}	HTTPError	"Пользователь не найден"
+//	@Failure		500		{object}	HTTPError	"Внутренняя ошибка сервера"
 //	@Router			/api/v1/auth/login [post]
 func (h *Handler) login(c *gin.Context) {
 	var req LoginReq
@@ -221,10 +221,10 @@ func (h *Handler) login(c *gin.Context) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		RegisterReq	true	"Данные для регистрации"
-//	@Success		201		{object}	RegisterRes "Регистрация успешна"
-//	@Failure		400		{object}	HTTPError "Неверное тело запроса"
-//	@Failure		409		{object}	HTTPError "Пользователь с таким табельным номером уже существует"
-//	@Failure		500		{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Success		201		{object}	RegisterRes	"Регистрация успешна"
+//	@Failure		400		{object}	HTTPError	"Неверное тело запроса"
+//	@Failure		409		{object}	HTTPError	"Пользователь с таким табельным номером уже существует"
+//	@Failure		500		{object}	HTTPError	"Внутренняя ошибка сервера"
 //	@Router			/api/v1/auth/register [post]
 func (h *Handler) register(c *gin.Context) {
 	var req RegisterReq
@@ -264,26 +264,26 @@ func (h *Handler) getRoles(c *gin.Context) {
 
 // getStatistics
 //
-// @Summary      Получить детализированную статистику QA
-// @Description Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):**<br/>- `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` — сводная статистика ошибок **Model vs Human**.<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных).
+//	@Summary		Получить детализированную статистику QA
+//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):**<br/>- `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` — сводная статистика ошибок **Model vs Human**.<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных) <br/>- `work_duration` - возвращает список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true) <br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"<br/> avg_work_duration и work_duration **не совместимы*, выбирайте что то одно*.
 //
-// @Tags         statistics
-// @Accept       json
-// @Produce      json
+//	@Tags			statistics
+//	@Accept			json
+//	@Produce		json
 //
-// @Param        type         query     string  true   "Тип статистики. Варианты: users, qs, errors, transactions"
-// @Param        employee_id  query     string  false  "Табельный номер пользователя (для type=qa и для type=users)"
-// @Param        start_date   query     string  false  "Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
-// @Param        end_date     query     string  false  "Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
-// @Param        limit        query     int     false  "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
-// @Param		 avg_work_duration query string false "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
-// @Param		 work_duration query string false "Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)"
+//	@Param			type				query		string			true	"Тип статистики. Варианты: users, qs, errors, transactions"
+//	@Param			employee_id			query		string			false	"Табельный номер пользователя (для type=qa и для type=users)"
+//	@Param			start_date			query		string			false	"Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
+//	@Param			end_date			query		string			false	"Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
+//	@Param			limit				query		int				false	"Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
+//	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
+//	@Param			work_duration		query		string			false	"Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)"
 //
-// @Success      200 {object} StatisticsRes "Успешный ответ: структура зависит от значения параметра type"
-// @Failure      400 {object} HTTPError "Неверное тело запроса"
-// @Failure      500 {object} HTTPError "Внутренняя ошибка сервера"
+//	@Success		200					{object}	StatisticsRes	"Успешный ответ: структура зависит от значения параметра type"
+//	@Failure		400					{object}	HTTPError		"Неверное тело запроса"
+//	@Failure		500					{object}	HTTPError		"Внутренняя ошибка сервера"
 //
-// @Router       /api/v1/qa/statistics [get]
+//	@Router			/api/v1/qa/statistics [get]
 func (h *Handler) getStatistics(c *gin.Context) {
 	statisticsType := c.Query("type")
 	if statisticsType == "" {
