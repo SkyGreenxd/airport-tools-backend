@@ -296,6 +296,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/qa/tools/ml-errors": {
+            "get": {
+                "description": "Возвращает список наборов инструментов, где для каждого инструмента указано, сколько раз на нём была зарегистрирована ошибка MODEL_ERR",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "QA"
+                ],
+                "summary": "Возвращает наборы инструментов с ML-ошибками",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/v1.ToolSetWithErrors"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/qa/tools/new_set": {
             "post": {
                 "description": "Принимает имя нового набора и список инструментов (их айди)",
@@ -594,25 +629,6 @@ const docTemplate = `{
                 "HumanError"
             ]
         },
-        "domain.Role": {
-            "type": "string",
-            "enum": [
-                "Engineer",
-                "Quality Auditor"
-            ],
-            "x-enum-comments": {
-                "Engineer": "Авиатехник / Инженер",
-                "QualityAuditor": "Специалист службы качества / аудит"
-            },
-            "x-enum-descriptions": [
-                "Авиатехник / Инженер",
-                "Специалист службы качества / аудит"
-            ],
-            "x-enum-varnames": [
-                "Engineer",
-                "QualityAuditor"
-            ]
-        },
         "domain.Status": {
             "type": "string",
             "enum": [
@@ -747,7 +763,7 @@ const docTemplate = `{
                 "roles": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/domain.Role"
+                        "type": "string"
                     }
                 }
             }
@@ -789,7 +805,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "role": {
-                    "$ref": "#/definitions/domain.Role"
+                    "type": "string"
                 }
             }
         },
@@ -848,7 +864,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "$ref": "#/definitions/domain.Role"
+                    "type": "string"
                 }
             }
         },
@@ -869,6 +885,23 @@ const docTemplate = `{
                 }
             }
         },
+        "v1.ToolSetWithErrors": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.ToolWithErrorCount"
+                    }
+                }
+            }
+        },
         "v1.ToolTypeDTO": {
             "type": "object",
             "properties": {
@@ -879,6 +912,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "part_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.ToolWithErrorCount": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "ml_error_count": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }
@@ -929,6 +976,13 @@ const docTemplate = `{
                 },
                 "reason": {
                     "$ref": "#/definitions/domain.Reason"
+                },
+                "tool_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

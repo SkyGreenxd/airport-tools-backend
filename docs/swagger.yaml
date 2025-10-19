@@ -8,20 +8,6 @@ definitions:
     x-enum-varnames:
     - ModelError
     - HumanError
-  domain.Role:
-    enum:
-    - Engineer
-    - Quality Auditor
-    type: string
-    x-enum-comments:
-      Engineer: Авиатехник / Инженер
-      QualityAuditor: Специалист службы качества / аудит
-    x-enum-descriptions:
-    - Авиатехник / Инженер
-    - Специалист службы качества / аудит
-    x-enum-varnames:
-    - Engineer
-    - QualityAuditor
   domain.Status:
     enum:
     - OPEN
@@ -113,7 +99,7 @@ definitions:
     properties:
       roles:
         items:
-          $ref: '#/definitions/domain.Role'
+          type: string
         type: array
     type: object
   v1.HTTPError:
@@ -140,7 +126,7 @@ definitions:
   v1.LoginRes:
     properties:
       role:
-        $ref: '#/definitions/domain.Role'
+        type: string
     type: object
   v1.ProblematicTools:
     properties:
@@ -175,7 +161,7 @@ definitions:
       full_name:
         type: string
       role:
-        $ref: '#/definitions/domain.Role'
+        type: string
     required:
     - employee_id
     - full_name
@@ -192,6 +178,17 @@ definitions:
       type:
         type: string
     type: object
+  v1.ToolSetWithErrors:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      tools:
+        items:
+          $ref: '#/definitions/v1.ToolWithErrorCount'
+        type: array
+    type: object
   v1.ToolTypeDTO:
     properties:
       id:
@@ -199,6 +196,15 @@ definitions:
       name:
         type: string
       part_number:
+        type: string
+    type: object
+  v1.ToolWithErrorCount:
+    properties:
+      id:
+        type: integer
+      ml_error_count:
+        type: integer
+      name:
         type: string
     type: object
   v1.TransactionDTO:
@@ -229,6 +235,11 @@ definitions:
         type: string
       reason:
         $ref: '#/definitions/domain.Reason'
+      tool_ids:
+        items:
+          type: integer
+        minItems: 1
+        type: array
     required:
     - qa_employee_id
     - reason
@@ -450,6 +461,30 @@ paths:
       summary: Получить статистику пользователей (инженеров)
       tags:
       - statistics
+  /api/v1/qa/tools/ml-errors:
+    get:
+      description: Возвращает список наборов инструментов, где для каждого инструмента
+        указано, сколько раз на нём была зарегистрирована ошибка MODEL_ERR
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/v1.ToolSetWithErrors'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Возвращает наборы инструментов с ML-ошибками
+      tags:
+      - QA
   /api/v1/qa/tools/new_set:
     post:
       consumes:

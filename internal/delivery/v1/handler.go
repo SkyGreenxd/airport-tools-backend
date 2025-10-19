@@ -480,9 +480,16 @@ func (h *Handler) addToolSet(c *gin.Context) {
 	c.JSON(http.StatusOK, ToDeliveryAddToolSetRes(res))
 }
 
-// GetMlErrorTools возвращает наборы инструментов вместе с инструментами,
-// где для каждого инструмента указано,
-// сколько раз на нём была зарегистрирована ошибка MODEL_ERR
+// getMlErrorTools
+//
+//	@Summary		Возвращает наборы инструментов с ML-ошибками
+//	@Description	Возвращает список наборов инструментов, где для каждого инструмента указано, сколько раз на нём была зарегистрирована ошибка MODEL_ERR
+//	@Tags			QA
+//	@Produce		json
+//	@Success		200	{array}		ToolSetWithErrors "Наборы и инструментами с MODEL_ERR ошибками"
+//	@Failure		400	{object}	HTTPError "Неверное тело запроса"
+//	@Failure		500	{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Router			/api/v1/qa/tools/ml-errors [get]
 func (h *Handler) getMlErrorTools(c *gin.Context) {
 	res, err := h.service.GetMlErrorTools(c.Request.Context())
 	if err != nil {
