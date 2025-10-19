@@ -32,7 +32,7 @@ type GetAllWorkDurationRes struct {
 
 type GetWorkDuration struct {
 	TransactionId int64
-	WorkDuration  time.Duration
+	WorkDuration  float64
 }
 
 func NewGetAllWorkDurationRes(arr []GetWorkDuration) *GetAllWorkDurationRes {
@@ -41,7 +41,7 @@ func NewGetAllWorkDurationRes(arr []GetWorkDuration) *GetAllWorkDurationRes {
 	}
 }
 
-func NewGetWorkDuration(id int64, workDuration time.Duration) GetWorkDuration {
+func NewGetWorkDuration(id int64, workDuration float64) GetWorkDuration {
 	return GetWorkDuration{
 		TransactionId: id,
 		WorkDuration:  workDuration,

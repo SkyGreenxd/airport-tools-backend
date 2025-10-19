@@ -530,7 +530,8 @@ func (s *Service) GetWorkDuration(ctx context.Context) (*GetAllWorkDurationRes, 
 
 	res := make([]GetWorkDuration, len(result))
 	for i, t := range result {
-		res[i] = NewGetWorkDuration(t.Id, t.UpdatedAt.Sub(t.CreatedAt))
+		hours := t.UpdatedAt.Sub(t.CreatedAt).Hours()
+		res[i] = NewGetWorkDuration(t.Id, hours)
 	}
 
 	return NewGetAllWorkDurationRes(res), nil
