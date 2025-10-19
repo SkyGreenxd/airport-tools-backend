@@ -61,6 +61,11 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 				statisticsGroup.GET("/qa", h.getQaStatistics)                    // Для ?type=qa
 				statisticsGroup.GET("/transactions", h.getTransactionStatistics) // Для ?type=transactions
 			}
+
+			tools := qa.Group("/tools")
+			{
+				tools.POST("/new_set", h.addToolSet)
+			}
 		}
 	}
 }
