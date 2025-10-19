@@ -280,7 +280,7 @@ func (h *Handler) check(c *gin.Context) {
 // postVerification
 //
 //	@Summary		QA-проверка и завершение транзакции
-//	@Description	После авторизации сотрудника QA выбирает из списка транзакцию.<br>Открывается экран сверки:<br><br> • Фотография инструментов (полноразмерное изображение)<br> • access_tools — инструменты, прошедшие автоматическую проверку<br> • Список проблемных инструментов с пояснениями, сгруппированных по категориям:<br> &nbsp;&nbsp;1) manual_check_tools — инструменты, требующие ручной проверки<br> &nbsp;&nbsp;2) unknown_tools — инструменты, не входящие в ожидаемый набор<br> &nbsp;&nbsp;3) missing_tools — инструменты, отсутствующие на фото, но ожидаемые<br><br>
+//	@Description	Позволяет QA-сотруднику завершить проверку транзакции, указав причину проблемы (ошибка человека / модели), добавить комментарий и пометить инструменты, на которых модель ошиблась (через ToolIds в теле запроса).
 //
 //	@Tags			QA
 //	@Accept			json
@@ -486,9 +486,9 @@ func (h *Handler) addToolSet(c *gin.Context) {
 //	@Description	Возвращает список наборов инструментов, где для каждого инструмента указано, сколько раз на нём была зарегистрирована ошибка MODEL_ERR
 //	@Tags			QA
 //	@Produce		json
-//	@Success		200	{array}		ToolSetWithErrors "Наборы и инструментами с MODEL_ERR ошибками"
-//	@Failure		400	{object}	HTTPError "Неверное тело запроса"
-//	@Failure		500	{object}	HTTPError "Внутренняя ошибка сервера"
+//	@Success		200	{array}		ToolSetWithErrors	"Наборы и инструментами с MODEL_ERR ошибками"
+//	@Failure		400	{object}	HTTPError			"Неверное тело запроса"
+//	@Failure		500	{object}	HTTPError			"Внутренняя ошибка сервера"
 //	@Router			/api/v1/qa/tools/ml-errors [get]
 func (h *Handler) getMlErrorTools(c *gin.Context) {
 	res, err := h.service.GetMlErrorTools(c.Request.Context())
