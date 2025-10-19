@@ -62,3 +62,18 @@ func (t *Transaction) CheckCountOfChecks() error {
 
 	return nil
 }
+
+func ValidateStatus(status string) (Status, error) {
+	switch status {
+	case string(OPEN):
+		return OPEN, nil
+	case string(CLOSED):
+		return CLOSED, nil
+	case string(QA):
+		return QA, nil
+	case string(FAILED):
+		return FAILED, nil
+	}
+
+	return "", e.ErrTransactionStatusNotFound
+}

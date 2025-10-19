@@ -74,6 +74,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrToolSetExists):
 		res.Code = http.StatusBadRequest
 		res.Message = "Набор с таким именем уже существует"
+	case errors.Is(err, e.ErrTransactionStatusNotFound):
+		res.Code = http.StatusBadRequest
+		res.Message = "Такого статуса не существует"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "Внутренняя ошибка сервера"

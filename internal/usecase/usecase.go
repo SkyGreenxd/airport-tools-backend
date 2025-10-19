@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -278,10 +279,11 @@ func (s *Service) CreateScan(ctx context.Context, req *CreateScanReq) error {
 	return nil
 }
 
-func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes, error) {
+// List возвращает список транзакций, возможна фильтрация по статусу
+func (s *Service) List(ctx context.Context, statusStr string) (*ListTransactionsRes, error) {
 	const op = "usecase.List"
 
-	if status == "" {
+	if statusStr == "" {
 		transactions, err := s.transactionRepo.GetAllWithUser(ctx)
 		if err != nil {
 			return nil, e.Wrap(op, err)
@@ -289,8 +291,14 @@ func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes
 
 		result := NewListTransactionsRes(toListTransactionsRes(transactions))
 		return result, nil
-	} else if status == "qa" {
-		transactions, err := s.transactionRepo.GetAllWhereStatusIsQAWithUser(ctx)
+	} else {
+		statusStr = strings.ToUpper(statusStr)
+		status, err := domain.ValidateStatus(statusStr)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		transactions, err := s.transactionRepo.GetAllWithStatusAndUser(ctx, status)
 		if err != nil {
 			return nil, e.Wrap(op, err)
 		}
@@ -299,9 +307,10 @@ func (s *Service) List(ctx context.Context, status string) (*ListTransactionsRes
 		return result, nil
 	}
 
-	return nil, e.ErrRequestNotSupported
+	// return nil, e.ErrRequestNotSupported
 }
 
+// Login возвращает роль пользователя для дальнейшей работы. MVP вариант, небезопасно
 func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
 	const op = "usecase.Login"
 
@@ -314,6 +323,7 @@ func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
 }
 
 // TODO: добавить таблицу ролей чтобы не хардкодить
+// GetRoles возвращает список ролей
 func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
 	const op = "usecase.GetRoles"
 
@@ -321,6 +331,7 @@ func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
 	return NewGetRolesRes(roles), nil
 }
 
+// Register регистрирует пользователя
 func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes, error) {
 	const op = "usecase.Register"
 
@@ -337,6 +348,7 @@ func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes,
 	return NewRegisterRes(user.Id), nil
 }
 
+// Verification отвечает за QA-проверку и завершение проблемной транзакции
 func (s *Service) Verification(ctx context.Context, req *Verification) (*VerificationRes, error) {
 	const op = "usecase.postVerification"
 
@@ -369,7 +381,7 @@ func (s *Service) Verification(ctx context.Context, req *Verification) (*Verific
 	return NewVerificationRes(updTransaction.Id, string(updTransaction.Status), user.EmployeeId, resolution.CreatedAt), nil
 }
 
-// GetQATransaction
+// GetQATransaction возвращает структурированное описание об инструментах с привязкой к конкретной транзакции и изображению.
 func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*GetQAVerificationRes, error) {
 	const op = "usecase.GetQATransaction"
 

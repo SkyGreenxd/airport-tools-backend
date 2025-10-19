@@ -52,7 +52,7 @@ type TransactionRepository interface {
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, transaction *domain.Transaction) (*domain.Transaction, error)
 	GetAllWithUser(ctx context.Context) ([]*domain.Transaction, error)
-	GetAllWhereStatusIsQAWithUser(ctx context.Context) ([]*domain.Transaction, error)
+	GetAllWithStatusAndUser(ctx context.Context, status domain.Status) ([]*domain.Transaction, error)
 	GetLastFailedByUserId(ctx context.Context, userId int64) (*domain.Transaction, error)
 	GetAllByUserId(ctx context.Context, userId int64, startDate, endDate *time.Time, limit *int) ([]*domain.Transaction, error)
 	GetAllWithStatus(ctx context.Context, status domain.Status) ([]*domain.Transaction, error)

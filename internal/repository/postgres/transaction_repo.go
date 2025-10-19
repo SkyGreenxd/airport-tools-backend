@@ -133,11 +133,11 @@ func (t *TransactionRepository) GetAllWithUser(ctx context.Context) ([]*domain.T
 	return toDomainArrTransactions(models), nil
 }
 
-func (t *TransactionRepository) GetAllWhereStatusIsQAWithUser(ctx context.Context) ([]*domain.Transaction, error) {
+func (t *TransactionRepository) GetAllWithStatusAndUser(ctx context.Context, status domain.Status) ([]*domain.Transaction, error) {
 	const op = "TransactionRepository.GetAllWhereStatusIsQA"
 
 	var models []*TransactionModel
-	result := t.DB.WithContext(ctx).Preload("User").Where("status = ?", domain.QA).Find(&models)
+	result := t.DB.WithContext(ctx).Preload("User").Where("status = ?", status).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
