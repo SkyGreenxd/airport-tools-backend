@@ -94,11 +94,11 @@ func (u *UserRepository) GetAll(ctx context.Context) ([]*domain.User, error) {
 	return toArrDomainUser(models), nil
 }
 
-func (u *UserRepository) GetAllWithTransactions(ctx context.Context) ([]*domain.User, error) {
+func (u *UserRepository) GetAllEngineersWithTransactions(ctx context.Context) ([]*domain.User, error) {
 	const op = "UserRepository.GetAllWithTransactions"
 
 	var models []*UserModel
-	result := u.DB.WithContext(ctx).Preload("Transactions").Find(&models)
+	result := u.DB.WithContext(ctx).Preload("Transactions").Where("role = ?", domain.Engineer).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
