@@ -34,6 +34,26 @@ definitions:
     - CLOSED
     - QA
     - FAILED
+  v1.AddToolSetReq:
+    properties:
+      tool_set_name:
+        type: string
+      tools_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  v1.AddToolSetRes:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      tools:
+        items:
+          $ref: '#/definitions/v1.ToolTypeDTO'
+        type: array
+    type: object
   v1.CheckReq:
     properties:
       data:
@@ -551,33 +571,21 @@ paths:
     post:
       consumes:
       - application/json
-      description: 'Принимает табельный номер инженера и фотографию инструментов в
-        формате base64.<br> Сервис анализирует изображение, сопоставляет инструменты
-        с ожидаемым набором и возвращает: <br><br>• URL обработанного изображения
-        <br>• четыре массива: <br>1) access_tools — инструменты, прошедшие автоматическую
-        проверку<br>1) manual_check_tools — инструменты, требующие ручной проверки
-        <br>2) unknown_tools — инструменты, отсутствующие в ожидаемом наборе <br>3)
-        missing_tools — инструменты, отсутствующие на фотографии, но ожидаемые<br>•
-        transaction_type - тип транзакции(Checkin - Сдача/Checkout - Выдача)<br>•
-        status - статус транзакции(OPEN - открыта, CLOSED - закрыта, QA VERIFICATION
-        - QA проверка)<br><br> Если 4 или более инструментов не попали в access_tools
-        или за 3 попытки сканирования транзакция не закрылась, устанавливается флаг
-        "QA ПРОВЕРКА" (QA VERIFICATION). <br><br>Эндпоинт используется как для выдачи
-        инструментов инженеру, так и для их последующей сдачи.'
+      description: Принимает имя нового набора и список инструментов (их айди)
       parameters:
-      - description: Запрос на выдачу или сдачу инструментов
+      - description: Запрос создание нового набора
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/v1.CheckReq'
+          $ref: '#/definitions/v1.AddToolSetReq'
       produces:
       - application/json
       responses:
         "200":
-          description: Успешная проверка
+          description: Новый набор
           schema:
-            $ref: '#/definitions/v1.CheckRes'
+            $ref: '#/definitions/v1.AddToolSetRes'
         "400":
           description: Неверное тело запроса
           schema:
@@ -586,9 +594,9 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             $ref: '#/definitions/v1.HTTPError'
-      summary: Операция выдачи/сдачи инструментов
+      summary: Создание нового набора инструментов
       tags:
-      - users
+      - tools
   /api/v1/users/roles:
     get:
       consumes:

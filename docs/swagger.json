@@ -453,7 +453,7 @@
         },
         "/api/v1/users/check": {
             "post": {
-                "description": "Принимает табельный номер инженера и фотографию инструментов в формате base64.\u003cbr\u003e Сервис анализирует изображение, сопоставляет инструменты с ожидаемым набором и возвращает: \u003cbr\u003e\u003cbr\u003e• URL обработанного изображения \u003cbr\u003e• четыре массива: \u003cbr\u003e1) access_tools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e1) manual_check_tools — инструменты, требующие ручной проверки \u003cbr\u003e2) unknown_tools — инструменты, отсутствующие в ожидаемом наборе \u003cbr\u003e3) missing_tools — инструменты, отсутствующие на фотографии, но ожидаемые\u003cbr\u003e• transaction_type - тип транзакции(Checkin - Сдача/Checkout - Выдача)\u003cbr\u003e• status - статус транзакции(OPEN - открыта, CLOSED - закрыта, QA VERIFICATION - QA проверка)\u003cbr\u003e\u003cbr\u003e Если 4 или более инструментов не попали в access_tools или за 3 попытки сканирования транзакция не закрылась, устанавливается флаг \"QA ПРОВЕРКА\" (QA VERIFICATION). \u003cbr\u003e\u003cbr\u003eЭндпоинт используется как для выдачи инструментов инженеру, так и для их последующей сдачи.",
+                "description": "Принимает имя нового набора и список инструментов (их айди)",
                 "consumes": [
                     "application/json"
                 ],
@@ -461,25 +461,25 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "tools"
                 ],
-                "summary": "Операция выдачи/сдачи инструментов",
+                "summary": "Создание нового набора инструментов",
                 "parameters": [
                     {
-                        "description": "Запрос на выдачу или сдачу инструментов",
+                        "description": "Запрос создание нового набора",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.CheckReq"
+                            "$ref": "#/definitions/v1.AddToolSetReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Успешная проверка",
+                        "description": "Новый набор",
                         "schema": {
-                            "$ref": "#/definitions/v1.CheckRes"
+                            "$ref": "#/definitions/v1.AddToolSetRes"
                         }
                     },
                     "400": {
@@ -575,6 +575,37 @@
                 "QA",
                 "FAILED"
             ]
+        },
+        "v1.AddToolSetReq": {
+            "type": "object",
+            "properties": {
+                "tool_set_name": {
+                    "type": "string"
+                },
+                "tools_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "v1.AddToolSetRes": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.ToolTypeDTO"
+                    }
+                }
+            }
         },
         "v1.CheckReq": {
             "type": "object",

@@ -450,6 +450,19 @@ func (h *Handler) getRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
 }
 
+// addToolSet
+//
+//	@Summary		Создание нового набора инструментов
+//	@Description	Принимает имя нового набора и список инструментов (их айди)
+//
+//	@Tags			tools
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		AddToolSetReq	true	"Запрос создание нового набора"
+//	@Success		200		{object}	AddToolSetRes	"Новый набор"
+//	@Failure		400		{object}	HTTPError		"Неверное тело запроса"
+//	@Failure		500		{object}	HTTPError		"Внутренняя ошибка сервера"
+//	@Router			/api/v1/users/check [post]
 func (h *Handler) addToolSet(c *gin.Context) {
 	var req AddToolSetReq
 	if err := c.ShouldBindJSON(&req); err != nil {
