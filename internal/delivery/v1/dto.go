@@ -6,6 +6,60 @@ import (
 	"time"
 )
 
+type GetAllWorkDurationRes struct {
+	Transactions []GetWorkDuration `json:"transactions"`
+}
+
+type GetWorkDuration struct {
+	TransactionId int64         `json:"transaction_id"`
+	WorkDuration  time.Duration `json:"work_duration"`
+}
+
+func toDeliveryGetAllWorkDurationRes(res *usecase.GetAllWorkDurationRes) GetAllWorkDurationRes {
+	result := make([]GetWorkDuration, len(res.Transactions))
+	for i, transaction := range res.Transactions {
+		result[i] = toDeliveryGetWorkDuration(transaction)
+	}
+
+	return GetAllWorkDurationRes{
+		Transactions: result,
+	}
+}
+
+func toDeliveryGetWorkDuration(res usecase.GetWorkDuration) GetWorkDuration {
+	return GetWorkDuration{
+		TransactionId: res.TransactionId,
+		WorkDuration:  res.WorkDuration,
+	}
+}
+
+type GetAvgWorkDurationRes struct {
+	Transactions []GetAvgWorkDuration `json:"transactions"`
+}
+
+type GetAvgWorkDuration struct {
+	User            UserDto `json:"user"`
+	AvgWorkDuration float64 `json:"avg_work_duration"`
+}
+
+func toDeliveryGetAvgWorkDurationRes(res *usecase.GetAvgWorkDurationRes) GetAvgWorkDurationRes {
+	transactions := make([]GetAvgWorkDuration, len(res.Transactions))
+	for i, transaction := range res.Transactions {
+		transactions[i] = toDeliveryGetAvgWorkDuration(&transaction)
+	}
+
+	return GetAvgWorkDurationRes{
+		Transactions: transactions,
+	}
+}
+
+func toDeliveryGetAvgWorkDuration(res *usecase.GetAvgWorkDuration) GetAvgWorkDuration {
+	return GetAvgWorkDuration{
+		User:            toDeliveryUserDto(res.User),
+		AvgWorkDuration: res.AvgWorkDuration,
+	}
+}
+
 type HumanErrorStats struct {
 	FullName    string `json:"full_name"`
 	EmployeeId  string `json:"employee_id"`

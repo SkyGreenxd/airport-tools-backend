@@ -68,6 +68,9 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionResolutionsNotFound):
 		res.Code = http.StatusNotFound
 		res.Message = "Записи проверок не найдены"
+	case errors.Is(err, e.ErrRequestOneWorkType):
+		res.Code = http.StatusBadRequest
+		res.Message = "Выберите только один из параметров: avg_work_duration или work_duration"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "Внутренняя ошибка сервера"

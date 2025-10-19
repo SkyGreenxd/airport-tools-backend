@@ -37,6 +37,7 @@ var (
 	ErrInvalidRequestBody      = errors.New("invalid request body")
 	ErrRequestNotSupported     = errors.New("request not supported")
 	ErrRequestNoStatisticsType = errors.New("request has no statistics type")
+	ErrRequestOneWorkType      = errors.New("choose only one of the parameters: avg_work_duration or work_duration")
 
 	ErrTransactionResolutionsNotFound = errors.New("transaction resolutions not found")
 )

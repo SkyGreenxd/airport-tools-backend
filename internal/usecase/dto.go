@@ -5,6 +5,49 @@ import (
 	"time"
 )
 
+type GetAvgWorkDurationRes struct {
+	Transactions []GetAvgWorkDuration
+}
+
+type GetAvgWorkDuration struct {
+	User            UserDto
+	AvgWorkDuration float64
+}
+
+func NewGetAvgWorkDuration(user UserDto, avgWorkDuration float64) GetAvgWorkDuration {
+	return GetAvgWorkDuration{
+		User:            user,
+		AvgWorkDuration: avgWorkDuration,
+	}
+}
+func NewGetAvgWorkDurationRes(transactions []GetAvgWorkDuration) *GetAvgWorkDurationRes {
+	return &GetAvgWorkDurationRes{
+		Transactions: transactions,
+	}
+}
+
+type GetAllWorkDurationRes struct {
+	Transactions []GetWorkDuration
+}
+
+type GetWorkDuration struct {
+	TransactionId int64
+	WorkDuration  time.Duration
+}
+
+func NewGetAllWorkDurationRes(arr []GetWorkDuration) *GetAllWorkDurationRes {
+	return &GetAllWorkDurationRes{
+		Transactions: arr,
+	}
+}
+
+func NewGetWorkDuration(id int64, workDuration time.Duration) GetWorkDuration {
+	return GetWorkDuration{
+		TransactionId: id,
+		WorkDuration:  workDuration,
+	}
+}
+
 // ListTransactionsRes список транзакций
 type ListTransactionsRes struct {
 	Transactions []*TransactionDTO

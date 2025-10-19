@@ -43,16 +43,20 @@ func (t *TransactionRepository) GetById(ctx context.Context, id int64) (*domain.
 	return toDomainTransaction(&model), nil
 }
 
-func (t *TransactionRepository) GetByUserId(ctx context.Context, userId int64) (*domain.Transaction, error) {
-	const op = "TransactionRepository.GetByEmployeeId"
+func (t *TransactionRepository) GetByUserIds(ctx context.Context, userIds []int64) ([]*domain.Transaction, error) {
+	const op = "TransactionRepository.GetByUserIds"
 
-	var model TransactionModel
-	result := t.DB.WithContext(ctx).First(&model, "user_id = ?", userId)
-	if err := checkGetQueryResult(result, e.ErrTransactionNotFound); err != nil {
+	var models []*TransactionModel
+	result := t.DB.WithContext(ctx).
+		Preload("User").
+		Where("user_id IN ?", userIds).
+		Find(&models)
+
+	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	return toDomainTransaction(&model), nil
+	return toDomainArrTransactions(models), nil
 }
 
 func (t *TransactionRepository) GetLastFailedByUserId(ctx context.Context, userId int64) (*domain.Transaction, error) {

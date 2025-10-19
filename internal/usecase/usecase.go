@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 )
 
 // TODO: заменить на реальные данные
@@ -230,6 +231,7 @@ func (s *Service) Checkin(ctx context.Context, req *TransactionProcess) (res *Ch
 
 	transaction.CountOfChecks++
 	transaction.EvaluateStatus(len(filterRes.ManualCheckTools), len(filterRes.UnknownTools), len(filterRes.MissingTools))
+	transaction.UpdatedAt = time.Now()
 
 	if _, err := s.transactionRepo.Update(ctx, transaction); err != nil {
 		return nil, e.Wrap(op, err)
@@ -485,6 +487,7 @@ func (s *Service) GetAllQaEmployers(ctx context.Context) ([]UserDto, error) {
 	return result, nil
 }
 
+// Список транзакций по типам
 func (s *Service) GetTransactionStatistics(ctx context.Context) (*GetTransactionStatisticsRes, error) {
 	const op = "usecase.GetTransactionStatistics"
 
@@ -514,4 +517,64 @@ func (s *Service) GetTransactionStatistics(ctx context.Context) (*GetTransaction
 	}
 
 	return NewGetTransactionStatisticsRes(len(transactions), len(opened), len(closed), len(qa), len(failed)), nil
+}
+
+// возвращает список всех закрытых транзакций с рассчитанной длительностью работы
+func (s *Service) GetWorkDuration(ctx context.Context) (*GetAllWorkDurationRes, error) {
+	const op = "usecase.GetWorkDuration"
+
+	result, err := s.transactionRepo.GetAllWithStatus(ctx, domain.CLOSED)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	res := make([]GetWorkDuration, len(result))
+	for i, t := range result {
+		res[i] = NewGetWorkDuration(t.Id, t.UpdatedAt.Sub(t.CreatedAt))
+	}
+
+	return NewGetAllWorkDurationRes(res), nil
+}
+
+// возвращает среднее время работы каждого инженера по всем его транзакциям
+func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRes, error) {
+	const op = "usecase.GetAvgWorkDuration"
+
+	users, err := s.userRepo.GetAll(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	userIds := make([]int64, len(users))
+	for i, u := range users {
+		userIds[i] = u.Id
+	}
+
+	transactions, err := s.transactionRepo.GetByUserIds(ctx, userIds)
+	if err != nil && !errors.Is(err, e.ErrTransactionNotFound) {
+		return nil, e.Wrap(op, err)
+	}
+
+	userTxMap := make(map[int64][]*domain.Transaction)
+	for _, tx := range transactions {
+		userTxMap[tx.UserId] = append(userTxMap[tx.UserId], tx)
+	}
+
+	result := make([]GetAvgWorkDuration, len(users))
+	for i, user := range users {
+		txs := userTxMap[user.Id]
+		var totalHours float64
+		for _, tx := range txs {
+			totalHours += tx.UpdatedAt.Sub(tx.CreatedAt).Hours()
+		}
+
+		var avgHours float64
+		if len(txs) > 0 {
+			avgHours = totalHours / float64(len(txs))
+		}
+
+		result[i] = NewGetAvgWorkDuration(NewUserDto(user.FullName, user.EmployeeId), avgHours)
+	}
+
+	return NewGetAvgWorkDurationRes(result), nil
 }

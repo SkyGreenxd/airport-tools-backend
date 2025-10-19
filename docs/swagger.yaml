@@ -335,6 +335,16 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Получить среднее время работы каждого инженера по всем его транзакциям
+          (Ставится значение true)
+        in: query
+        name: avg_work_duration
+        type: string
+      - description: Получить список всех закрытых транзакций с рассчитанной длительностью
+          работы (Ставится значение true)
+        in: query
+        name: work_duration
+        type: string
       produces:
       - application/json
       responses:

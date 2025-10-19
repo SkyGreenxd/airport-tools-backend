@@ -276,6 +276,8 @@ func (h *Handler) getRoles(c *gin.Context) {
 // @Param        start_date   query     string  false  "Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
 // @Param        end_date     query     string  false  "Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
 // @Param        limit        query     int     false  "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
+// @Param		 avg_work_duration query string false "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
+// @Param		 work_duration query string false "Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)"
 //
 // @Success      200 {object} StatisticsRes "Успешный ответ: структура зависит от значения параметра type"
 // @Failure      400 {object} HTTPError "Неверное тело запроса"
@@ -293,6 +295,17 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	startDateStr := c.Query("start_date")
 	endDateStr := c.Query("end_date")
 	limitStr := c.Query("limit")
+	avgWorkDuration := c.Query("avg_work_duration")
+	workDuration := c.Query("work_duration")
+
+	valid := func(v string) bool {
+		return v == "" || v == "true"
+	}
+
+	if !valid(avgWorkDuration) || !valid(workDuration) {
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		return
+	}
 
 	var startDate, endDate *time.Time
 	if startDateStr != "" {
@@ -336,13 +349,31 @@ func (h *Handler) getStatistics(c *gin.Context) {
 
 			res = toDeliveryListTransactionsRes(result.Transactions)
 		} else {
-			result, err := h.service.GetUsersQAStats(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
+			if workDuration != "" {
+				result, err := h.service.GetWorkDuration(c.Request.Context())
+				if err != nil {
+					ErrorToHttpRes(err, c)
+					return
+				}
 
-			res = toArrDeliveryHumanErrorStats(result)
+				res = toDeliveryGetAllWorkDurationRes(result)
+			} else if avgWorkDuration != "" {
+				result, err := h.service.GetAvgWorkDuration(c.Request.Context())
+				if err != nil {
+					ErrorToHttpRes(err, c)
+					return
+				}
+
+				res = toDeliveryGetAvgWorkDurationRes(result)
+			} else {
+				result, err := h.service.GetUsersQAStats(c.Request.Context())
+				if err != nil {
+					ErrorToHttpRes(err, c)
+					return
+				}
+
+				res = toArrDeliveryHumanErrorStats(result)
+			}
 		}
 	case "errors":
 		result, err := h.service.GetMlVsHuman(c.Request.Context())

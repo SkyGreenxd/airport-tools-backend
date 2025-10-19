@@ -158,6 +158,18 @@
                         "description": "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users\u0026employee_id=...)",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)",
+                        "name": "avg_work_duration",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)",
+                        "name": "work_duration",
+                        "in": "query"
                     }
                 ],
                 "responses": {
