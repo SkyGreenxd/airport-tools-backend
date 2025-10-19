@@ -379,7 +379,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			}
 		}
 	case "errors":
-		if errorType == string(domain.HumanError) {
+		if errorType == string(domain.ModelError) {
 			result, err := h.service.GetMlErrorTransactions(c.Request.Context())
 			if err != nil {
 				ErrorToHttpRes(err, c)
@@ -387,7 +387,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			}
 
 			res = toArrDeliveryMlErrorTransaction(result)
-		} else if errorType == string(domain.ModelError) {
+		} else if errorType == string(domain.HumanError) {
 			result, err := h.service.GetMlVsHuman(c.Request.Context())
 			if err != nil {
 				ErrorToHttpRes(err, c)
