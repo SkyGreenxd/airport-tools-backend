@@ -546,9 +546,11 @@ func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRe
 		return nil, e.Wrap(op, err)
 	}
 
-	userIds := make([]int64, len(users))
-	for i, u := range users {
-		userIds[i] = u.Id
+	userIds := make([]int64, 0, len(users))
+	for _, u := range users {
+		if u.Role == domain.Engineer {
+			userIds = append(userIds, u.Id)
+		}
 	}
 
 	transactions, err := s.transactionRepo.GetByUserIds(ctx, userIds)
