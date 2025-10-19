@@ -123,9 +123,10 @@ func (t *TransactionResolutionsRepo) GetMlErrorTransactions(ctx context.Context)
 
 	var models []*TransactionResolutionModel
 	result := t.DB.WithContext(ctx).
-		Preload("Transaction.CvScans", func(db *gorm.DB) *gorm.DB {
+		Preload("Transaction", func(db *gorm.DB) *gorm.DB {
 			return db.Order("updated_at DESC")
 		}).
+		Preload("Transaction.CvScans").
 		Where("reason = ?", domain.ModelError).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
