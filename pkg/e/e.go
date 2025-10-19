@@ -41,6 +41,9 @@ var (
 	ErrRequestOneWorkType      = errors.New("choose only one of the parameters: avg_work_duration or work_duration")
 
 	ErrTransactionResolutionsNotFound = errors.New("transaction resolutions not found")
+
+	ErrRoleExists   = errors.New("role exists")
+	ErrRoleNotFound = errors.New("role not found")
 )
 
 func Wrap(msg string, err error) error {

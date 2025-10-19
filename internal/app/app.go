@@ -70,7 +70,8 @@ func Run() {
 
 	trRepo := postgres.NewTransactionResolutionsRepo(pg.Db)
 	loger := logger.NewSlogLogger()
-	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim), trRepo, loger)
+	roleRepo := postgres.NewRoleRepo(pg.Db)
+	service := usecase.NewService(userRepo, cvScanRepo, cvScanDetailRepo, toolTypeRepo, transactionRepo, ml, imageStorage, toolSetRepo, float32(confidence), float32(cosineSim), trRepo, loger, roleRepo)
 
 	handler := v1.NewHandler(service)
 

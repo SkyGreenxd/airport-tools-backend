@@ -90,3 +90,10 @@ type TransactionResolutionsRepository interface {
 	GetTopHumanErrorUsers(ctx context.Context) ([]HumanErrorStats, error)
 	GetMlErrorTransactions(ctx context.Context) ([]*domain.TransactionResolution, error)
 }
+
+type RoleRepository interface {
+	Create(ctx context.Context, role *domain.Role) (*domain.Role, error)
+	GetAll(ctx context.Context) ([]*domain.Role, error)
+	GetById(ctx context.Context, id int64) (*domain.Role, error)
+	GetByName(ctx context.Context, name string) (*domain.Role, error)
+}

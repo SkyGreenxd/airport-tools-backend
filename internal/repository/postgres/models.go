@@ -32,8 +32,9 @@ type UserModel struct {
 	Id         int64
 	EmployeeId string
 	FullName   string
-	Role       domain.Role
+	RoleId     int64
 
+	Role                   *RoleModel                    `gorm:"foreignKey:RoleId;references:Id"`
 	Transactions           []*TransactionModel           `gorm:"foreignkey:UserId"`
 	TransactionResolutions []*TransactionResolutionModel `gorm:"foreignkey:QAEmployeeId"`
 }
@@ -81,6 +82,17 @@ type TransactionResolutionModel struct {
 	CreatedAt     time.Time
 
 	Transaction *TransactionModel `gorm:"foreignKey:TransactionId;references:Id"`
+}
+
+type RoleModel struct {
+	Id   int64
+	Name string
+
+	Users []*UserModel `gorm:"foreignKey:RoleId;references:Id"`
+}
+
+func (RoleModel) TableName() string {
+	return "roles"
 }
 
 func (ToolTypeModel) TableName() string {

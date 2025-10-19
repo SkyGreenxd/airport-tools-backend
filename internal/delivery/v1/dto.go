@@ -84,7 +84,7 @@ type StatisticsRes struct {
 }
 
 type GetRolesRes struct {
-	Roles []domain.Role `json:"roles"`
+	Roles []string `json:"roles"`
 }
 
 type VerificationReq struct {
@@ -135,9 +135,9 @@ type UserDto struct {
 }
 
 type RegisterReq struct {
-	EmployeeId string      `json:"employee_id" binding:"required"`
-	FullName   string      `json:"full_name" binding:"required"`
-	Role       domain.Role `json:"role" binding:"required"`
+	EmployeeId string `json:"employee_id" binding:"required"`
+	FullName   string `json:"full_name" binding:"required"`
+	Role       string `json:"role" binding:"required"`
 }
 
 type RegisterRes struct {
@@ -149,7 +149,7 @@ type LoginReq struct {
 }
 
 type LoginRes struct {
-	Role domain.Role `json:"role"`
+	Role string `json:"role"`
 }
 
 type CheckReq struct {
@@ -393,7 +393,7 @@ func toDeliveryTransactionResolutionDTO(d *usecase.TransactionResolutionDTO) *Tr
 
 func toDeliveryGetRolesRes(roles *usecase.GetRolesRes) GetRolesRes {
 	return GetRolesRes{
-		roles.Roles,
+		Roles: roles.Roles,
 	}
 }
 

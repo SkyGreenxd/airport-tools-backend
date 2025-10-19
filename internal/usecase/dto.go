@@ -123,7 +123,7 @@ type VerificationRes struct {
 type RegisterReq struct {
 	EmployeeId string
 	FullName   string
-	Role       domain.Role
+	Role       string
 }
 
 type RegisterRes struct {
@@ -148,11 +148,11 @@ type LoginReq struct {
 }
 
 type LoginRes struct {
-	Role domain.Role
+	Role string
 }
 
 type GetRolesRes struct {
-	Roles []domain.Role
+	Roles []string
 }
 
 // TransactionProcess внутренняя структура для сдачи/выдачи инструментов
@@ -316,13 +316,13 @@ func NewTransactionProcess(userId int64, data string, toolSetId int64) *Transact
 	}
 }
 
-func NewGetRolesRes(roles []domain.Role) *GetRolesRes {
+func NewGetRolesRes(roles []string) *GetRolesRes {
 	return &GetRolesRes{
 		Roles: roles,
 	}
 }
 
-func NewLoginRes(role domain.Role) *LoginRes {
+func NewLoginRes(role string) *LoginRes {
 	return &LoginRes{
 		Role: role,
 	}

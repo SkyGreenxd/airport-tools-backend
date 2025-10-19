@@ -77,6 +77,12 @@ func ErrorToHttpRes(err error, c *gin.Context) {
 	case errors.Is(err, e.ErrTransactionStatusNotFound):
 		res.Code = http.StatusBadRequest
 		res.Message = "Такого статуса не существует"
+	case errors.Is(err, e.ErrRoleNotFound):
+		res.Code = http.StatusNotFound
+		res.Message = "Роль не найдена"
+	case errors.Is(err, e.ErrRoleExists):
+		res.Code = http.StatusConflict
+		res.Message = "Роль с таким именем уже существует"
 	default:
 		res.Code = http.StatusInternalServerError
 		res.Message = "Внутренняя ошибка сервера"

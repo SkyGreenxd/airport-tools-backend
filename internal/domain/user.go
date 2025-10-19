@@ -2,29 +2,22 @@ package domain
 
 import "airport-tools-backend/pkg/e"
 
-type Role string
-
-const (
-	Engineer       Role = "Engineer"        // Авиатехник / Инженер
-	QualityAuditor Role = "Quality Auditor" // Специалист службы качества / аудит
-	// SupplyManager  Role = "Supply Manager"  // Руководитель материально-технического снабжения
-)
-
 type User struct {
 	Id         int64
 	EmployeeId string
 	FullName   string
-	Role       Role
+	RoleId     int64
 
+	Role                   *Role
 	Transactions           []*Transaction
 	TransactionResolutions []*TransactionResolution
 }
 
-func NewUser(fullName, employeeId string, role Role) *User {
+func NewUser(fullName, employeeId string, roleId int64) *User {
 	return &User{
 		FullName:   fullName,
 		EmployeeId: employeeId,
-		Role:       role,
+		RoleId:     roleId,
 	}
 }
 
@@ -73,23 +66,5 @@ func (u *User) ValidateFullName(newFullName string) error {
 	}
 
 	u.FullName = newFullName
-	return nil
-}
-
-func ValidateRole(role Role) error {
-	switch role {
-	case Engineer, QualityAuditor:
-		return nil
-	default:
-		return e.ErrUserRoleNotFound
-	}
-}
-
-func (u *User) ChangeRole(newRole Role) error {
-	if u.Role == newRole {
-		return e.ErrNothingToChange
-	}
-
-	u.Role = newRole
 	return nil
 }

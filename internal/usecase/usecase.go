@@ -33,13 +33,14 @@ type Service struct {
 	CosineSimCompare  float32
 	trResolution      repository.TransactionResolutionsRepository
 	logger            logger.Logger
+	roleRepo          repository.RoleRepository
 }
 
 func NewService(
 	u repository.UserRepository, c repository.CvScanRepository, cd repository.CvScanDetailRepository,
 	tt repository.ToolTypeRepository, t repository.TransactionRepository, ml MLGateway, s3 ImageStorage,
 	ts repository.ToolSetRepository, condfidence, cosineSim float32, tr repository.TransactionResolutionsRepository,
-	logger logger.Logger,
+	logger logger.Logger, roleRepo repository.RoleRepository,
 ) *Service {
 	return &Service{
 		userRepo:          u,
@@ -54,6 +55,7 @@ func NewService(
 		CosineSimCompare:  cosineSim,
 		trResolution:      tr,
 		logger:            logger,
+		roleRepo:          roleRepo,
 	}
 }
 
@@ -319,7 +321,7 @@ func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
 		return nil, e.Wrap(op, err)
 	}
 
-	return NewLoginRes(user.Role), nil
+	return NewLoginRes(user.Role.Name), nil
 }
 
 // TODO: добавить таблицу ролей чтобы не хардкодить
@@ -327,19 +329,29 @@ func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
 func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
 	const op = "usecase.GetRoles"
 
-	roles := []domain.Role{domain.Engineer, domain.QualityAuditor}
-	return NewGetRolesRes(roles), nil
+	roles, err := s.roleRepo.GetAll(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	result := make([]string, len(roles))
+	for i, role := range roles {
+		result[i] = role.Name
+	}
+
+	return NewGetRolesRes(result), nil
 }
 
 // Register регистрирует пользователя
 func (s *Service) Register(ctx context.Context, req *RegisterReq) (*RegisterRes, error) {
 	const op = "usecase.Register"
 
-	if err := domain.ValidateRole(req.Role); err != nil {
+	role, err := s.roleRepo.GetByName(ctx, req.Role)
+	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
 
-	newUser := domain.NewUser(req.FullName, req.EmployeeId, req.Role)
+	newUser := domain.NewUser(req.FullName, req.EmployeeId, role.Id)
 	user, err := s.userRepo.Create(ctx, newUser)
 	if err != nil {
 		return nil, e.Wrap(op, err)
@@ -559,7 +571,7 @@ func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRe
 	engineers := make([]*domain.User, 0, len(users))
 	userIds := make([]int64, 0, len(users))
 	for _, u := range users {
-		if u.Role == domain.Engineer {
+		if u.Role.Name == domain.Engineer {
 			engineers = append(engineers, u)
 			userIds = append(userIds, u.Id)
 		}
