@@ -324,7 +324,6 @@ func (s *Service) Login(ctx context.Context, req *LoginReq) (*LoginRes, error) {
 	return NewLoginRes(user.Role.Name), nil
 }
 
-// TODO: добавить таблицу ролей чтобы не хардкодить
 // GetRoles возвращает список ролей
 func (s *Service) GetRoles(ctx context.Context) (*GetRolesRes, error) {
 	const op = "usecase.GetRoles"
