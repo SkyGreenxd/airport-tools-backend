@@ -61,10 +61,7 @@ func (t *TransactionResolutionsRepo) GetByQAId(ctx context.Context, qaId int64) 
 
 	var models []*TransactionResolutionModel
 	result := t.DB.WithContext(ctx).
-		Preload("Transaction", func(db *gorm.DB) *gorm.DB {
-			return db.Order("updated_at DESC")
-		}).
-		Preload("Transaction.User").
+		Preload("Transaction.User").Order("created_at desc").
 		Find(&models, "qa_employee_id = ?", qaId)
 	if err := checkGetQueryResult(result, e.ErrTransactionResolutionsNotFound); err != nil {
 		return nil, e.Wrap(op, err)
