@@ -426,9 +426,8 @@ func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq
 		}
 	}
 
-	res := NewGetUsersListTransactionsRes(toListTransactionsRes(transactions), avgHours)
+	result := NewGetUsersListTransactionsRes(toListTransactionsRes(transactions), avgHours)
 
-	result := NewListTransactionsRes(toListTransactionsRes(transactions))
 	return result, nil
 }
 
