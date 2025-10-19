@@ -96,6 +96,25 @@ func (t *ToolSetRepository) GetByIdWithTools(ctx context.Context, id int64) (*do
 	return toDomainToolSet(&model), nil
 }
 
+func (t *ToolSetRepository) CreateWithTools(ctx context.Context, toolSet *domain.ToolSet, toolsIds []int64) (*domain.ToolSet, error) {
+	const op = "ToolSetRepository.CreateWithTools"
+
+	var tools []*ToolTypeModel
+	if err := t.DB.WithContext(ctx).Where("id IN ?", toolsIds).Find(&tools).Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	model := toToolSetModel(toolSet)
+	model.Tools = tools
+
+	result := t.DB.WithContext(ctx).Create(&model)
+	if err := postgresDuplicate(result, e.ErrToolSetExists); err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainToolSet(model), nil
+}
+
 func toToolSetModel(t *domain.ToolSet) *ToolSetModel {
 	model := &ToolSetModel{
 		Id:   t.Id,

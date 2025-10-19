@@ -629,3 +629,17 @@ func (s *Service) GetAllTransactions(ctx context.Context) ([]*GetAllTransactions
 
 	return result, nil
 }
+
+// Создать новый сет инструментов
+func (s *Service) AddToolSet(ctx context.Context, req AddToolSetReq) (*AddToolSetRes, error) {
+	const op = "usecase.AddToolSet"
+
+	newSet := domain.NewToolSet(req.ToolSetName)
+
+	res, err := s.toolSetRepo.CreateWithTools(ctx, newSet, req.ToolsIds)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return NewAddToolSetRes(res.Id, res.Name, toArrToolTypeDTO(res.Tools)), nil
+}

@@ -445,12 +445,18 @@ func (h *Handler) getRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
 }
 
-//func (h *Handler) addToolSet(c *gin.Context) {
-//	var req AddToolSetReq
-//	if err := c.ShouldBindJSON(&req); err != nil {
-//		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-//		return
-//	}
-//
-//	res, err := h.service.AddToolSet(c.Request.Context(), req)
-//}
+func (h *Handler) addToolSet(c *gin.Context) {
+	var req AddToolSetReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		return
+	}
+
+	res, err := h.service.AddToolSet(c.Request.Context(), toUseCaseAddToolSetReq(req))
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, ToDeliveryAddToolSetRes(res))
+}

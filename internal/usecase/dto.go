@@ -5,6 +5,24 @@ import (
 	"time"
 )
 
+type AddToolSetReq struct {
+	ToolSetName string
+	ToolsIds    []int64
+}
+type AddToolSetRes struct {
+	Id    int64
+	Name  string
+	Tools []*ToolTypeDTO
+}
+
+func NewAddToolSetRes(id int64, name string, tools []*ToolTypeDTO) *AddToolSetRes {
+	return &AddToolSetRes{
+		Id:    id,
+		Name:  name,
+		Tools: tools,
+	}
+}
+
 type GetAllTransactions struct {
 	User         UserDto
 	Transactions []LightTransaction
@@ -363,6 +381,15 @@ type FilterRes struct {
 type UploadImageRes struct {
 	Key      string
 	ImageUrl string
+}
+
+func toArrToolTypeDTO(tools []*domain.ToolType) []*ToolTypeDTO {
+	res := make([]*ToolTypeDTO, len(tools))
+	for i, tool := range tools {
+		res[i] = ToToolTypeDTO(tool)
+	}
+
+	return res
 }
 
 func ToToolTypeDTO(tool *domain.ToolType) *ToolTypeDTO {

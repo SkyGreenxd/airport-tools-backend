@@ -6,8 +6,30 @@ import (
 	"time"
 )
 
+type AddToolSetRes struct {
+	Id    int64          `json:"id"`
+	Name  string         `json:"name"`
+	Tools []*ToolTypeDTO `json:"tools"`
+}
+
+func ToDeliveryAddToolSetRes(res *usecase.AddToolSetRes) *AddToolSetRes {
+	return &AddToolSetRes{
+		Id:    res.Id,
+		Name:  res.Name,
+		Tools: toArrDeliveryToolTypeDTO(res.Tools),
+	}
+}
+
 type AddToolSetReq struct {
-	// TODO:
+	ToolSetName string  `form:"tool_set_name"`
+	ToolsIds    []int64 `form:"tools_ids"`
+}
+
+func toUseCaseAddToolSetReq(req AddToolSetReq) usecase.AddToolSetReq {
+	return usecase.AddToolSetReq{
+		ToolSetName: req.ToolSetName,
+		ToolsIds:    req.ToolsIds,
+	}
 }
 
 type GetUsersListTransactionsRes struct {

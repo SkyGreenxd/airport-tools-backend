@@ -23,6 +23,7 @@ type ToolSetRepository interface {
 	Delete(ctx context.Context, id int64) error
 	Update(ctx context.Context, toolSet *domain.ToolSet) (*domain.ToolSet, error)
 	GetByIdWithTools(ctx context.Context, id int64) (*domain.ToolSet, error)
+	CreateWithTools(ctx context.Context, toolSet *domain.ToolSet, toolsIds []int64) (*domain.ToolSet, error)
 }
 
 // UserRepository интерфейс для работы с пользователями в базе данных

@@ -171,7 +171,7 @@ func (t *TransactionRepository) GetAllByUserId(ctx context.Context, userId int64
 		db = db.Where("created_at <= ?", *endDate)
 	}
 
-	db = db.Order("updated_at DESC")
+	db = db.Order("id DESC")
 
 	if limit != nil {
 		db = db.Limit(*limit)

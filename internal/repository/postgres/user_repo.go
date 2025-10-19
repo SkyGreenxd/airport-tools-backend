@@ -100,7 +100,7 @@ func (u *UserRepository) GetAllEngineersWithTransactions(ctx context.Context) ([
 	var models []*UserModel
 	result := u.DB.WithContext(ctx).
 		Preload("Transactions", func(db *gorm.DB) *gorm.DB {
-			return db.Order("updated_at DESC")
+			return db.Order("id DESC")
 		}).
 		Where("role = ?", domain.Engineer).
 		Find(&models)
