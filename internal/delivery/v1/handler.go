@@ -266,19 +266,19 @@ func (h *Handler) getRoles(c *gin.Context) {
 // getStatistics
 //
 //	@Summary		Получить детализированную статистику QA
-//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):**<br/>- `users` — Рейтинг инженеров, чьи транзакции чаще всего попадали на QA по причине `HUMAN_ERR`.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` — сводная статистика ошибок **Model vs Human**.<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных) <br/>- `work_duration` - возвращает список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true) <br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"<br/> avg_work_duration и work_duration **не совместимы*, выбирайте что то одно*.
+//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` - проверка транзакций по ошибкам, по умолчанию выводит MODEL_ERR vs HUMAN_ERR. Для фильтрации использовать `error_type` (MODEL_ERR/HUMAN_ERR)— сводная статистика ошибок *Model vs Human*.<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных) <br/>- `work_duration` - возвращает список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true) <br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"<br/> avg_work_duration и work_duration **не совместимы**, выбирайте что то одно.
 //
 //	@Tags			statistics
 //	@Accept			json
 //	@Produce		json
 //
 //	@Param			type				query		string			true	"Тип статистики. Варианты: users, qs, errors, transactions"
+//	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true, используется с users)"
+//	@Param			work_duration		query		string			false	"Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true,используется с users))"
 //	@Param			employee_id			query		string			false	"Табельный номер пользователя (для type=qa и для type=users)"
 //	@Param			start_date			query		string			false	"Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
 //	@Param			end_date			query		string			false	"Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
 //	@Param			limit				query		int				false	"Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
-//	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
-//	@Param			work_duration		query		string			false	"Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)"
 //	@Param			error_type			query		string			false	"Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом статистики `errors`"
 //
 //	@Success		200					{object}	StatisticsRes	"Успешный ответ: структура зависит от значения параметра type"
@@ -369,13 +369,8 @@ func (h *Handler) getStatistics(c *gin.Context) {
 
 				res = toDeliveryGetAvgWorkDurationRes(result)
 			} else {
-				result, err := h.service.GetUsersQAStats(c.Request.Context())
-				if err != nil {
-					ErrorToHttpRes(err, c)
-					return
-				}
-
-				res = toArrDeliveryHumanErrorStats(result)
+				ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+				return
 			}
 		}
 	case "errors":
@@ -396,8 +391,13 @@ func (h *Handler) getStatistics(c *gin.Context) {
 
 			res = toDeliveryModelOrHumanStatsRes(result)
 		} else {
-			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-			return
+			result, err := h.service.GetUsersQAStats(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			res = toArrDeliveryHumanErrorStats(result)
 		}
 	case "qa":
 		if employeeId != "" {
