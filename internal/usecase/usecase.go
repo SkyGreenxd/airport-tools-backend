@@ -519,24 +519,6 @@ func (s *Service) GetTransactionStatistics(ctx context.Context) (*GetTransaction
 	return NewGetTransactionStatisticsRes(len(transactions), len(opened), len(closed), len(qa), len(failed)), nil
 }
 
-// возвращает список всех закрытых транзакций с рассчитанной длительностью работы
-func (s *Service) GetWorkDuration(ctx context.Context) (*GetAllWorkDurationRes, error) {
-	const op = "usecase.GetWorkDuration"
-
-	result, err := s.transactionRepo.GetAllWithStatus(ctx, domain.CLOSED)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	res := make([]GetWorkDuration, len(result))
-	for i, t := range result {
-		hours := t.UpdatedAt.Sub(t.CreatedAt).Hours()
-		res[i] = NewGetWorkDuration(t.Id, hours)
-	}
-
-	return NewGetAllWorkDurationRes(res), nil
-}
-
 // возвращает среднее время работы каждого инженера по всем его транзакциям
 func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRes, error) {
 	const op = "usecase.GetAvgWorkDuration"
@@ -613,6 +595,23 @@ func (s *Service) GetMlErrorTransactions(ctx context.Context) ([]MlErrorTransact
 		if lastCheckin != nil {
 			result = append(result, *NewMlErrorTransaction(tx.Id, lastCheckin.ImageUrl, lastCheckin.DebugImageUrl))
 		}
+	}
+
+	return result, nil
+}
+
+// Получить транзакции всех юзеров
+func (s *Service) GetAllTransactions(ctx context.Context) ([]*GetAllTransactions, error) {
+	const op = "usecase.GetAllTransactions"
+
+	users, err := s.userRepo.GetAllWithTransactions(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	result := make([]*GetAllTransactions, len(users))
+	for i, u := range users {
+		result[i] = NewGetAllTransactions(u, NewArrLightTransaction(u.Transactions))
 	}
 
 	return result, nil

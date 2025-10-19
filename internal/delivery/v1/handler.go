@@ -266,7 +266,7 @@ func (h *Handler) getRoles(c *gin.Context) {
 // getStatistics
 //
 //	@Summary		Получить детализированную статистику QA
-//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` - проверка транзакций по ошибкам, по умолчанию выводит MODEL_ERR vs HUMAN_ERR. Для фильтрации использовать `error_type` (MODEL_ERR/HUMAN_ERR).<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных) <br/>- `work_duration` - возвращает список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true) <br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"<br/> avg_work_duration и work_duration **не совместимы**, выбирайте что то одно.
+//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):<br/>- `users` - Получить все транзакции инженеров.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` - проверка транзакций по ошибкам, по умолчанию выводит MODEL_ERR vs HUMAN_ERR. Для фильтрации использовать `error_type` (MODEL_ERR/HUMAN_ERR).<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных)<br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
 //
 //	@Tags			statistics
 //	@Accept			json
@@ -274,7 +274,6 @@ func (h *Handler) getRoles(c *gin.Context) {
 //
 //	@Param			type				query		string			true	"Тип статистики. Варианты: users, qs, errors, transactions"
 //	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true, используется с users)"
-//	@Param			work_duration		query		string			false	"Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true,используется с users))"
 //	@Param			employee_id			query		string			false	"Табельный номер пользователя (для type=qa и для type=users)"
 //	@Param			start_date			query		string			false	"Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
 //	@Param			end_date			query		string			false	"Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
@@ -298,14 +297,13 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	endDateStr := c.Query("end_date")
 	limitStr := c.Query("limit")
 	avgWorkDuration := c.Query("avg_work_duration")
-	workDuration := c.Query("work_duration")
 	errorType := c.Query("error_type")
 
 	valid := func(v string) bool {
 		return v == "" || v == "true"
 	}
 
-	if !valid(avgWorkDuration) || !valid(workDuration) {
+	if !valid(avgWorkDuration) {
 		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 		return
 	}
@@ -351,28 +349,29 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			}
 
 			res = toDeliveryListTransactionsRes(result.Transactions)
-		} else {
-			if workDuration != "" {
-				result, err := h.service.GetWorkDuration(c.Request.Context())
-				if err != nil {
-					ErrorToHttpRes(err, c)
-					return
-				}
-
-				res = toDeliveryGetAllWorkDurationRes(result)
-			} else if avgWorkDuration != "" {
-				result, err := h.service.GetAvgWorkDuration(c.Request.Context())
-				if err != nil {
-					ErrorToHttpRes(err, c)
-					return
-				}
-
-				res = toDeliveryGetAvgWorkDurationRes(result)
-			} else {
-				ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+		} else if avgWorkDuration != "" {
+			result, err := h.service.GetAvgWorkDuration(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
 				return
 			}
+
+			res = toDeliveryGetAvgWorkDurationRes(result)
+		} else {
+			result, err := h.service.GetAllTransactions(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			resultArr := make([]*GetAllTransactions, len(result))
+			for i, item := range result {
+				resultArr[i] = toDeliveryGetAllTransactions(item)
+			}
+
+			res = resultArr
 		}
+
 	case "errors":
 		if errorType == string(domain.ModelError) {
 			result, err := h.service.GetMlErrorTransactions(c.Request.Context())

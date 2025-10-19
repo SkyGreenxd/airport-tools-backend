@@ -94,6 +94,22 @@ func (u *UserRepository) GetAll(ctx context.Context) ([]*domain.User, error) {
 	return toArrDomainUser(models), nil
 }
 
+func (u *UserRepository) GetAllWithTransactions(ctx context.Context) ([]*domain.User, error) {
+	const op = "UserRepository.GetAllWithTransactions"
+
+	var models []*UserModel
+	result := u.DB.WithContext(ctx).Preload("Transactions").Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, e.ErrUserNotFound
+	}
+
+	return toArrDomainUser(models), nil
+}
+
 func (u *UserRepository) GetAllQa(ctx context.Context) ([]*domain.User, error) {
 	const op = "UserRepository.GetAllQa"
 

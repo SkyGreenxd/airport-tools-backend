@@ -5,6 +5,39 @@ import (
 	"time"
 )
 
+type GetAllTransactions struct {
+	User         UserDto
+	Transactions []LightTransaction
+}
+
+func NewGetAllTransactions(user *domain.User, transactions []LightTransaction) *GetAllTransactions {
+	return &GetAllTransactions{
+		User:         toUserDTO(*user),
+		Transactions: transactions,
+	}
+}
+
+type LightTransaction struct {
+	Id        int64
+	CreatedAt time.Time
+}
+
+func NewArrLightTransaction(arr []*domain.Transaction) []LightTransaction {
+	result := make([]LightTransaction, len(arr))
+	for i, tr := range arr {
+		result[i] = NewLightTransaction(tr.Id, tr.CreatedAt)
+	}
+
+	return result
+}
+
+func NewLightTransaction(id int64, createdAt time.Time) LightTransaction {
+	return LightTransaction{
+		Id:        id,
+		CreatedAt: createdAt,
+	}
+}
+
 type MlErrorTransaction struct {
 	TransactionID  int64
 	SourceImageUrl string
@@ -37,28 +70,6 @@ func NewGetAvgWorkDuration(user UserDto, avgWorkDuration float64) GetAvgWorkDura
 func NewGetAvgWorkDurationRes(transactions []GetAvgWorkDuration) *GetAvgWorkDurationRes {
 	return &GetAvgWorkDurationRes{
 		Transactions: transactions,
-	}
-}
-
-type GetAllWorkDurationRes struct {
-	Transactions []GetWorkDuration
-}
-
-type GetWorkDuration struct {
-	TransactionId int64
-	WorkDuration  float64
-}
-
-func NewGetAllWorkDurationRes(arr []GetWorkDuration) *GetAllWorkDurationRes {
-	return &GetAllWorkDurationRes{
-		Transactions: arr,
-	}
-}
-
-func NewGetWorkDuration(id int64, workDuration float64) GetWorkDuration {
-	return GetWorkDuration{
-		TransactionId: id,
-		WorkDuration:  workDuration,
 	}
 }
 

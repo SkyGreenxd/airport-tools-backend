@@ -36,6 +36,7 @@ type UserRepository interface {
 	Update(ctx context.Context, user *domain.User) (*domain.User, error)
 	GetByEmployeeIdWithTransactionResolutions(ctx context.Context, employeeId string) (*domain.User, error)
 	GetAllQa(ctx context.Context) ([]*domain.User, error)
+	GetAllWithTransactions(ctx context.Context) ([]*domain.User, error)
 }
 
 // TransactionRepository интерфейс для работы с транзакциями инструментов в базе данных

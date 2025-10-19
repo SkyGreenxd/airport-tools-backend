@@ -6,6 +6,39 @@ import (
 	"time"
 )
 
+type GetAllTransactions struct {
+	User         UserDto            `json:"user"`
+	Transactions []LightTransaction `json:"transactions"`
+}
+
+type LightTransaction struct {
+	Id        int64
+	CreatedAt time.Time
+}
+
+func toDeliveryGetAllTransactions(res *usecase.GetAllTransactions) *GetAllTransactions {
+	return &GetAllTransactions{
+		User:         toDeliveryUserDto(res.User),
+		Transactions: toArrDeliveryLightTransaction(res.Transactions),
+	}
+}
+
+func toArrDeliveryLightTransaction(res []usecase.LightTransaction) []LightTransaction {
+	result := make([]LightTransaction, len(res))
+	for i, v := range res {
+		result[i] = toDeliveryLightTransaction(v)
+	}
+
+	return result
+}
+
+func toDeliveryLightTransaction(res usecase.LightTransaction) LightTransaction {
+	return LightTransaction{
+		Id:        res.Id,
+		CreatedAt: res.CreatedAt,
+	}
+}
+
 type MlErrorTransaction struct {
 	TransactionID  int64  `json:"transaction_id"`
 	SourceImageUrl string `json:"source_image_url"`
@@ -27,33 +60,6 @@ func toArrDeliveryMlErrorTransaction(res []usecase.MlErrorTransaction) []MlError
 	}
 
 	return result
-}
-
-type GetAllWorkDurationRes struct {
-	Transactions []GetWorkDuration `json:"transactions"`
-}
-
-type GetWorkDuration struct {
-	TransactionId int64   `json:"transaction_id"`
-	WorkDuration  float64 `json:"work_duration"`
-}
-
-func toDeliveryGetAllWorkDurationRes(res *usecase.GetAllWorkDurationRes) GetAllWorkDurationRes {
-	result := make([]GetWorkDuration, len(res.Transactions))
-	for i, transaction := range res.Transactions {
-		result[i] = toDeliveryGetWorkDuration(transaction)
-	}
-
-	return GetAllWorkDurationRes{
-		Transactions: result,
-	}
-}
-
-func toDeliveryGetWorkDuration(res usecase.GetWorkDuration) GetWorkDuration {
-	return GetWorkDuration{
-		TransactionId: res.TransactionId,
-		WorkDuration:  res.WorkDuration,
-	}
 }
 
 type GetAvgWorkDurationRes struct {
