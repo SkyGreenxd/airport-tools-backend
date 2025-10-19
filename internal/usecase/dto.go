@@ -111,6 +111,7 @@ type Verification struct {
 	QAEmployeeId  string
 	Reason        domain.Reason
 	Notes         string
+	ToolsIds      []int64
 }
 
 type VerificationRes struct {
@@ -371,12 +372,13 @@ func NewRegisterRes(id int64) *RegisterRes {
 	}
 }
 
-func NewVerification(transactionID int64, qaEmployeeId string, reason domain.Reason, notes string) *Verification {
+func NewVerification(transactionID int64, qaEmployeeId string, reason domain.Reason, notes string, toolIds []int64) *Verification {
 	return &Verification{
 		TransactionID: transactionID,
 		QAEmployeeId:  qaEmployeeId,
 		Reason:        reason,
 		Notes:         notes,
+		ToolsIds:      toolIds,
 	}
 }
 

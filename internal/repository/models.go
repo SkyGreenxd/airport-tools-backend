@@ -6,3 +6,15 @@ type HumanErrorStats struct {
 	EmployeeId  string
 	QAHitsCount int64
 }
+
+type ToolWithErrorCount struct {
+	ID           int64
+	Name         string
+	MLErrorCount int64
+}
+
+type ToolSetWithErrors struct {
+	ID    int64
+	Name  string
+	Tools []ToolWithErrorCount
+}
