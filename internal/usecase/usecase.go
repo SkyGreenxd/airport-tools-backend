@@ -546,9 +546,12 @@ func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRe
 		return nil, e.Wrap(op, err)
 	}
 
+	// Только инженеры
+	engineers := make([]*domain.User, 0, len(users))
 	userIds := make([]int64, 0, len(users))
 	for _, u := range users {
 		if u.Role == domain.Engineer {
+			engineers = append(engineers, u)
 			userIds = append(userIds, u.Id)
 		}
 	}
@@ -563,8 +566,8 @@ func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRe
 		userTxMap[tx.UserId] = append(userTxMap[tx.UserId], tx)
 	}
 
-	result := make([]GetAvgWorkDuration, len(users))
-	for i, user := range users {
+	result := make([]GetAvgWorkDuration, len(engineers))
+	for i, user := range engineers {
 		txs := userTxMap[user.Id]
 		var totalHours float64
 		for _, tx := range txs {
