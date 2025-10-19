@@ -21,8 +21,8 @@ func ToDeliveryAddToolSetRes(res *usecase.AddToolSetRes) *AddToolSetRes {
 }
 
 type AddToolSetReq struct {
-	ToolSetName string  `form:"tool_set_name"`
-	ToolsIds    []int64 `form:"tools_ids"`
+	ToolSetName string  `json:"tool_set_name"`
+	ToolsIds    []int64 `json:"tools_ids"`
 }
 
 func toUseCaseAddToolSetReq(req AddToolSetReq) usecase.AddToolSetReq {
