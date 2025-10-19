@@ -350,6 +350,11 @@ paths:
         in: query
         name: work_duration
         type: string
+      - description: 'Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом
+          статистики `errors`'
+        in: query
+        name: error_type
+        type: string
       produces:
       - application/json
       responses:

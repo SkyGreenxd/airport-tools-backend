@@ -6,6 +6,29 @@ import (
 	"time"
 )
 
+type MlErrorTransaction struct {
+	TransactionID  int64  `json:"transaction_id"`
+	SourceImageUrl string `json:"source_image_url"`
+	DebugImageUrl  string `json:"debug_image_url"`
+}
+
+func toDeliveryMlErrorTransaction(res usecase.MlErrorTransaction) MlErrorTransaction {
+	return MlErrorTransaction{
+		TransactionID:  res.TransactionID,
+		SourceImageUrl: res.SourceImageUrl,
+		DebugImageUrl:  res.DebugImageUrl,
+	}
+}
+
+func toArrDeliveryMlErrorTransaction(res []usecase.MlErrorTransaction) []MlErrorTransaction {
+	result := make([]MlErrorTransaction, len(res))
+	for i := range res {
+		result[i] = toDeliveryMlErrorTransaction(res[i])
+	}
+
+	return result
+}
+
 type GetAllWorkDurationRes struct {
 	Transactions []GetWorkDuration `json:"transactions"`
 }

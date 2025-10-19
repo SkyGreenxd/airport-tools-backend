@@ -5,6 +5,20 @@ import (
 	"time"
 )
 
+type MlErrorTransaction struct {
+	TransactionID  int64
+	SourceImageUrl string
+	DebugImageUrl  string
+}
+
+func NewMlErrorTransaction(id int64, sUrl, dUrl string) *MlErrorTransaction {
+	return &MlErrorTransaction{
+		TransactionID:  id,
+		SourceImageUrl: sUrl,
+		DebugImageUrl:  dUrl,
+	}
+}
+
 type GetAvgWorkDurationRes struct {
 	Transactions []GetAvgWorkDuration
 }

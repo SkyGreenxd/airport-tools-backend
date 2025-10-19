@@ -176,6 +176,12 @@ const docTemplate = `{
                         "description": "Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)",
                         "name": "work_duration",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом статистики ` + "`" + `errors` + "`" + `",
+                        "name": "error_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {

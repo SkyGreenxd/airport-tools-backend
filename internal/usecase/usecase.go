@@ -584,3 +584,36 @@ func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRe
 
 	return NewGetAvgWorkDurationRes(result), nil
 }
+
+// выводит список транзакций, в которых модель ошиблась
+func (s *Service) GetMlErrorTransactions(ctx context.Context) ([]MlErrorTransaction, error) {
+	const op = "usecase.GetMlErrorTransactions"
+
+	qaTransactions, err := s.trResolution.GetMlErrorTransactions(ctx)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	var result []MlErrorTransaction
+	for _, qa := range qaTransactions {
+		tx := qa.Transaction
+		if tx == nil || len(tx.CvScans) == 0 {
+			continue
+		}
+
+		var lastCheckin *domain.CvScan
+		for _, scan := range tx.CvScans {
+			switch scan.ScanType {
+			case domain.Checkin:
+				if lastCheckin == nil || scan.CreatedAt.After(lastCheckin.CreatedAt) {
+					lastCheckin = scan
+				}
+			}
+		}
+		if lastCheckin != nil {
+			result = append(result, *NewMlErrorTransaction(tx.Id, lastCheckin.ImageUrl, lastCheckin.DebugImageUrl))
+		}
+	}
+
+	return result, nil
+}

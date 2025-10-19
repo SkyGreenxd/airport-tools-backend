@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"airport-tools-backend/internal/domain"
 	"airport-tools-backend/internal/usecase"
 	"airport-tools-backend/pkg/e"
 	"net/http"
@@ -278,6 +279,7 @@ func (h *Handler) getRoles(c *gin.Context) {
 //	@Param			limit				query		int				false	"Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
 //	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
 //	@Param			work_duration		query		string			false	"Получить список всех закрытых транзакций с рассчитанной длительностью работы (Ставится значение true)"
+//	@Param			error_type			query		string			false	"Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом статистики `errors`"
 //
 //	@Success		200					{object}	StatisticsRes	"Успешный ответ: структура зависит от значения параметра type"
 //	@Failure		400					{object}	HTTPError		"Неверное тело запроса"
@@ -297,6 +299,7 @@ func (h *Handler) getStatistics(c *gin.Context) {
 	limitStr := c.Query("limit")
 	avgWorkDuration := c.Query("avg_work_duration")
 	workDuration := c.Query("work_duration")
+	errorType := c.Query("error_type")
 
 	valid := func(v string) bool {
 		return v == "" || v == "true"
@@ -376,14 +379,26 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			}
 		}
 	case "errors":
-		result, err := h.service.GetMlVsHuman(c.Request.Context())
-		if err != nil {
-			ErrorToHttpRes(err, c)
+		if errorType == string(domain.HumanError) {
+			result, err := h.service.GetMlErrorTransactions(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			res = toArrDeliveryMlErrorTransaction(result)
+		} else if errorType == string(domain.ModelError) {
+			result, err := h.service.GetMlVsHuman(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			res = toDeliveryModelOrHumanStatsRes(result)
+		} else {
+			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
 			return
 		}
-
-		res = toDeliveryModelOrHumanStatsRes(result)
-
 	case "qa":
 		if employeeId != "" {
 			result, err := h.service.GetQAChecks(c.Request.Context(), employeeId)

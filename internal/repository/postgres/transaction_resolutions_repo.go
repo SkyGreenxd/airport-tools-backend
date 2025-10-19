@@ -116,6 +116,18 @@ func (t *TransactionResolutionsRepo) getTransactionsWithErrorType(ctx context.Co
 	return toDomainArrTransactionResolution(models), nil
 }
 
+func (t *TransactionResolutionsRepo) GetMlErrorTransactions(ctx context.Context) ([]*domain.TransactionResolution, error) {
+	const op = "TransactionResolutionsRepo.GetMlErrorTransactions"
+
+	var models []*TransactionResolutionModel
+	result := t.DB.WithContext(ctx).Preload("Transaction.CvScans").Find(&models)
+	if err := result.Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	return toDomainArrTransactionResolution(models), nil
+}
+
 func toTransactionResolutionModel(transaction *domain.TransactionResolution) *TransactionResolutionModel {
 	return &TransactionResolutionModel{
 		Id:            transaction.Id,

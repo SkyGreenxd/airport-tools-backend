@@ -77,6 +77,7 @@ type ImageRepository interface {
 	Save(ctx context.Context, img *domain.Image) (*domain.UploadImage, error)
 }
 
+// TransactionResolutionsRepository интерфейс для работы с QA проверками
 type TransactionResolutionsRepository interface {
 	Create(ctx context.Context, transaction *domain.TransactionResolution) (*domain.TransactionResolution, error)
 	GetAll(ctx context.Context) ([]*domain.TransactionResolution, error)
@@ -85,4 +86,5 @@ type TransactionResolutionsRepository interface {
 	GetAllModelError(ctx context.Context) ([]*domain.TransactionResolution, error)
 	GetAllHumanError(ctx context.Context) ([]*domain.TransactionResolution, error)
 	GetTopHumanErrorUsers(ctx context.Context) ([]HumanErrorStats, error)
+	GetMlErrorTransactions(ctx context.Context) ([]*domain.TransactionResolution, error)
 }
