@@ -30,8 +30,8 @@ INSERT INTO roles(name) VALUES
     ('Engineer'),
     ('Quality Auditor');
 
-INSERT INTO users (employee_id, full_name, role) VALUES
-    ('AT-12321', 'Денис Владимирович Петрушин', 'Engineer'),
-    ('AT-12345', 'Владимир Сергеевич Пупкин', 'Engineer'),
-    ('AT-999999', 'Никита Артемович Хахашкин', 'Quality Auditor');
+INSERT INTO users (employee_id, full_name, role_id) VALUES
+    ('AT-12321', 'Денис Владимирович Петрушин', 1),
+    ('AT-12345', 'Владимир Сергеевич Пупкин', 1),
+    ('AT-999999', 'Никита Артемович Хахашкин', 1);
 
