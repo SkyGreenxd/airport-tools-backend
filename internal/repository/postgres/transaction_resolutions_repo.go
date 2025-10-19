@@ -120,7 +120,7 @@ func (t *TransactionResolutionsRepo) GetMlErrorTransactions(ctx context.Context)
 	const op = "TransactionResolutionsRepo.GetMlErrorTransactions"
 
 	var models []*TransactionResolutionModel
-	result := t.DB.WithContext(ctx).Preload("Transaction.CvScans").Find(&models)
+	result := t.DB.WithContext(ctx).Preload("Transaction.CvScans").Where("reason = ?", domain.ModelError).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
