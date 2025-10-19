@@ -64,7 +64,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 			tools := qa.Group("/tools")
 			{
-				tools.POST("/ml-errors", h.getMlErrorTools)
+				tools.GET("/ml-errors", h.getMlErrorTools)
 				tools.POST("/new_set", h.addToolSet)
 			}
 		}
