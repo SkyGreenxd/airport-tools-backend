@@ -137,7 +137,7 @@ type VerificationReq struct {
 	QAEmployeeId string        `json:"qa_employee_id" binding:"required"`
 	Reason       domain.Reason `json:"reason" binding:"required"`
 	Notes        string        `json:"notes"`
-	ToolIds      []int64       `json:"tool_ids" binding:"min=1,dive,gt=0"`
+	ToolIds      []int64       `json:"tool_ids" binding:"dive,gt=0"`
 }
 
 type VerificationRes struct {
