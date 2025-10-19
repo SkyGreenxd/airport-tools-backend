@@ -369,6 +369,7 @@ func (s *Service) Verification(ctx context.Context, req *Verification) (*Verific
 	return NewVerificationRes(updTransaction.Id, string(updTransaction.Status), user.EmployeeId, resolution.CreatedAt), nil
 }
 
+// GetQATransaction
 func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*GetQAVerificationRes, error) {
 	const op = "usecase.GetQATransaction"
 
@@ -400,7 +401,7 @@ func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*G
 	return res, nil
 }
 
-// Список транзакций конкретного пользователя
+// UserTransactions возвращает список транзакций конкретного пользователя
 func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq) (*GetUsersListTransactionsRes, error) {
 	const op = "usecase.UserTransactions"
 
@@ -431,7 +432,8 @@ func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq
 	return result, nil
 }
 
-// Инженеры, чьи транзакции чаще всего попадали на QA по причине HUMAN_ERR
+// GetUsersQAStats возвращает инженеров, чьи транзакции попадали на QA по причине HUMAN_ERR,
+// по убыванию кол-ва проверок
 func (s *Service) GetUsersQAStats(ctx context.Context) ([]HumanErrorStats, error) {
 	const op = "usecase.GetUsersQAStats"
 
@@ -448,7 +450,7 @@ func (s *Service) GetUsersQAStats(ctx context.Context) ([]HumanErrorStats, error
 	return result, nil
 }
 
-// Какие проверки делал сотрудник QA
+// GetQAChecks возвращает какие проверки делал сотрудник QA
 func (s *Service) GetQAChecks(ctx context.Context, qaId string) (*QaTransactionsRes, error) {
 	const op = "usecase.GetQAChecks"
 
@@ -466,7 +468,7 @@ func (s *Service) GetQAChecks(ctx context.Context, qaId string) (*QaTransactions
 	return res, nil
 }
 
-// Model vs Human errors
+// GetMlVsHuman возвращает два числа "Model vs Human errors"
 func (s *Service) GetMlVsHuman(ctx context.Context) (*ModelOrHumanStatsRes, error) {
 	const op = "usecase.GetMlVsHuman"
 
@@ -483,7 +485,7 @@ func (s *Service) GetMlVsHuman(ctx context.Context) (*ModelOrHumanStatsRes, erro
 	return NewModelOrHumanStatsRes(len(modelErrors), len(humansErrors)), nil
 }
 
-// Все QA проверяющие
+// GetAllQaEmployers возваращает всех QA проверяющих
 func (s *Service) GetAllQaEmployers(ctx context.Context) ([]UserDto, error) {
 	const op = "usecase.GetAllQaEmployers"
 
@@ -500,7 +502,7 @@ func (s *Service) GetAllQaEmployers(ctx context.Context) ([]UserDto, error) {
 	return result, nil
 }
 
-// Список транзакций по типам
+// GetTransactionStatistics возвращает список транзакций по типам
 func (s *Service) GetTransactionStatistics(ctx context.Context) (*GetTransactionStatisticsRes, error) {
 	const op = "usecase.GetTransactionStatistics"
 
@@ -532,7 +534,7 @@ func (s *Service) GetTransactionStatistics(ctx context.Context) (*GetTransaction
 	return NewGetTransactionStatisticsRes(len(transactions), len(opened), len(closed), len(qa), len(failed)), nil
 }
 
-// возвращает среднее время работы каждого инженера по всем его транзакциям
+// GetAvgWorkDuration возвращает среднее время работы каждого инженера по всем его транзакциям
 func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRes, error) {
 	const op = "usecase.GetAvgWorkDuration"
 
@@ -580,7 +582,7 @@ func (s *Service) GetAvgWorkDuration(ctx context.Context) (*GetAvgWorkDurationRe
 	return NewGetAvgWorkDurationRes(result), nil
 }
 
-// выводит список транзакций, в которых модель ошиблась
+// GetMlErrorTransactions выводит список транзакций, в которых модель ошиблась
 func (s *Service) GetMlErrorTransactions(ctx context.Context) ([]MlErrorTransaction, error) {
 	const op = "usecase.GetMlErrorTransactions"
 

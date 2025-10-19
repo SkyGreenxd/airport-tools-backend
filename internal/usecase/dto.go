@@ -15,24 +15,9 @@ type AddToolSetRes struct {
 	Tools []*ToolTypeDTO
 }
 
-func NewAddToolSetRes(id int64, name string, tools []*ToolTypeDTO) *AddToolSetRes {
-	return &AddToolSetRes{
-		Id:    id,
-		Name:  name,
-		Tools: tools,
-	}
-}
-
 type GetAllTransactions struct {
 	User         UserDto
 	Transactions []LightTransaction
-}
-
-func NewGetAllTransactions(user *domain.User, transactions []LightTransaction) *GetAllTransactions {
-	return &GetAllTransactions{
-		User:         toUserDTO(*user),
-		Transactions: transactions,
-	}
 }
 
 type LightTransaction struct {
@@ -40,34 +25,10 @@ type LightTransaction struct {
 	CreatedAt time.Time
 }
 
-func NewArrLightTransaction(arr []*domain.Transaction) []LightTransaction {
-	result := make([]LightTransaction, len(arr))
-	for i, tr := range arr {
-		result[i] = NewLightTransaction(tr.Id, tr.CreatedAt)
-	}
-
-	return result
-}
-
-func NewLightTransaction(id int64, createdAt time.Time) LightTransaction {
-	return LightTransaction{
-		Id:        id,
-		CreatedAt: createdAt,
-	}
-}
-
 type MlErrorTransaction struct {
 	TransactionID  int64
 	SourceImageUrl string
 	DebugImageUrl  string
-}
-
-func NewMlErrorTransaction(id int64, sUrl, dUrl string) *MlErrorTransaction {
-	return &MlErrorTransaction{
-		TransactionID:  id,
-		SourceImageUrl: sUrl,
-		DebugImageUrl:  dUrl,
-	}
 }
 
 type GetAvgWorkDurationRes struct {
@@ -79,28 +40,9 @@ type GetAvgWorkDuration struct {
 	AvgWorkDuration float64
 }
 
-func NewGetAvgWorkDuration(user UserDto, avgWorkDuration float64) GetAvgWorkDuration {
-	return GetAvgWorkDuration{
-		User:            user,
-		AvgWorkDuration: avgWorkDuration,
-	}
-}
-func NewGetAvgWorkDurationRes(transactions []GetAvgWorkDuration) *GetAvgWorkDurationRes {
-	return &GetAvgWorkDurationRes{
-		Transactions: transactions,
-	}
-}
-
 type GetUsersListTransactionsRes struct {
 	Transactions []*TransactionDTO
 	Avg          float64
-}
-
-func NewGetUsersListTransactionsRes(transactions []*TransactionDTO, avg float64) *GetUsersListTransactionsRes {
-	return &GetUsersListTransactionsRes{
-		Transactions: transactions,
-		Avg:          avg,
-	}
 }
 
 // ListTransactionsRes список транзакций
@@ -116,40 +58,15 @@ type GetTransactionStatisticsRes struct {
 	FailedTransactions int
 }
 
-func NewGetTransactionStatisticsRes(transactions, opened, closed, qa, failed int) *GetTransactionStatisticsRes {
-	return &GetTransactionStatisticsRes{
-		Transactions:       transactions,
-		OpenedTransactions: opened,
-		ClosedTransactions: closed,
-		QATransactions:     qa,
-		FailedTransactions: failed,
-	}
-}
-
 type HumanErrorStats struct {
 	FullName    string
 	EmployeeId  string
 	QAHitsCount int64
 }
 
-func NewHumanErrorStats(fullName, employeeId string, QAHitsCount int64) HumanErrorStats {
-	return HumanErrorStats{
-		FullName:    fullName,
-		EmployeeId:  employeeId,
-		QAHitsCount: QAHitsCount,
-	}
-}
-
 type ModelOrHumanStatsRes struct {
 	MlErrors    int
 	HumanErrors int
-}
-
-func NewModelOrHumanStatsRes(ml int, humans int) *ModelOrHumanStatsRes {
-	return &ModelOrHumanStatsRes{
-		MlErrors:    ml,
-		HumanErrors: humans,
-	}
 }
 
 type QaTransactionsRes struct {
@@ -164,52 +81,12 @@ type TransactionResolutionDTO struct {
 	CreatedAt   time.Time
 }
 
-func ToListTransactionResolutionDTO(transactions []*domain.TransactionResolution) []*TransactionResolutionDTO {
-	result := make([]*TransactionResolutionDTO, len(transactions))
-	for i, tr := range transactions {
-		result[i] = ToTransactionResolutionDTO(tr.Transaction, tr.Reason, tr.Notes, tr.CreatedAt)
-	}
-
-	return result
-}
-
-func ToTransactionResolutionDTO(transaction *domain.Transaction, reason domain.Reason, notes string, createdAt time.Time) *TransactionResolutionDTO {
-	var transactionDTO *TransactionDTO
-	if transaction != nil {
-		transactionDTO = toTransactionDTO(transaction)
-	}
-
-	return &TransactionResolutionDTO{
-		Transaction: transactionDTO,
-		Reason:      reason,
-		Notes:       notes,
-		CreatedAt:   createdAt,
-	}
-}
-
-func NewQaTransactionsRes(qa UserDto, transactions []*TransactionResolutionDTO) *QaTransactionsRes {
-	return &QaTransactionsRes{
-		Qa:           qa,
-		Transactions: transactions,
-	}
-}
-
 type UserTransactionsReq struct {
 	EmployeeId string
 	StartDate  *time.Time
 	EndDate    *time.Time
 	Limit      *int
 	Avg        bool
-}
-
-func NewUserTransactionsReq(employeeId string, startDate, endDate *time.Time, limit *int, avg bool) *UserTransactionsReq {
-	return &UserTransactionsReq{
-		EmployeeId: employeeId,
-		StartDate:  startDate,
-		EndDate:    endDate,
-		Limit:      limit,
-		Avg:        avg,
-	}
 }
 
 type GetQAVerificationRes struct {
@@ -229,27 +106,6 @@ type ProblematicTools struct {
 	MissingTools     []*ToolTypeDTO
 }
 
-func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, accessTools []*domain.RecognizedTool, problematicTools *ProblematicTools, imageurl, status string) *GetQAVerificationRes {
-	return &GetQAVerificationRes{
-		TransactionId:    id,
-		ToolSetId:        toolSetId,
-		CreatedAt:        createdAt,
-		User:             user,
-		AccessTools:      accessTools,
-		ProblematicTools: problematicTools,
-		ImageUrl:         imageurl,
-		Status:           status,
-	}
-}
-
-func NewProblematicTools(manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *ProblematicTools {
-	return &ProblematicTools{
-		ManualCheckTools: manualCheckTools,
-		UnknownTools:     unknownTools,
-		MissingTools:     missingTools,
-	}
-}
-
 type Verification struct {
 	TransactionID int64
 	QAEmployeeId  string
@@ -262,15 +118,6 @@ type VerificationRes struct {
 	Status        string
 	VerifiedBy    string
 	CreatedAt     time.Time
-}
-
-func NewVerificationRes(id int64, status string, verifiedBy string, createdAt time.Time) *VerificationRes {
-	return &VerificationRes{
-		TransactionID: id,
-		Status:        status,
-		VerifiedBy:    verifiedBy,
-		CreatedAt:     createdAt,
-	}
 }
 
 type RegisterReq struct {
@@ -537,5 +384,157 @@ func NewUserDto(fullname, employeeId string) UserDto {
 	return UserDto{
 		FullName:   fullname,
 		EmployeeId: employeeId,
+	}
+}
+
+func NewGetAvgWorkDuration(user UserDto, avgWorkDuration float64) GetAvgWorkDuration {
+	return GetAvgWorkDuration{
+		User:            user,
+		AvgWorkDuration: avgWorkDuration,
+	}
+}
+func NewGetAvgWorkDurationRes(transactions []GetAvgWorkDuration) *GetAvgWorkDurationRes {
+	return &GetAvgWorkDurationRes{
+		Transactions: transactions,
+	}
+}
+
+func NewMlErrorTransaction(id int64, sUrl, dUrl string) *MlErrorTransaction {
+	return &MlErrorTransaction{
+		TransactionID:  id,
+		SourceImageUrl: sUrl,
+		DebugImageUrl:  dUrl,
+	}
+}
+
+func NewArrLightTransaction(arr []*domain.Transaction) []LightTransaction {
+	result := make([]LightTransaction, len(arr))
+	for i, tr := range arr {
+		result[i] = NewLightTransaction(tr.Id, tr.CreatedAt)
+	}
+
+	return result
+}
+
+func NewLightTransaction(id int64, createdAt time.Time) LightTransaction {
+	return LightTransaction{
+		Id:        id,
+		CreatedAt: createdAt,
+	}
+}
+
+func NewGetAllTransactions(user *domain.User, transactions []LightTransaction) *GetAllTransactions {
+	return &GetAllTransactions{
+		User:         toUserDTO(*user),
+		Transactions: transactions,
+	}
+}
+
+func NewGetUsersListTransactionsRes(transactions []*TransactionDTO, avg float64) *GetUsersListTransactionsRes {
+	return &GetUsersListTransactionsRes{
+		Transactions: transactions,
+		Avg:          avg,
+	}
+}
+
+func ToListTransactionResolutionDTO(transactions []*domain.TransactionResolution) []*TransactionResolutionDTO {
+	result := make([]*TransactionResolutionDTO, len(transactions))
+	for i, tr := range transactions {
+		result[i] = ToTransactionResolutionDTO(tr.Transaction, tr.Reason, tr.Notes, tr.CreatedAt)
+	}
+
+	return result
+}
+
+func ToTransactionResolutionDTO(transaction *domain.Transaction, reason domain.Reason, notes string, createdAt time.Time) *TransactionResolutionDTO {
+	var transactionDTO *TransactionDTO
+	if transaction != nil {
+		transactionDTO = toTransactionDTO(transaction)
+	}
+
+	return &TransactionResolutionDTO{
+		Transaction: transactionDTO,
+		Reason:      reason,
+		Notes:       notes,
+		CreatedAt:   createdAt,
+	}
+}
+
+func NewQaTransactionsRes(qa UserDto, transactions []*TransactionResolutionDTO) *QaTransactionsRes {
+	return &QaTransactionsRes{
+		Qa:           qa,
+		Transactions: transactions,
+	}
+}
+
+func NewUserTransactionsReq(employeeId string, startDate, endDate *time.Time, limit *int, avg bool) *UserTransactionsReq {
+	return &UserTransactionsReq{
+		EmployeeId: employeeId,
+		StartDate:  startDate,
+		EndDate:    endDate,
+		Limit:      limit,
+		Avg:        avg,
+	}
+}
+
+func NewGetQAVerificationRes(id, toolSetId int64, createdAt time.Time, user UserDto, accessTools []*domain.RecognizedTool, problematicTools *ProblematicTools, imageurl, status string) *GetQAVerificationRes {
+	return &GetQAVerificationRes{
+		TransactionId:    id,
+		ToolSetId:        toolSetId,
+		CreatedAt:        createdAt,
+		User:             user,
+		AccessTools:      accessTools,
+		ProblematicTools: problematicTools,
+		ImageUrl:         imageurl,
+		Status:           status,
+	}
+}
+
+func NewProblematicTools(manualCheckTools, unknownTools []*domain.RecognizedTool, missingTools []*ToolTypeDTO) *ProblematicTools {
+	return &ProblematicTools{
+		ManualCheckTools: manualCheckTools,
+		UnknownTools:     unknownTools,
+		MissingTools:     missingTools,
+	}
+}
+
+func NewVerificationRes(id int64, status string, verifiedBy string, createdAt time.Time) *VerificationRes {
+	return &VerificationRes{
+		TransactionID: id,
+		Status:        status,
+		VerifiedBy:    verifiedBy,
+		CreatedAt:     createdAt,
+	}
+}
+func NewModelOrHumanStatsRes(ml int, humans int) *ModelOrHumanStatsRes {
+	return &ModelOrHumanStatsRes{
+		MlErrors:    ml,
+		HumanErrors: humans,
+	}
+}
+
+func NewGetTransactionStatisticsRes(transactions, opened, closed, qa, failed int) *GetTransactionStatisticsRes {
+	return &GetTransactionStatisticsRes{
+		Transactions:       transactions,
+		OpenedTransactions: opened,
+		ClosedTransactions: closed,
+		QATransactions:     qa,
+		FailedTransactions: failed,
+	}
+}
+
+func NewAddToolSetRes(id int64, name string, tools []*ToolTypeDTO) *AddToolSetRes {
+	return &AddToolSetRes{
+		Id:    id,
+		Name:  name,
+		Tools: tools,
+	}
+}
+
+func NewHumanErrorStats(fullName, employeeId string, QAHitsCount int64) HumanErrorStats {
+	return HumanErrorStats{
+		FullName:    fullName,
+		EmployeeId:  employeeId,
+		QAHitsCount: QAHitsCount,
 	}
 }

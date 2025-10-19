@@ -12,6 +12,7 @@ const (
 	HumanError Reason = "HUMAN_ERR"
 )
 
+// TransactionResolution описывает результат проверки QA сотрудника
 type TransactionResolution struct {
 	Id            int64
 	TransactionId int64

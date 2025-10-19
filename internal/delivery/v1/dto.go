@@ -12,44 +12,14 @@ type AddToolSetRes struct {
 	Tools []*ToolTypeDTO `json:"tools"`
 }
 
-func ToDeliveryAddToolSetRes(res *usecase.AddToolSetRes) *AddToolSetRes {
-	return &AddToolSetRes{
-		Id:    res.Id,
-		Name:  res.Name,
-		Tools: toArrDeliveryToolTypeDTO(res.Tools),
-	}
-}
-
 type AddToolSetReq struct {
-	ToolSetName string  `json:"tool_set_name"`
-	ToolsIds    []int64 `json:"tools_ids"`
-}
-
-func toUseCaseAddToolSetReq(req AddToolSetReq) usecase.AddToolSetReq {
-	return usecase.AddToolSetReq{
-		ToolSetName: req.ToolSetName,
-		ToolsIds:    req.ToolsIds,
-	}
+	ToolSetName string  `json:"tool_set_name" binding:"required,min=3"`
+	ToolsIds    []int64 `json:"tools_ids" binding:"required,min=1,dive,gt=0"`
 }
 
 type GetUsersListTransactionsRes struct {
 	Transactions []*TransactionDTO
 	Avg          float64
-}
-
-func toDeliveryGetUsersListTransactionsRes(res *usecase.GetUsersListTransactionsRes) *GetUsersListTransactionsRes {
-	return &GetUsersListTransactionsRes{
-		Transactions: toDeliveryArrTransactionDTO(res.Transactions),
-		Avg:          res.Avg,
-	}
-}
-func toDeliveryArrTransactionDTO(transactions []*usecase.TransactionDTO) []*TransactionDTO {
-	res := make([]*TransactionDTO, len(transactions))
-	for i, transaction := range transactions {
-		res[i] = toDeliveryTransactionDTO(transaction)
-	}
-
-	return res
 }
 
 type GetAllTransactions struct {
@@ -62,50 +32,10 @@ type LightTransaction struct {
 	CreatedAt time.Time
 }
 
-func toDeliveryGetAllTransactions(res *usecase.GetAllTransactions) *GetAllTransactions {
-	return &GetAllTransactions{
-		User:         toDeliveryUserDto(res.User),
-		Transactions: toArrDeliveryLightTransaction(res.Transactions),
-	}
-}
-
-func toArrDeliveryLightTransaction(res []usecase.LightTransaction) []LightTransaction {
-	result := make([]LightTransaction, len(res))
-	for i, v := range res {
-		result[i] = toDeliveryLightTransaction(v)
-	}
-
-	return result
-}
-
-func toDeliveryLightTransaction(res usecase.LightTransaction) LightTransaction {
-	return LightTransaction{
-		Id:        res.Id,
-		CreatedAt: res.CreatedAt,
-	}
-}
-
 type MlErrorTransaction struct {
 	TransactionID  int64  `json:"transaction_id"`
 	SourceImageUrl string `json:"source_image_url"`
 	DebugImageUrl  string `json:"debug_image_url"`
-}
-
-func toDeliveryMlErrorTransaction(res usecase.MlErrorTransaction) MlErrorTransaction {
-	return MlErrorTransaction{
-		TransactionID:  res.TransactionID,
-		SourceImageUrl: res.SourceImageUrl,
-		DebugImageUrl:  res.DebugImageUrl,
-	}
-}
-
-func toArrDeliveryMlErrorTransaction(res []usecase.MlErrorTransaction) []MlErrorTransaction {
-	result := make([]MlErrorTransaction, len(res))
-	for i := range res {
-		result[i] = toDeliveryMlErrorTransaction(res[i])
-	}
-
-	return result
 }
 
 type GetAvgWorkDurationRes struct {
@@ -115,24 +45,6 @@ type GetAvgWorkDurationRes struct {
 type GetAvgWorkDuration struct {
 	User            UserDto `json:"user"`
 	AvgWorkDuration float64 `json:"avg_work_duration"`
-}
-
-func toDeliveryGetAvgWorkDurationRes(res *usecase.GetAvgWorkDurationRes) GetAvgWorkDurationRes {
-	transactions := make([]GetAvgWorkDuration, len(res.Transactions))
-	for i, transaction := range res.Transactions {
-		transactions[i] = toDeliveryGetAvgWorkDuration(&transaction)
-	}
-
-	return GetAvgWorkDurationRes{
-		Transactions: transactions,
-	}
-}
-
-func toDeliveryGetAvgWorkDuration(res *usecase.GetAvgWorkDuration) GetAvgWorkDuration {
-	return GetAvgWorkDuration{
-		User:            toDeliveryUserDto(res.User),
-		AvgWorkDuration: res.AvgWorkDuration,
-	}
 }
 
 type HumanErrorStats struct {
@@ -149,43 +61,9 @@ type GetTransactionStatisticsRes struct {
 	FailedTransactions int `json:"failed_transactions"`
 }
 
-func toDeliveryGetTransactionStatisticsRes(res usecase.GetTransactionStatisticsRes) GetTransactionStatisticsRes {
-	return GetTransactionStatisticsRes{
-		Transactions:       res.Transactions,
-		OpenedTransactions: res.OpenedTransactions,
-		ClosedTransactions: res.ClosedTransactions,
-		QATransactions:     res.QATransactions,
-		FailedTransactions: res.FailedTransactions,
-	}
-}
-
-func toDeliveryHumanErrorStats(res usecase.HumanErrorStats) HumanErrorStats {
-	return HumanErrorStats{
-		FullName:    res.FullName,
-		EmployeeId:  res.EmployeeId,
-		QAHitsCount: res.QAHitsCount,
-	}
-}
-
-func toArrDeliveryHumanErrorStats(res []usecase.HumanErrorStats) []HumanErrorStats {
-	result := make([]HumanErrorStats, len(res))
-	for i, item := range res {
-		result[i] = toDeliveryHumanErrorStats(item)
-	}
-
-	return result
-}
-
 type ModelOrHumanStatsRes struct {
 	MlErrors    int `json:"ml_errors"`
 	HumanErrors int `json:"human_errors"`
-}
-
-func toDeliveryModelOrHumanStatsRes(res *usecase.ModelOrHumanStatsRes) *ModelOrHumanStatsRes {
-	return &ModelOrHumanStatsRes{
-		MlErrors:    res.MlErrors,
-		HumanErrors: res.HumanErrors,
-	}
 }
 
 type QaTransactionsRes struct {
@@ -200,51 +78,13 @@ type TransactionResolutionDTO struct {
 	CreatedAt   time.Time       `json:"created_at"`
 }
 
-func toDeliveryQaTransactionsRes(res *usecase.QaTransactionsRes) *QaTransactionsRes {
-	return &QaTransactionsRes{
-		Qa:           toDeliveryUserDto(res.Qa),
-		Transactions: toDeliveryArrTransactionResolutionDTO(res.Transactions),
-	}
-}
-
-func toDeliveryArrTransactionResolutionDTO(dto []*usecase.TransactionResolutionDTO) []*TransactionResolutionDTO {
-	res := make([]*TransactionResolutionDTO, len(dto))
-	for i, d := range dto {
-		res[i] = toDeliveryTransactionResolutionDTO(d)
-	}
-
-	return res
-}
-
-func toDeliveryTransactionResolutionDTO(d *usecase.TransactionResolutionDTO) *TransactionResolutionDTO {
-	return &TransactionResolutionDTO{
-		Transaction: toDeliveryTransactionDTO(d.Transaction),
-		Reason:      d.Reason,
-		Notes:       d.Notes,
-		CreatedAt:   d.CreatedAt,
-	}
-}
-
 type StatisticsRes struct {
 	Type string      `json:"type"`
 	Data interface{} `json:"data"`
 }
 
-func NewStatisticsRes(statisticsType string, data interface{}) *StatisticsRes {
-	return &StatisticsRes{
-		Type: statisticsType,
-		Data: data,
-	}
-}
-
 type GetRolesRes struct {
 	Roles []domain.Role `json:"roles"`
-}
-
-func toDeliveryGetRolesRes(roles *usecase.GetRolesRes) GetRolesRes {
-	return GetRolesRes{
-		roles.Roles,
-	}
 }
 
 type VerificationReq struct {
@@ -258,15 +98,6 @@ type VerificationRes struct {
 	Status        string    `json:"status"`
 	VerifiedBy    string    `json:"verified_by"`
 	CreatedAt     time.Time `json:"created_at"`
-}
-
-func toDeliveryVerificationRes(res *usecase.VerificationRes) *VerificationRes {
-	return &VerificationRes{
-		TransactionID: res.TransactionID,
-		Status:        res.Status,
-		VerifiedBy:    res.VerifiedBy,
-		CreatedAt:     res.CreatedAt,
-	}
 }
 
 type GetQAVerificationRes struct {
@@ -284,27 +115,6 @@ type ProblematicTools struct {
 	ManualCheckTools []*RecognizedToolDTO `json:"manual_check_tools"`
 	UnknownTools     []*RecognizedToolDTO `json:"unknown_tools"`
 	MissingTools     []*ToolTypeDTO       `json:"missing_tools"`
-}
-
-func toDeliveryGetQAVerificationRes(res *usecase.GetQAVerificationRes) *GetQAVerificationRes {
-	return &GetQAVerificationRes{
-		TransactionId:    res.TransactionId,
-		ToolSetId:        res.ToolSetId,
-		CreatedAt:        res.CreatedAt,
-		User:             toDeliveryUserDto(res.User),
-		AccessTools:      toArrDeliveryRecognizedToolDTO(res.AccessTools),
-		ProblematicTools: toDeliveryProblematicTools(res.ProblematicTools),
-		ImageUrl:         res.ImageUrl,
-		Status:           res.Status,
-	}
-}
-
-func toDeliveryProblematicTools(tools *usecase.ProblematicTools) *ProblematicTools {
-	return &ProblematicTools{
-		ManualCheckTools: toArrDeliveryRecognizedToolDTO(tools.ManualCheckTools),
-		UnknownTools:     toArrDeliveryRecognizedToolDTO(tools.UnknownTools),
-		MissingTools:     toArrDeliveryToolTypeDTO(tools.MissingTools),
-	}
 }
 
 type ListTransactionsRes struct {
@@ -486,5 +296,189 @@ func toUseCaseRegisterReq(req RegisterReq) *usecase.RegisterReq {
 func toDeliveryRegisterRes(res *usecase.RegisterRes) RegisterRes {
 	return RegisterRes{
 		Id: res.Id,
+	}
+}
+
+func toDeliveryGetUsersListTransactionsRes(res *usecase.GetUsersListTransactionsRes) *GetUsersListTransactionsRes {
+	return &GetUsersListTransactionsRes{
+		Transactions: toDeliveryArrTransactionDTO(res.Transactions),
+		Avg:          res.Avg,
+	}
+}
+
+func toUseCaseAddToolSetReq(req AddToolSetReq) usecase.AddToolSetReq {
+	return usecase.AddToolSetReq{
+		ToolSetName: req.ToolSetName,
+		ToolsIds:    req.ToolsIds,
+	}
+}
+
+func toDeliveryArrTransactionDTO(transactions []*usecase.TransactionDTO) []*TransactionDTO {
+	res := make([]*TransactionDTO, len(transactions))
+	for i, transaction := range transactions {
+		res[i] = toDeliveryTransactionDTO(transaction)
+	}
+
+	return res
+}
+
+func toDeliveryGetAllTransactions(res *usecase.GetAllTransactions) *GetAllTransactions {
+	return &GetAllTransactions{
+		User:         toDeliveryUserDto(res.User),
+		Transactions: toArrDeliveryLightTransaction(res.Transactions),
+	}
+}
+
+func toArrDeliveryLightTransaction(res []usecase.LightTransaction) []LightTransaction {
+	result := make([]LightTransaction, len(res))
+	for i, v := range res {
+		result[i] = toDeliveryLightTransaction(v)
+	}
+
+	return result
+}
+
+func toDeliveryLightTransaction(res usecase.LightTransaction) LightTransaction {
+	return LightTransaction{
+		Id:        res.Id,
+		CreatedAt: res.CreatedAt,
+	}
+}
+
+func toDeliveryGetQAVerificationRes(res *usecase.GetQAVerificationRes) *GetQAVerificationRes {
+	return &GetQAVerificationRes{
+		TransactionId:    res.TransactionId,
+		ToolSetId:        res.ToolSetId,
+		CreatedAt:        res.CreatedAt,
+		User:             toDeliveryUserDto(res.User),
+		AccessTools:      toArrDeliveryRecognizedToolDTO(res.AccessTools),
+		ProblematicTools: toDeliveryProblematicTools(res.ProblematicTools),
+		ImageUrl:         res.ImageUrl,
+		Status:           res.Status,
+	}
+}
+
+func toDeliveryProblematicTools(tools *usecase.ProblematicTools) *ProblematicTools {
+	return &ProblematicTools{
+		ManualCheckTools: toArrDeliveryRecognizedToolDTO(tools.ManualCheckTools),
+		UnknownTools:     toArrDeliveryRecognizedToolDTO(tools.UnknownTools),
+		MissingTools:     toArrDeliveryToolTypeDTO(tools.MissingTools),
+	}
+}
+
+func toDeliveryQaTransactionsRes(res *usecase.QaTransactionsRes) *QaTransactionsRes {
+	return &QaTransactionsRes{
+		Qa:           toDeliveryUserDto(res.Qa),
+		Transactions: toDeliveryArrTransactionResolutionDTO(res.Transactions),
+	}
+}
+
+func toDeliveryArrTransactionResolutionDTO(dto []*usecase.TransactionResolutionDTO) []*TransactionResolutionDTO {
+	res := make([]*TransactionResolutionDTO, len(dto))
+	for i, d := range dto {
+		res[i] = toDeliveryTransactionResolutionDTO(d)
+	}
+
+	return res
+}
+
+func toDeliveryTransactionResolutionDTO(d *usecase.TransactionResolutionDTO) *TransactionResolutionDTO {
+	return &TransactionResolutionDTO{
+		Transaction: toDeliveryTransactionDTO(d.Transaction),
+		Reason:      d.Reason,
+		Notes:       d.Notes,
+		CreatedAt:   d.CreatedAt,
+	}
+}
+
+func toDeliveryGetRolesRes(roles *usecase.GetRolesRes) GetRolesRes {
+	return GetRolesRes{
+		roles.Roles,
+	}
+}
+
+func toDeliveryVerificationRes(res *usecase.VerificationRes) *VerificationRes {
+	return &VerificationRes{
+		TransactionID: res.TransactionID,
+		Status:        res.Status,
+		VerifiedBy:    res.VerifiedBy,
+		CreatedAt:     res.CreatedAt,
+	}
+}
+
+func ToDeliveryAddToolSetRes(res *usecase.AddToolSetRes) *AddToolSetRes {
+	return &AddToolSetRes{
+		Id:    res.Id,
+		Name:  res.Name,
+		Tools: toArrDeliveryToolTypeDTO(res.Tools),
+	}
+}
+
+func toDeliveryGetTransactionStatisticsRes(res usecase.GetTransactionStatisticsRes) GetTransactionStatisticsRes {
+	return GetTransactionStatisticsRes{
+		Transactions:       res.Transactions,
+		OpenedTransactions: res.OpenedTransactions,
+		ClosedTransactions: res.ClosedTransactions,
+		QATransactions:     res.QATransactions,
+		FailedTransactions: res.FailedTransactions,
+	}
+}
+
+func toDeliveryHumanErrorStats(res usecase.HumanErrorStats) HumanErrorStats {
+	return HumanErrorStats{
+		FullName:    res.FullName,
+		EmployeeId:  res.EmployeeId,
+		QAHitsCount: res.QAHitsCount,
+	}
+}
+
+func toArrDeliveryHumanErrorStats(res []usecase.HumanErrorStats) []HumanErrorStats {
+	result := make([]HumanErrorStats, len(res))
+	for i, item := range res {
+		result[i] = toDeliveryHumanErrorStats(item)
+	}
+
+	return result
+}
+
+func toDeliveryGetAvgWorkDurationRes(res *usecase.GetAvgWorkDurationRes) GetAvgWorkDurationRes {
+	transactions := make([]GetAvgWorkDuration, len(res.Transactions))
+	for i, transaction := range res.Transactions {
+		transactions[i] = toDeliveryGetAvgWorkDuration(&transaction)
+	}
+
+	return GetAvgWorkDurationRes{
+		Transactions: transactions,
+	}
+}
+
+func toDeliveryGetAvgWorkDuration(res *usecase.GetAvgWorkDuration) GetAvgWorkDuration {
+	return GetAvgWorkDuration{
+		User:            toDeliveryUserDto(res.User),
+		AvgWorkDuration: res.AvgWorkDuration,
+	}
+}
+
+func toDeliveryMlErrorTransaction(res usecase.MlErrorTransaction) MlErrorTransaction {
+	return MlErrorTransaction{
+		TransactionID:  res.TransactionID,
+		SourceImageUrl: res.SourceImageUrl,
+		DebugImageUrl:  res.DebugImageUrl,
+	}
+}
+
+func toArrDeliveryMlErrorTransaction(res []usecase.MlErrorTransaction) []MlErrorTransaction {
+	result := make([]MlErrorTransaction, len(res))
+	for i := range res {
+		result[i] = toDeliveryMlErrorTransaction(res[i])
+	}
+
+	return result
+}
+
+func toDeliveryModelOrHumanStatsRes(res *usecase.ModelOrHumanStatsRes) *ModelOrHumanStatsRes {
+	return &ModelOrHumanStatsRes{
+		MlErrors:    res.MlErrors,
+		HumanErrors: res.HumanErrors,
 	}
 }

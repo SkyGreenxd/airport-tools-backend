@@ -243,7 +243,7 @@ func toTransactionModel(t *domain.Transaction) *TransactionModel {
 
 func toDomainTransaction(t *TransactionModel) *domain.Transaction {
 	if t == nil {
-		return nil // Возвращаем nil, если исходная модель пуста
+		return nil
 	}
 
 	transaction := &domain.Transaction{

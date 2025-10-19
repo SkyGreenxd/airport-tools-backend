@@ -1,5 +1,6 @@
 package domain
 
+// CvScanDetail описывает конкретный распознанный моделью инструмент с привязкой к скану
 type CvScanDetail struct {
 	Id                 int64
 	CvScanId           int64
