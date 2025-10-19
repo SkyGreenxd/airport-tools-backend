@@ -1,14 +1,12 @@
 package v1
 
 import (
-	"airport-tools-backend/internal/domain"
+	_ "airport-tools-backend/docs"
 	"airport-tools-backend/internal/usecase"
 	"airport-tools-backend/pkg/e"
+	"airport-tools-backend/pkg/parse"
 	"net/http"
 	"strconv"
-	"time"
-
-	_ "airport-tools-backend/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -55,10 +53,239 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 			}
 
 			// Аналитика QA
-			qa.GET("/statistics", h.getStatistics)
+			statisticsGroup := qa.Group("/statistics")
+			{
+				statisticsGroup.GET("/users", h.getUserStatistics)               // Для ?type=users
+				statisticsGroup.GET("/errors", h.getErrorStatistics)             // Для ?type=errors
+				statisticsGroup.GET("/qa", h.getQaStatistics)                    // Для ?type=qa
+				statisticsGroup.GET("/transactions", h.getTransactionStatistics) // Для ?type=transactions
+			}
 		}
 	}
 }
+func (h *Handler) getUserStatistics(c *gin.Context) {
+	flags, err := parse.ParseCommonFilters(c)
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
+
+	var res interface{}
+	if flags.EmployeeId != nil {
+		userReq := usecase.NewUserTransactionsReq(*flags.EmployeeId, flags.StartDate, flags.EndDate, flags.Limit, flags.AvgWorkDuration)
+		result, err := h.service.UserTransactions(c.Request.Context(), userReq)
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toDeliveryGetUsersListTransactionsRes(result)
+	} else if flags.EmployeeId == nil && flags.AvgWorkDuration == true {
+		result, err := h.service.GetAvgWorkDuration(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toDeliveryGetAvgWorkDurationRes(result)
+	} else {
+		result, err := h.service.GetAllTransactions(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		resultArr := make([]*GetAllTransactions, len(result))
+		for i, item := range result {
+			resultArr[i] = toDeliveryGetAllTransactions(item)
+		}
+
+		res = resultArr
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
+func (h *Handler) getErrorStatistics(c *gin.Context) {
+
+}
+
+func (h *Handler) getQaStatistics(c *gin.Context) {
+
+}
+
+func (h *Handler) getTransactionStatistics(c *gin.Context) {
+
+}
+
+// getStatistics
+//
+//	@Summary		Получить детализированную статистику QA
+//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):<br/>- `users` - Получить все транзакции инженеров.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` - проверка транзакций по ошибкам, по умолчанию выводит MODEL_ERR vs HUMAN_ERR. Для фильтрации использовать `error_type` (MODEL_ERR/HUMAN_ERR).<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных)<br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
+//
+//	@Tags			statistics
+//	@Accept			json
+//	@Produce		json
+//
+//	@Param			type				query		string			true	"Тип статистики. Варианты: users, qs, errors, transactions"
+//	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true, используется с users)"
+//	@Param			employee_id			query		string			false	"Табельный номер пользователя (для type=qa и для type=users)"
+//	@Param			start_date			query		string			false	"Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
+//	@Param			end_date			query		string			false	"Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
+//	@Param			limit				query		int				false	"Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
+//	@Param			error_type			query		string			false	"Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом статистики `errors`"
+//
+//	@Success		200					{object}	StatisticsRes	"Успешный ответ: структура зависит от значения параметра type"
+//	@Failure		400					{object}	HTTPError		"Неверное тело запроса"
+//	@Failure		500					{object}	HTTPError		"Внутренняя ошибка сервера"
+//
+//	@Router			/api/v1/qa/statistics [get]
+//func (h *Handler) getStatistics(c *gin.Context) {
+//	statisticsType := c.Query("type")
+//	if statisticsType == "" {
+//		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
+//		return
+//	}
+//
+//	employeeId := c.Query("employee_id") // табельный номер
+//	startDateStr := c.Query("start_date")
+//	endDateStr := c.Query("end_date")
+//	limitStr := c.Query("limit")
+//	avgWorkDuration := c.Query("avg_work_duration")
+//	errorType := c.Query("error_type")
+//
+//	valid := func(v string) bool {
+//		return v == "" || v == "true"
+//	}
+//
+//	if !valid(avgWorkDuration) {
+//		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+//		return
+//	}
+//
+//	var startDate, endDate *time.Time
+//	if startDateStr != "" {
+//		t, err := time.Parse("02-01-2006", startDateStr)
+//		if err != nil {
+//			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+//			return
+//		}
+//		startDate = &t
+//	}
+//
+//	if endDateStr != "" {
+//		t, err := time.Parse("02-01-2006", endDateStr)
+//		if err != nil {
+//			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+//			return
+//		}
+//		endDate = &t
+//	}
+//
+//	var limit *int
+//	if limitStr != "" {
+//		n, err := strconv.Atoi(limitStr)
+//		if err != nil || n <= 0 {
+//			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
+//			return
+//		}
+//		limit = &n
+//	}
+//
+//	var res interface{}
+//	switch statisticsType {
+//	case "users":
+//		if employeeId != "" {
+//			userReq := usecase.NewUserTransactionsReq(employeeId, startDate, endDate, limit)
+//			result, err := h.service.UserTransactions(c.Request.Context(), userReq)
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toDeliveryListTransactionsRes(result.Transactions)
+//		} else if avgWorkDuration != "" {
+//			result, err := h.service.GetAvgWorkDuration(c.Request.Context())
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toDeliveryGetAvgWorkDurationRes(result)
+//		} else {
+//			result, err := h.service.GetAllTransactions(c.Request.Context())
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			resultArr := make([]*GetAllTransactions, len(result))
+//			for i, item := range result {
+//				resultArr[i] = toDeliveryGetAllTransactions(item)
+//			}
+//
+//			res = resultArr
+//		}
+//
+//	case "errors":
+//		if errorType == string(domain.ModelError) {
+//			result, err := h.service.GetMlErrorTransactions(c.Request.Context())
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toArrDeliveryMlErrorTransaction(result)
+//		} else if errorType == string(domain.HumanError) {
+//			result, err := h.service.GetUsersQAStats(c.Request.Context())
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toArrDeliveryHumanErrorStats(result)
+//		} else {
+//			result, err := h.service.GetMlVsHuman(c.Request.Context())
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toDeliveryModelOrHumanStatsRes(result)
+//		}
+//	case "qa":
+//		if employeeId != "" {
+//			result, err := h.service.GetQAChecks(c.Request.Context(), employeeId)
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toDeliveryQaTransactionsRes(result)
+//		} else {
+//			result, err := h.service.GetAllQaEmployers(c.Request.Context())
+//			if err != nil {
+//				ErrorToHttpRes(err, c)
+//				return
+//			}
+//
+//			res = toArrDeliveryUserDto(result)
+//		}
+//	case "transactions":
+//		result, err := h.service.GetTransactionStatistics(c.Request.Context())
+//		if err != nil {
+//			ErrorToHttpRes(err, c)
+//			return
+//		}
+//
+//		res = toDeliveryGetTransactionStatisticsRes(*result)
+//	default:
+//		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
+//		return
+//	}
+//
+//	c.JSON(http.StatusOK, NewStatisticsRes(statisticsType, res))
+//}
 
 // check
 //
@@ -261,173 +488,4 @@ func (h *Handler) getRoles(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, toDeliveryGetRolesRes(res))
-}
-
-// getStatistics
-//
-//	@Summary		Получить детализированную статистику QA
-//	@Description	Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.<br/>**Типы статистики (`type`):<br/>- `users` - Получить все транзакции инженеров.<br/>- `users&employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.<br/>- `qa` — список всех QA-сотрудников, выполняющих проверки.<br/>- `qa&employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.<br/>- `errors` - проверка транзакций по ошибкам, по умолчанию выводит MODEL_ERR vs HUMAN_ERR. Для фильтрации использовать `error_type` (MODEL_ERR/HUMAN_ERR).<br/>- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных)<br/>- `avg_work_duration` - "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)"
-//
-//	@Tags			statistics
-//	@Accept			json
-//	@Produce		json
-//
-//	@Param			type				query		string			true	"Тип статистики. Варианты: users, qs, errors, transactions"
-//	@Param			avg_work_duration	query		string			false	"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true, используется с users)"
-//	@Param			employee_id			query		string			false	"Табельный номер пользователя (для type=qa и для type=users)"
-//	@Param			start_date			query		string			false	"Начало периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
-//	@Param			end_date			query		string			false	"Конец периода (формат DD-MM-YYYY, используется с type=users&employee_id=...)"
-//	@Param			limit				query		int				false	"Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users&employee_id=...)"
-//	@Param			error_type			query		string			false	"Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом статистики `errors`"
-//
-//	@Success		200					{object}	StatisticsRes	"Успешный ответ: структура зависит от значения параметра type"
-//	@Failure		400					{object}	HTTPError		"Неверное тело запроса"
-//	@Failure		500					{object}	HTTPError		"Внутренняя ошибка сервера"
-//
-//	@Router			/api/v1/qa/statistics [get]
-func (h *Handler) getStatistics(c *gin.Context) {
-	statisticsType := c.Query("type")
-	if statisticsType == "" {
-		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
-		return
-	}
-
-	employeeId := c.Query("employee_id") // табельный номер
-	startDateStr := c.Query("start_date")
-	endDateStr := c.Query("end_date")
-	limitStr := c.Query("limit")
-	avgWorkDuration := c.Query("avg_work_duration")
-	errorType := c.Query("error_type")
-
-	valid := func(v string) bool {
-		return v == "" || v == "true"
-	}
-
-	if !valid(avgWorkDuration) {
-		ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-		return
-	}
-
-	var startDate, endDate *time.Time
-	if startDateStr != "" {
-		t, err := time.Parse("02-01-2006", startDateStr)
-		if err != nil {
-			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-			return
-		}
-		startDate = &t
-	}
-
-	if endDateStr != "" {
-		t, err := time.Parse("02-01-2006", endDateStr)
-		if err != nil {
-			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-			return
-		}
-		endDate = &t
-	}
-
-	var limit *int
-	if limitStr != "" {
-		n, err := strconv.Atoi(limitStr)
-		if err != nil || n <= 0 {
-			ErrorToHttpRes(e.ErrInvalidRequestBody, c)
-			return
-		}
-		limit = &n
-	}
-
-	var res interface{}
-	switch statisticsType {
-	case "users":
-		if employeeId != "" {
-			userReq := usecase.NewUserTransactionsReq(employeeId, startDate, endDate, limit)
-			result, err := h.service.UserTransactions(c.Request.Context(), userReq)
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toDeliveryListTransactionsRes(result.Transactions)
-		} else if avgWorkDuration != "" {
-			result, err := h.service.GetAvgWorkDuration(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toDeliveryGetAvgWorkDurationRes(result)
-		} else {
-			result, err := h.service.GetAllTransactions(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			resultArr := make([]*GetAllTransactions, len(result))
-			for i, item := range result {
-				resultArr[i] = toDeliveryGetAllTransactions(item)
-			}
-
-			res = resultArr
-		}
-
-	case "errors":
-		if errorType == string(domain.ModelError) {
-			result, err := h.service.GetMlErrorTransactions(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toArrDeliveryMlErrorTransaction(result)
-		} else if errorType == string(domain.HumanError) {
-			result, err := h.service.GetUsersQAStats(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toArrDeliveryHumanErrorStats(result)
-		} else {
-			result, err := h.service.GetMlVsHuman(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toDeliveryModelOrHumanStatsRes(result)
-		}
-	case "qa":
-		if employeeId != "" {
-			result, err := h.service.GetQAChecks(c.Request.Context(), employeeId)
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toDeliveryQaTransactionsRes(result)
-		} else {
-			result, err := h.service.GetAllQaEmployers(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toArrDeliveryUserDto(result)
-		}
-	case "transactions":
-		result, err := h.service.GetTransactionStatistics(c.Request.Context())
-		if err != nil {
-			ErrorToHttpRes(err, c)
-			return
-		}
-
-		res = toDeliveryGetTransactionStatisticsRes(*result)
-	default:
-		ErrorToHttpRes(e.ErrRequestNoStatisticsType, c)
-		return
-	}
-
-	c.JSON(http.StatusOK, NewStatisticsRes(statisticsType, res))
 }

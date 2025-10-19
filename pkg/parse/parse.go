@@ -29,8 +29,8 @@ func NewCommonFilters(employeeId *string, startDate, endDate *time.Time, limit *
 	}
 }
 
-// parseCommonFilters извлекает общие параметры фильтрации из запроса.
-func parseCommonFilters(c *gin.Context) (*CommonFilters, error) {
+// ParseCommonFilters извлекает общие параметры фильтрации из запроса.
+func ParseCommonFilters(c *gin.Context) (*CommonFilters, error) {
 	const op = "parse.parseCommonFilters"
 
 	var startDate, endDate *time.Time

@@ -73,6 +73,18 @@ func NewGetAvgWorkDurationRes(transactions []GetAvgWorkDuration) *GetAvgWorkDura
 	}
 }
 
+type GetUsersListTransactionsRes struct {
+	Transactions []*TransactionDTO
+	Avg          float64
+}
+
+func NewGetUsersListTransactionsRes(transactions []*TransactionDTO, avg float64) *GetUsersListTransactionsRes {
+	return &GetUsersListTransactionsRes{
+		Transactions: transactions,
+		Avg:          avg,
+	}
+}
+
 // ListTransactionsRes список транзакций
 type ListTransactionsRes struct {
 	Transactions []*TransactionDTO
@@ -169,14 +181,16 @@ type UserTransactionsReq struct {
 	StartDate  *time.Time
 	EndDate    *time.Time
 	Limit      *int
+	Avg        bool
 }
 
-func NewUserTransactionsReq(employeeId string, startDate, endDate *time.Time, limit *int) *UserTransactionsReq {
+func NewUserTransactionsReq(employeeId string, startDate, endDate *time.Time, limit *int, avg bool) *UserTransactionsReq {
 	return &UserTransactionsReq{
 		EmployeeId: employeeId,
 		StartDate:  startDate,
 		EndDate:    endDate,
 		Limit:      limit,
+		Avg:        avg,
 	}
 }
 

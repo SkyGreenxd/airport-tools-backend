@@ -401,7 +401,7 @@ func (s *Service) GetQATransaction(ctx context.Context, transactionId int64) (*G
 }
 
 // Список транзакций конкретного пользователя
-func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq) (*ListTransactionsRes, error) {
+func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq) (*GetUsersListTransactionsRes, error) {
 	const op = "usecase.UserTransactions"
 
 	user, err := s.userRepo.GetByEmployeeId(ctx, req.EmployeeId)
@@ -413,6 +413,20 @@ func (s *Service) UserTransactions(ctx context.Context, req *UserTransactionsReq
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
+
+	var avgHours float64
+	if req.Avg == true {
+		var totalHours float64
+		for _, tr := range transactions {
+			totalHours += tr.UpdatedAt.Sub(tr.CreatedAt).Hours()
+		}
+
+		if len(transactions) > 0 {
+			avgHours = totalHours / float64(len(transactions))
+		}
+	}
+
+	res := NewGetUsersListTransactionsRes(toListTransactionsRes(transactions), avgHours)
 
 	result := NewListTransactionsRes(toListTransactionsRes(transactions))
 	return result, nil

@@ -6,6 +6,26 @@ import (
 	"time"
 )
 
+type GetUsersListTransactionsRes struct {
+	Transactions []*TransactionDTO
+	Avg          float64
+}
+
+func toDeliveryGetUsersListTransactionsRes(res *usecase.GetUsersListTransactionsRes) *GetUsersListTransactionsRes {
+	return &GetUsersListTransactionsRes{
+		Transactions: toDeliveryArrTransactionDTO(res.Transactions),
+		Avg:          res.Avg,
+	}
+}
+func toDeliveryArrTransactionDTO(transactions []*usecase.TransactionDTO) []*TransactionDTO {
+	res := make([]*TransactionDTO, len(transactions))
+	for i, transaction := range transactions {
+		res[i] = toDeliveryTransactionDTO(transaction)
+	}
+
+	return res
+}
+
 type GetAllTransactions struct {
 	User         UserDto            `json:"user"`
 	Transactions []LightTransaction `json:"transactions"`
