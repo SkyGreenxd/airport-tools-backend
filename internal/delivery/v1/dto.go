@@ -2,9 +2,55 @@ package v1
 
 import (
 	"airport-tools-backend/internal/domain"
+	"airport-tools-backend/internal/repository"
 	"airport-tools-backend/internal/usecase"
 	"time"
 )
+
+type ToolWithErrorCount struct {
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	MLErrorCount int64  `json:"ml_error_count"`
+}
+
+type ToolSetWithErrors struct {
+	ID    int64                `json:"id"`
+	Name  string               `json:"name"`
+	Tools []ToolWithErrorCount `json:"tools"`
+}
+
+func toArrDeliveryToolSetWithErrors(res []*repository.ToolSetWithErrors) []ToolSetWithErrors {
+	resArr := make([]ToolSetWithErrors, len(res))
+	for i, r := range res {
+		resArr[i] = toDeliveryToolSetWithErrors(*r)
+	}
+
+	return resArr
+}
+
+func toDeliveryToolSetWithErrors(res repository.ToolSetWithErrors) ToolSetWithErrors {
+	return ToolSetWithErrors{
+		ID:    res.ID,
+		Name:  res.Name,
+		Tools: toArrDeliveryToolWithErrorCount(res.Tools),
+	}
+}
+
+func toArrDeliveryToolWithErrorCount(arr []repository.ToolWithErrorCount) []ToolWithErrorCount {
+	result := make([]ToolWithErrorCount, len(arr))
+	for i, t := range arr {
+		result[i] = toDeliveryToolWithErrorCount(t)
+	}
+	return result
+}
+
+func toDeliveryToolWithErrorCount(res repository.ToolWithErrorCount) ToolWithErrorCount {
+	return ToolWithErrorCount{
+		ID:           res.ID,
+		Name:         res.Name,
+		MLErrorCount: res.MLErrorCount,
+	}
+}
 
 type AddToolSetRes struct {
 	Id    int64          `json:"id"`
@@ -91,6 +137,7 @@ type VerificationReq struct {
 	QAEmployeeId string        `json:"qa_employee_id" binding:"required"`
 	Reason       domain.Reason `json:"reason" binding:"required"`
 	Notes        string        `json:"notes"`
+	ToolIds      []int64       `json:"tool_ids" binding:"min=1,dive,gt=0"`
 }
 
 type VerificationRes struct {

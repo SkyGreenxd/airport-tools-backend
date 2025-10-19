@@ -19,12 +19,21 @@ func NewTransactionResolutionsRepo(db *gorm.DB) *TransactionResolutionsRepo {
 	}
 }
 
-func (t *TransactionResolutionsRepo) Create(ctx context.Context, transaction *domain.TransactionResolution) (*domain.TransactionResolution, error) {
+func (t *TransactionResolutionsRepo) Create(ctx context.Context, transaction *domain.TransactionResolution, toolIds []int64) (*domain.TransactionResolution, error) {
 	const op = "TransactionResolutionsRepo.Create"
 
 	model := toTransactionResolutionModel(transaction)
 
-	result := t.DB.WithContext(ctx).Create(model)
+	if len(toolIds) != 0 {
+		var tools []*ToolTypeModel
+		if err := t.DB.WithContext(ctx).Where("id IN ?", toolIds).Find(&tools).Error; err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		model.Tools = tools
+	}
+
+	result := t.DB.WithContext(ctx).Create(&model)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -134,8 +143,60 @@ func (t *TransactionResolutionsRepo) GetMlErrorTransactions(ctx context.Context)
 	return toDomainArrTransactionResolution(models), nil
 }
 
+func (t *TransactionResolutionsRepo) GetMlErrorTools(ctx context.Context) ([]*repository.ToolSetWithErrors, error) {
+	const op = "TransactionResolutionsRepo.GetMlErrorTools"
+
+	type toolErrorCount struct {
+		ToolTypeId   int64
+		MLErrorCount int64
+	}
+
+	// Считаем ML-ошибки сразу для всех инструментов
+	var counts []toolErrorCount
+	if err := t.DB.WithContext(ctx).
+		Model(&ModelErrItemModel{}).
+		Select("tool_type_id, COUNT(*) AS ml_error_count").
+		Group("tool_type_id").
+		Scan(&counts).Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	// Создаем мапу tool_id -> ml_error_count
+	countMap := make(map[int64]int64, len(counts))
+	for _, c := range counts {
+		countMap[c.ToolTypeId] = c.MLErrorCount
+	}
+
+	// Загружаем все сеты с инструментами
+	var toolSets []ToolSetModel
+	if err := t.DB.WithContext(ctx).Preload("Tools").Find(&toolSets).Error; err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	var result []*repository.ToolSetWithErrors
+	for _, ts := range toolSets {
+		tsWithErrors := repository.ToolSetWithErrors{
+			ID:    ts.Id,
+			Name:  ts.Name,
+			Tools: []repository.ToolWithErrorCount{},
+		}
+
+		for _, tool := range ts.Tools {
+			tsWithErrors.Tools = append(tsWithErrors.Tools, repository.ToolWithErrorCount{
+				ID:           tool.Id,
+				Name:         tool.Name,
+				MLErrorCount: countMap[tool.Id],
+			})
+		}
+
+		result = append(result, &tsWithErrors)
+	}
+
+	return result, nil
+}
+
 func toTransactionResolutionModel(transaction *domain.TransactionResolution) *TransactionResolutionModel {
-	return &TransactionResolutionModel{
+	model := &TransactionResolutionModel{
 		Id:            transaction.Id,
 		TransactionId: transaction.TransactionId,
 		QAEmployeeId:  transaction.QAEmployeeId,
@@ -143,10 +204,16 @@ func toTransactionResolutionModel(transaction *domain.TransactionResolution) *Tr
 		Notes:         transaction.Notes,
 		CreatedAt:     transaction.CreatedAt,
 	}
+
+	if transaction.Tools != nil {
+		model.Tools = toArrToolTypeModel(transaction.Tools)
+	}
+
+	return model
 }
 
 func toDomainTransactionResolution(model *TransactionResolutionModel) *domain.TransactionResolution {
-	return &domain.TransactionResolution{
+	tr := &domain.TransactionResolution{
 		Id:            model.Id,
 		TransactionId: model.TransactionId,
 		QAEmployeeId:  model.QAEmployeeId,
@@ -155,6 +222,12 @@ func toDomainTransactionResolution(model *TransactionResolutionModel) *domain.Tr
 		CreatedAt:     model.CreatedAt,
 		Transaction:   toDomainTransaction(model.Transaction),
 	}
+
+	if model.Tools != nil {
+		tr.Tools = toArrDomainToolType(model.Tools)
+	}
+
+	return tr
 }
 
 func toDomainArrTransactionResolution(models []*TransactionResolutionModel) []*domain.TransactionResolution {

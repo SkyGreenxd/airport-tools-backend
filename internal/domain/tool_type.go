@@ -8,7 +8,8 @@ type ToolType struct {
 	Name               string
 	ReferenceEmbedding []float32
 
-	ToolSets []*ToolSet
+	ToolSets               []*ToolSet
+	TransactionResolutions []*TransactionResolution
 }
 
 func NewToolType(partNumber, name string, referenceEmbedding []float32) *ToolType {

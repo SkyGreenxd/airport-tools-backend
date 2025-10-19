@@ -64,6 +64,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 			tools := qa.Group("/tools")
 			{
+				tools.POST("/ml-errors", h.getMlErrorTools)
 				tools.POST("/new_set", h.addToolSet)
 			}
 		}
@@ -305,7 +306,7 @@ func (h *Handler) postVerification(c *gin.Context) {
 		return
 	}
 
-	res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.Reason, req.Notes))
+	res, err := h.service.Verification(c.Request.Context(), usecase.NewVerification(int64(transactionId), req.QAEmployeeId, req.Reason, req.Notes, req.ToolIds))
 	if err != nil {
 		ErrorToHttpRes(err, c)
 		return
@@ -477,4 +478,17 @@ func (h *Handler) addToolSet(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, ToDeliveryAddToolSetRes(res))
+}
+
+// GetMlErrorTools возвращает наборы инструментов вместе с инструментами,
+// где для каждого инструмента указано,
+// сколько раз на нём была зарегистрирована ошибка MODEL_ERR
+func (h *Handler) getMlErrorTools(c *gin.Context) {
+	res, err := h.service.GetMlErrorTools(c.Request.Context())
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
+
+	c.JSON(http.StatusOK, toArrDeliveryToolSetWithErrors(res))
 }

@@ -81,7 +81,7 @@ type ImageRepository interface {
 
 // TransactionResolutionsRepository интерфейс для работы с QA проверками
 type TransactionResolutionsRepository interface {
-	Create(ctx context.Context, transaction *domain.TransactionResolution) (*domain.TransactionResolution, error)
+	Create(ctx context.Context, transaction *domain.TransactionResolution, toolIds []int64) (*domain.TransactionResolution, error)
 	GetAll(ctx context.Context) ([]*domain.TransactionResolution, error)
 	GetById(ctx context.Context, id int64) (*domain.TransactionResolution, error)
 	GetByQAId(ctx context.Context, qaId int64) ([]*domain.TransactionResolution, error)
@@ -89,6 +89,7 @@ type TransactionResolutionsRepository interface {
 	GetAllHumanError(ctx context.Context) ([]*domain.TransactionResolution, error)
 	GetTopHumanErrorUsers(ctx context.Context) ([]HumanErrorStats, error)
 	GetMlErrorTransactions(ctx context.Context) ([]*domain.TransactionResolution, error)
+	GetMlErrorTools(ctx context.Context) ([]*ToolSetWithErrors, error)
 }
 
 type RoleRepository interface {

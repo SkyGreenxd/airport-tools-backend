@@ -14,7 +14,8 @@ type ToolTypeModel struct {
 	Name               string
 	ReferenceEmbedding pgvector.Vector `gorm:"type:vector(1280)"`
 
-	ToolSets []*ToolSetModel `gorm:"many2many:tool_set_items;joinForeignKey:ToolTypeId;joinReferences:ToolSetId"`
+	ToolSets               []*ToolSetModel               `gorm:"many2many:tool_set_items;joinForeignKey:ToolTypeId;joinReferences:ToolSetId"`
+	TransactionResolutions []*TransactionResolutionModel `gorm:"many2many:model_err_items;joinForeignKey:ToolTypeId;joinReferences:ResolutionId"`
 }
 
 type ToolSetModel struct {
@@ -82,6 +83,7 @@ type TransactionResolutionModel struct {
 	CreatedAt     time.Time
 
 	Transaction *TransactionModel `gorm:"foreignKey:TransactionId;references:Id"`
+	Tools       []*ToolTypeModel  `gorm:"many2many:model_err_items;joinForeignKey:ResolutionId;joinReferences:ToolTypeId"`
 }
 
 type RoleModel struct {
@@ -89,6 +91,15 @@ type RoleModel struct {
 	Name string
 
 	Users []*UserModel `gorm:"foreignKey:RoleId;references:Id"`
+}
+
+type ModelErrItemModel struct {
+	ResolutionId int64
+	ToolTypeId   int64
+}
+
+func (ModelErrItemModel) TableName() string {
+	return "model_err_items"
 }
 
 func (RoleModel) TableName() string {
