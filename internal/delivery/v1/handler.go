@@ -383,14 +383,6 @@ func (h *Handler) getStatistics(c *gin.Context) {
 
 			res = toArrDeliveryMlErrorTransaction(result)
 		} else if errorType == string(domain.HumanError) {
-			result, err := h.service.GetMlVsHuman(c.Request.Context())
-			if err != nil {
-				ErrorToHttpRes(err, c)
-				return
-			}
-
-			res = toDeliveryModelOrHumanStatsRes(result)
-		} else {
 			result, err := h.service.GetUsersQAStats(c.Request.Context())
 			if err != nil {
 				ErrorToHttpRes(err, c)
@@ -398,6 +390,14 @@ func (h *Handler) getStatistics(c *gin.Context) {
 			}
 
 			res = toArrDeliveryHumanErrorStats(result)
+		} else {
+			result, err := h.service.GetMlVsHuman(c.Request.Context())
+			if err != nil {
+				ErrorToHttpRes(err, c)
+				return
+			}
+
+			res = toDeliveryModelOrHumanStatsRes(result)
 		}
 	case "qa":
 		if employeeId != "" {
