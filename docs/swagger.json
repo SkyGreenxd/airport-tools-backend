@@ -114,79 +114,175 @@
                 }
             }
         },
-        "/api/v1/qa/statistics": {
+        "/api/v1/qa/statistics/errors": {
             "get": {
-                "description": "Возвращает гибкую статистику по качеству проверок и ошибкам QA-системы. Поддерживает несколько режимов работы, задаваемых параметром `type`.\u003cbr/\u003e**Типы статистики (`type`):\u003cbr/\u003e- `users` - Получить все транзакции инженеров.\u003cbr/\u003e- `users\u0026employee_id=...` — Список транзакций конкретного пользователя. Используйте `start_date`, `end_date` и `limit`, чтобы уточнить выборку.\u003cbr/\u003e- `qa` — список всех QA-сотрудников, выполняющих проверки.\u003cbr/\u003e- `qa\u0026employee_id=...` — статистика проверок, проведённых конкретным QA-инженером.\u003cbr/\u003e- `errors` - проверка транзакций по ошибкам, по умолчанию выводит MODEL_ERR vs HUMAN_ERR. Для фильтрации использовать `error_type` (MODEL_ERR/HUMAN_ERR).\u003cbr/\u003e- `transactions` — Выводит статистику по транзакциям (кол-во всех транзакций, а также кол-во открытых, закрытых, QA и неудачных)\u003cbr/\u003e- `avg_work_duration` - \"Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true)\"",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Возвращает статистику ошибок системы и QA. Поддерживает:\u003cbr/\u003e- `error_type=MODEL_ERR` — список транзакций, где ошиблась ML-модель;\u003cbr/\u003e- `error_type=HUMAN_ERR` — статистика ошибок QA-инженеров;\u003cbr/\u003e- Без параметров — общее сравнение ML vs Human ошибок.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "statistics"
                 ],
-                "summary": "Получить детализированную статистику QA",
+                "summary": "Получить статистику ошибок",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Тип статистики. Варианты: users, qs, errors, transactions",
-                        "name": "type",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Получить среднее время работы каждого инженера по всем его транзакциям (Ставится значение true, используется с users)",
-                        "name": "avg_work_duration",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Табельный номер пользователя (для type=qa и для type=users)",
-                        "name": "employee_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Начало периода (формат DD-MM-YYYY, используется с type=users\u0026employee_id=...)",
-                        "name": "start_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Конец периода (формат DD-MM-YYYY, используется с type=users\u0026employee_id=...)",
-                        "name": "end_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Максимальное количество записей в ответе (топ-N). По умолчанию — без ограничений (для type=users\u0026employee_id=...)",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Тип ошибки: HUMAN_ERR или MODEL_ERR. Используется вместе с типом статистики `errors`",
+                        "description": "Тип ошибки: MODEL_ERR или HUMAN_ERR",
                         "name": "error_type",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Успешный ответ: структура зависит от значения параметра type",
+                        "description": "Успешный ответ",
                         "schema": {
                             "$ref": "#/definitions/v1.StatisticsRes"
                         }
                     },
                     "400": {
-                        "description": "Неверное тело запроса",
+                        "description": "Неверные параметры",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Внутренняя ошибка сервера",
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/qa/statistics/qa": {
+            "get": {
+                "description": "Возвращает список QA-сотрудников или статистику конкретного QA-инженера.\u003cbr/\u003eПоддерживает:\u003cbr/\u003e- `employee_id` — статистика проверок конкретного QA-инженера;\u003cbr/\u003e- Без параметров — список всех QA-сотрудников, выполняющих проверки.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Получить статистику QA",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Табельный номер QA-инженера",
+                        "name": "employee_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/v1.StatisticsRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверные параметры",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/qa/statistics/transactions": {
+            "get": {
+                "description": "Возвращает агрегированную статистику по всем транзакциям:\u003cbr/\u003e- общее количество;\u003cbr/\u003e- количество QA-транзакций;\u003cbr/\u003e- количество открытых/закрытых транзакций;\u003cbr/\u003e- количество неудачных транзакций.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Получить общую статистику транзакций",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/v1.StatisticsRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверные параметры",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/qa/statistics/users": {
+            "get": {
+                "description": "Возвращает статистику по всем инженерам или конкретному сотруднику. Поддерживает:\u003cbr/\u003e- `employee_id` — список транзакций конкретного пользователя (можно фильтровать по дате, лимиту транзакций, добавить среднее время работы);\u003cbr/\u003e- `avg_work_duration=true` — среднее время работы каждого инженера;\u003cbr/\u003e- `start_date/end_date` — начало и конец периода транзакций;\u003cbr/\u003e- `limit` — кол-во транзакций на вывод;\u003cbr/\u003e- Без параметров — список всех транзакций всех инженеров.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Получить статистику пользователей (инженеров)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Табельный номер инженера",
+                        "name": "employee_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Начало периода (формат DD-MM-YYYY)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Конец периода (формат DD-MM-YYYY)",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальное количество записей для вывода",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "true — получить среднее время работы каждого инженера",
+                        "name": "avg_work_duration",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "$ref": "#/definitions/v1.StatisticsRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверные параметры",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
