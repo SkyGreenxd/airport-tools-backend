@@ -4,6 +4,7 @@ import (
 	"airport-tools-backend/internal/domain"
 	"airport-tools-backend/pkg/e"
 	"context"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -106,6 +107,11 @@ func (t *ToolSetRepository) CreateWithTools(ctx context.Context, toolSet *domain
 
 	model := toToolSetModel(toolSet)
 	model.Tools = tools
+
+	log.Println("DEBUG", model.Id, model.Name)
+	for _, t := range model.Tools {
+		log.Println("DEBUG", t)
+	}
 
 	result := t.DB.WithContext(ctx).Create(&model)
 	if err := postgresDuplicate(result, e.ErrToolSetExists); err != nil {
