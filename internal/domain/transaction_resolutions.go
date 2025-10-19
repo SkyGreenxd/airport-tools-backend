@@ -22,7 +22,6 @@ type TransactionResolution struct {
 	CreatedAt     time.Time
 
 	Transaction *Transaction
-	Tools       []*ToolType
 }
 
 func NewTransactionResolution(transactionId int64, qaEmployeeId int64, reason Reason, notes string) *TransactionResolution {

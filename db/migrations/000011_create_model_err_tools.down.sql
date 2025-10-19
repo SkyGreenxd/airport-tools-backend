@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS model_err_tool;

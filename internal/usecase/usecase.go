@@ -374,7 +374,7 @@ func (s *Service) Verification(ctx context.Context, req *Verification) (*Verific
 	}
 
 	new_resolution := domain.NewTransactionResolution(req.TransactionID, user.Id, req.Reason, req.Notes)
-	resolution, err := s.trResolution.Create(ctx, new_resolution, req.ToolsIds)
+	resolution, err := s.trResolution.Create(ctx, new_resolution)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -668,18 +668,4 @@ func (s *Service) AddToolSet(ctx context.Context, req AddToolSetReq) (*AddToolSe
 	}
 
 	return NewAddToolSetRes(res.Id, res.Name, toArrToolTypeDTO(res.Tools)), nil
-}
-
-// GetMlErrorTools возвращает наборы инструментов вместе с инструментами,
-// где для каждого инструмента указано,
-// сколько раз на нём была зарегистрирована ошибка MODEL_ERR
-func (s *Service) GetMlErrorTools(ctx context.Context) ([]*repository.ToolSetWithErrors, error) {
-	const op = "usecase.GetMlErrorTools"
-
-	res, err := s.trResolution.GetMlErrorTools(ctx)
-	if err != nil {
-		return nil, e.Wrap(op, err)
-	}
-
-	return res, nil
 }
