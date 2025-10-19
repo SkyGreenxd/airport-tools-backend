@@ -2,6 +2,7 @@ package v1
 
 import (
 	_ "airport-tools-backend/docs"
+	"airport-tools-backend/internal/domain"
 	"airport-tools-backend/internal/usecase"
 	"airport-tools-backend/pkg/e"
 	"airport-tools-backend/pkg/parse"
@@ -71,7 +72,7 @@ func (h *Handler) getUserStatistics(c *gin.Context) {
 	}
 
 	var res interface{}
-	if flags.EmployeeId != nil {
+	if flags.EmployeeId != nil && *flags.EmployeeId != "" {
 		userReq := usecase.NewUserTransactionsReq(*flags.EmployeeId, flags.StartDate, flags.EndDate, flags.Limit, flags.AvgWorkDuration)
 		result, err := h.service.UserTransactions(c.Request.Context(), userReq)
 		if err != nil {
@@ -80,7 +81,7 @@ func (h *Handler) getUserStatistics(c *gin.Context) {
 		}
 
 		res = toDeliveryGetUsersListTransactionsRes(result)
-	} else if flags.EmployeeId == nil && flags.AvgWorkDuration == true {
+	} else if (flags.EmployeeId == nil || *flags.EmployeeId == "") && flags.AvgWorkDuration == true {
 		result, err := h.service.GetAvgWorkDuration(c.Request.Context())
 		if err != nil {
 			ErrorToHttpRes(err, c)
@@ -107,15 +108,81 @@ func (h *Handler) getUserStatistics(c *gin.Context) {
 }
 
 func (h *Handler) getErrorStatistics(c *gin.Context) {
+	flags, err := parse.ParseCommonFilters(c)
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
 
+	var res interface{}
+	if flags.ErrorType != nil && *flags.ErrorType == string(domain.ModelError) {
+		result, err := h.service.GetMlErrorTransactions(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toArrDeliveryMlErrorTransaction(result)
+	} else if flags.ErrorType != nil && *flags.ErrorType == string(domain.HumanError) {
+		result, err := h.service.GetUsersQAStats(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toArrDeliveryHumanErrorStats(result)
+	} else {
+		result, err := h.service.GetMlVsHuman(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toDeliveryModelOrHumanStatsRes(result)
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func (h *Handler) getQaStatistics(c *gin.Context) {
+	flags, err := parse.ParseCommonFilters(c)
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
 
+	var res interface{}
+	if flags.EmployeeId != nil && *flags.EmployeeId != "" {
+		result, err := h.service.GetQAChecks(c.Request.Context(), *flags.EmployeeId)
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toDeliveryQaTransactionsRes(result)
+	} else {
+		result, err := h.service.GetAllQaEmployers(c.Request.Context())
+		if err != nil {
+			ErrorToHttpRes(err, c)
+			return
+		}
+
+		res = toArrDeliveryUserDto(result)
+	}
+	c.JSON(http.StatusOK, res)
 }
 
 func (h *Handler) getTransactionStatistics(c *gin.Context) {
+	var res interface{}
+	result, err := h.service.GetTransactionStatistics(c.Request.Context())
+	if err != nil {
+		ErrorToHttpRes(err, c)
+		return
+	}
 
+	res = toDeliveryGetTransactionStatisticsRes(*result)
+
+	c.JSON(http.StatusOK, res)
 }
 
 // getStatistics
