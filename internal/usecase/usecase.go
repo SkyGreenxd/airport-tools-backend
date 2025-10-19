@@ -604,7 +604,7 @@ func (s *Service) GetMlErrorTransactions(ctx context.Context) ([]MlErrorTransact
 func (s *Service) GetAllTransactions(ctx context.Context) ([]*GetAllTransactions, error) {
 	const op = "usecase.GetAllTransactions"
 
-	users, err := s.userRepo.GetAllWithTransactions(ctx)
+	users, err := s.userRepo.GetAllEngineersWithTransactions(ctx)
 	if err != nil {
 		return nil, e.Wrap(op, err)
 	}
