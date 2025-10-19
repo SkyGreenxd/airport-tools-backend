@@ -60,7 +60,11 @@ func (t *TransactionResolutionsRepo) GetByQAId(ctx context.Context, qaId int64) 
 	const op = "TransactionResolutionsRepo.GetByQAId"
 
 	var models []*TransactionResolutionModel
-	result := t.DB.WithContext(ctx).Preload("Transaction.User").Find(&models, "qa_employee_id = ?", qaId)
+	result := t.DB.WithContext(ctx).
+		Preload("Transaction.User", func(db *gorm.DB) *gorm.DB {
+			return db.Order("updated_at DESC")
+		}).
+		Find(&models, "qa_employee_id = ?", qaId)
 	if err := checkGetQueryResult(result, e.ErrTransactionResolutionsNotFound); err != nil {
 		return nil, e.Wrap(op, err)
 	}
@@ -120,7 +124,11 @@ func (t *TransactionResolutionsRepo) GetMlErrorTransactions(ctx context.Context)
 	const op = "TransactionResolutionsRepo.GetMlErrorTransactions"
 
 	var models []*TransactionResolutionModel
-	result := t.DB.WithContext(ctx).Preload("Transaction.CvScans").Where("reason = ?", domain.ModelError).Find(&models)
+	result := t.DB.WithContext(ctx).
+		Preload("Transaction.CvScans", func(db *gorm.DB) *gorm.DB {
+			return db.Order("updated_at DESC")
+		}).
+		Where("reason = ?", domain.ModelError).Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}

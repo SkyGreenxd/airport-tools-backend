@@ -98,7 +98,12 @@ func (u *UserRepository) GetAllEngineersWithTransactions(ctx context.Context) ([
 	const op = "UserRepository.GetAllWithTransactions"
 
 	var models []*UserModel
-	result := u.DB.WithContext(ctx).Preload("Transactions").Where("role = ?", domain.Engineer).Find(&models)
+	result := u.DB.WithContext(ctx).
+		Preload("Transactions", func(db *gorm.DB) *gorm.DB {
+			return db.Order("updated_at DESC")
+		}).
+		Where("role = ?", domain.Engineer).
+		Find(&models)
 	if err := result.Error; err != nil {
 		return nil, e.Wrap(op, err)
 	}

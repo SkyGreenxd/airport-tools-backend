@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+type AddToolSetReq struct {
+	// TODO:
+}
+
 type GetUsersListTransactionsRes struct {
 	Transactions []*TransactionDTO
 	Avg          float64
