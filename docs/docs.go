@@ -308,7 +308,7 @@ const docTemplate = `{
                 "summary": "Возвращает наборы инструментов с ML-ошибками",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Наборы и инструментами с MODEL_ERR ошибками",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -317,13 +317,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Неверное тело запроса",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
                             "$ref": "#/definitions/v1.HTTPError"
                         }
