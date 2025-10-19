@@ -296,6 +296,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/qa/tools/new_set": {
+            "post": {
+                "description": "Принимает имя нового набора и список инструментов (их айди)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tools"
+                ],
+                "summary": "Создание нового набора инструментов",
+                "parameters": [
+                    {
+                        "description": "Запрос создание нового набора",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.AddToolSetReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Новый набор",
+                        "schema": {
+                            "$ref": "#/definitions/v1.AddToolSetRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверное тело запроса",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/v1.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/qa/transactions/": {
             "get": {
                 "description": "Возвращает список транзакций QA.\u003cbr\u003e Можно фильтровать по статусу с помощью query-параметра ` + "`" + `status` + "`" + `.\u003cbr\u003e Допустимое значение: 'qa' вернёт только транзакции, требующие проверки QA.\u003cbr\u003e Каждая транзакция содержит минимальные данные: ID, инженера, номер набора инструментов, дату создания транзакции, текущий статус.",
@@ -459,7 +505,7 @@ const docTemplate = `{
         },
         "/api/v1/users/check": {
             "post": {
-                "description": "Принимает имя нового набора и список инструментов (их айди)",
+                "description": "Принимает табельный номер инженера и фотографию инструментов в формате base64.\u003cbr\u003e Сервис анализирует изображение, сопоставляет инструменты с ожидаемым набором и возвращает: \u003cbr\u003e\u003cbr\u003e• URL обработанного изображения \u003cbr\u003e• четыре массива: \u003cbr\u003e1) access_tools — инструменты, прошедшие автоматическую проверку\u003cbr\u003e1) manual_check_tools — инструменты, требующие ручной проверки \u003cbr\u003e2) unknown_tools — инструменты, отсутствующие в ожидаемом наборе \u003cbr\u003e3) missing_tools — инструменты, отсутствующие на фотографии, но ожидаемые\u003cbr\u003e• transaction_type - тип транзакции(Checkin - Сдача/Checkout - Выдача)\u003cbr\u003e• status - статус транзакции(OPEN - открыта, CLOSED - закрыта, QA VERIFICATION - QA проверка)\u003cbr\u003e\u003cbr\u003e Если 4 или более инструментов не попали в access_tools или за 3 попытки сканирования транзакция не закрылась, устанавливается флаг \"QA ПРОВЕРКА\" (QA VERIFICATION). \u003cbr\u003e\u003cbr\u003eЭндпоинт используется как для выдачи инструментов инженеру, так и для их последующей сдачи.",
                 "consumes": [
                     "application/json"
                 ],
@@ -467,25 +513,25 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "tools"
+                    "users"
                 ],
-                "summary": "Создание нового набора инструментов",
+                "summary": "Операция выдачи/сдачи инструментов",
                 "parameters": [
                     {
-                        "description": "Запрос создание нового набора",
+                        "description": "Запрос на выдачу или сдачу инструментов",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.AddToolSetReq"
+                            "$ref": "#/definitions/v1.CheckReq"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Новый набор",
+                        "description": "Успешная проверка",
                         "schema": {
-                            "$ref": "#/definitions/v1.AddToolSetRes"
+                            "$ref": "#/definitions/v1.CheckRes"
                         }
                     },
                     "400": {
