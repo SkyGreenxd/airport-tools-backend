@@ -11,8 +11,8 @@ type GetAllWorkDurationRes struct {
 }
 
 type GetWorkDuration struct {
-	TransactionId int64         `json:"transaction_id"`
-	WorkDuration  time.Duration `json:"work_duration"`
+	TransactionId int64   `json:"transaction_id"`
+	WorkDuration  float64 `json:"work_duration"`
 }
 
 func toDeliveryGetAllWorkDurationRes(res *usecase.GetAllWorkDurationRes) GetAllWorkDurationRes {
