@@ -51,7 +51,7 @@ services:
 
   app:
     build:
-      context: . # Замените на backend при запуске всех контейнеров
+      context: backend
     container_name: go_backend
     ports:
       - "${HTTP_PORT}:${HTTP_PORT}"
